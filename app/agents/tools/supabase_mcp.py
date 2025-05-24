@@ -8,21 +8,37 @@ import asyncio
 import json
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 from dataclasses import dataclass
+from pathlib import Path
+
+# Agregar el directorio raíz al path para importaciones
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 # MCP imports
-from mcp import types
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
+try:
+    from mcp import types
+    from mcp.server import Server
+    from mcp.server.stdio import stdio_server
+except ImportError:
+    print("Error: mcp library not installed. Run: pip install mcp")
+    sys.exit(1)
 
 # Supabase CRM imports
-from app.supabase.supabase_client import SupabaseCRMClient
-from app.schemas.lead_schema import LeadCreate, LeadUpdate
-from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
-from app.schemas.messsage_schema import MessageCreate
+try:
+    from app.supabase.supabase_client import SupabaseCRMClient
+    from app.schemas.lead_schema import LeadCreate, LeadUpdate
+    from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
+    from app.schemas.messsage_schema import MessageCreate
+except ImportError as e:
+    # Fallback para testing
+    print(f"Warning: Could not import CRM modules: {e}")
+    print("This is normal during setup testing")
+    SupabaseCRMClient = None
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -58,6 +74,8 @@ def get_supabase_client() -> SupabaseCRMClient:
     """Obtener cliente de Supabase, crearlo si no existe"""
     global supabase_client
     if supabase_client is None:
+        if SupabaseCRMClient is None:
+            raise Exception("SupabaseCRMClient not available")
         config = SupabaseConfig.from_env()
         supabase_client = SupabaseCRMClient(config.supabase_url, config.supabase_key)
     return supabase_client
@@ -109,39 +127,6 @@ async def list_tools() -> List[types.Tool]:
             },
         ),
         types.Tool(
-            name="create_lead",
-            description="Crear un nuevo lead",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string", "description": "Nombre del lead"},
-                    "email": {"type": "string", "description": "Email del lead"},
-                    "company": {"type": "string", "description": "Empresa del lead"},
-                    "phone": {
-                        "type": ["string", "null"],
-                        "description": "Teléfono del lead",
-                    },
-                    "message": {
-                        "type": ["string", "null"],
-                        "description": "Mensaje del lead",
-                    },
-                    "source": {
-                        "type": ["string", "null"],
-                        "description": "Fuente del lead",
-                    },
-                    "utm_params": {
-                        "type": ["object", "null"],
-                        "description": "Parámetros UTM",
-                    },
-                    "metadata": {
-                        "type": ["object", "null"],
-                        "description": "Metadata adicional",
-                    },
-                },
-                "required": ["name", "email", "company"],
-            },
-        ),
-        types.Tool(
             name="update_lead",
             description="Actualizar un lead existente",
             inputSchema={
@@ -150,20 +135,6 @@ async def list_tools() -> List[types.Tool]:
                     "lead_id": {
                         "type": "string",
                         "description": "ID del lead a actualizar",
-                    },
-                    "name": {"type": ["string", "null"], "description": "Nuevo nombre"},
-                    "email": {"type": ["string", "null"], "description": "Nuevo email"},
-                    "company": {
-                        "type": ["string", "null"],
-                        "description": "Nueva empresa",
-                    },
-                    "phone": {
-                        "type": ["string", "null"],
-                        "description": "Nuevo teléfono",
-                    },
-                    "message": {
-                        "type": ["string", "null"],
-                        "description": "Nuevo mensaje",
                     },
                     "qualified": {
                         "type": ["boolean", "null"],
@@ -181,10 +152,6 @@ async def list_tools() -> List[types.Tool]:
                         "type": ["string", "null"],
                         "description": "Nuevo estado",
                     },
-                    "utm_params": {
-                        "type": ["object", "null"],
-                        "description": "Nuevos parámetros UTM",
-                    },
                     "metadata": {
                         "type": ["object", "null"],
                         "description": "Nueva metadata",
@@ -199,6 +166,10 @@ async def list_tools() -> List[types.Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
+                    "email": {
+                        "type": ["string", "null"],
+                        "description": "Filtrar por email",
+                    },
                     "status": {
                         "type": ["string", "null"],
                         "description": "Filtrar por estado",
@@ -207,41 +178,44 @@ async def list_tools() -> List[types.Tool]:
                         "type": ["boolean", "null"],
                         "description": "Filtrar por calificación",
                     },
-                    "contacted": {
-                        "type": ["boolean", "null"],
-                        "description": "Filtrar por contacto",
-                    },
-                    "meeting_scheduled": {
-                        "type": ["boolean", "null"],
-                        "description": "Filtrar por reunión",
-                    },
                     "limit": {
                         "type": ["integer", "null"],
                         "description": "Límite de resultados (default: 100)",
-                    },
-                    "offset": {
-                        "type": ["integer", "null"],
-                        "description": "Offset para paginación (default: 0)",
                     },
                 },
                 "required": [],
             },
         ),
         types.Tool(
-            name="delete_lead",
-            description="Eliminar un lead",
+            name="mark_lead_as_qualified",
+            description="Marcar un lead como calificado",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "lead_id": {
-                        "type": "string",
-                        "description": "ID del lead a eliminar",
-                    }
+                    "lead_id": {"type": "string", "description": "ID del lead"}
                 },
                 "required": ["lead_id"],
             },
         ),
         # ===================== CONVERSATIONS =====================
+        types.Tool(
+            name="list_conversations",
+            description="Listar conversaciones con filtros",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "lead_id": {
+                        "type": ["string", "null"],
+                        "description": "ID del lead",
+                    },
+                    "status": {
+                        "type": ["string", "null"],
+                        "description": "Estado de la conversación",
+                    },
+                },
+                "required": [],
+            },
+        ),
         types.Tool(
             name="create_conversation",
             description="Crear una nueva conversación para un lead",
@@ -266,42 +240,6 @@ async def list_tools() -> List[types.Tool]:
             },
         ),
         types.Tool(
-            name="get_conversation",
-            description="Obtener una conversación por ID",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "conversation_id": {
-                        "type": "string",
-                        "description": "ID de la conversación",
-                    }
-                },
-                "required": ["conversation_id"],
-            },
-        ),
-        types.Tool(
-            name="list_conversations",
-            description="Listar conversaciones con filtros",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "lead_id": {
-                        "type": ["string", "null"],
-                        "description": "ID del lead",
-                    },
-                    "status": {
-                        "type": ["string", "null"],
-                        "description": "Estado de la conversación",
-                    },
-                    "limit": {
-                        "type": ["integer", "null"],
-                        "description": "Límite de resultados",
-                    },
-                },
-                "required": [],
-            },
-        ),
-        types.Tool(
             name="update_conversation",
             description="Actualizar una conversación",
             inputSchema={
@@ -311,10 +249,6 @@ async def list_tools() -> List[types.Tool]:
                         "type": "string",
                         "description": "ID de la conversación",
                     },
-                    "agent_id": {
-                        "type": ["string", "null"],
-                        "description": "Nuevo agente",
-                    },
                     "status": {
                         "type": ["string", "null"],
                         "description": "Nuevo estado",
@@ -322,10 +256,6 @@ async def list_tools() -> List[types.Tool]:
                     "summary": {
                         "type": ["string", "null"],
                         "description": "Resumen de la conversación",
-                    },
-                    "channel": {
-                        "type": ["string", "null"],
-                        "description": "Nuevo canal",
                     },
                 },
                 "required": ["conversation_id"],
@@ -354,10 +284,6 @@ async def list_tools() -> List[types.Tool]:
                         "type": ["string", "null"],
                         "description": "Tipo de mensaje",
                     },
-                    "metadata": {
-                        "type": ["object", "null"],
-                        "description": "Metadata del mensaje",
-                    },
                 },
                 "required": ["conversation_id", "sender", "content"],
             },
@@ -371,27 +297,12 @@ async def list_tools() -> List[types.Tool]:
                     "conversation_id": {
                         "type": "string",
                         "description": "ID de la conversación",
-                    },
-                    "limit": {
-                        "type": ["integer", "null"],
-                        "description": "Límite de mensajes",
-                    },
+                    }
                 },
                 "required": ["conversation_id"],
             },
         ),
         # ===================== FUNCIONES ESPECÍFICAS DEL NEGOCIO =====================
-        types.Tool(
-            name="mark_lead_as_qualified",
-            description="Marcar un lead como calificado",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "lead_id": {"type": "string", "description": "ID del lead"}
-                },
-                "required": ["lead_id"],
-            },
-        ),
         types.Tool(
             name="mark_lead_as_contacted",
             description="Marcar un lead como contactado",
@@ -427,11 +338,6 @@ async def list_tools() -> List[types.Tool]:
             },
         ),
         types.Tool(
-            name="get_qualified_leads",
-            description="Obtener leads calificados que no han sido contactados",
-            inputSchema={"type": "object", "properties": {}, "required": []},
-        ),
-        types.Tool(
             name="get_active_conversations",
             description="Obtener conversaciones activas",
             inputSchema={
@@ -444,28 +350,6 @@ async def list_tools() -> List[types.Tool]:
                 },
                 "required": [],
             },
-        ),
-        types.Tool(
-            name="get_lead_with_conversations",
-            description="Obtener un lead con todas sus conversaciones",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "lead_id": {"type": "string", "description": "ID del lead"}
-                },
-                "required": ["lead_id"],
-            },
-        ),
-        # ===================== UTILIDADES =====================
-        types.Tool(
-            name="health_check",
-            description="Verificar el estado de la conexión a Supabase",
-            inputSchema={"type": "object", "properties": {}, "required": []},
-        ),
-        types.Tool(
-            name="get_stats",
-            description="Obtener estadísticas del CRM",
-            inputSchema={"type": "object", "properties": {}, "required": []},
         ),
     ]
 
@@ -499,18 +383,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 )
             ]
 
-        elif name == "create_lead":
-            # Filtrar argumentos None
-            lead_data_dict = {k: v for k, v in arguments.items() if v is not None}
-            lead_data = LeadCreate(**lead_data_dict)
-            result = await client.async_create_lead(lead_data)
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"✅ Lead creado exitosamente:\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
         elif name == "update_lead":
             lead_id = arguments.pop("lead_id")
             # Filtrar argumentos None
@@ -535,11 +407,27 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 )
             ]
 
-        elif name == "delete_lead":
-            result = await client.async_delete_lead(arguments["lead_id"])
-            return [types.TextContent(type="text", text=f"✅ Lead eliminado: {result}")]
+        elif name == "mark_lead_as_qualified":
+            result = await client.async_mark_lead_as_qualified(arguments["lead_id"])
+            return [
+                types.TextContent(
+                    type="text",
+                    text=f"✅ Lead marcado como calificado:\n{json.dumps(serialize_for_json(result), indent=2)}",
+                )
+            ]
 
         # ===================== CONVERSATIONS =====================
+        elif name == "list_conversations":
+            # Filtrar argumentos None
+            filter_args = {k: v for k, v in arguments.items() if v is not None}
+            result = await client.async_list_conversations(**filter_args)
+            return [
+                types.TextContent(
+                    type="text",
+                    text=f"💬 Conversaciones encontradas ({len(result)}):\n{json.dumps(serialize_for_json(result), indent=2)}",
+                )
+            ]
+
         elif name == "create_conversation":
             # Filtrar argumentos None
             conv_data_dict = {k: v for k, v in arguments.items() if v is not None}
@@ -549,28 +437,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 types.TextContent(
                     type="text",
                     text=f"✅ Conversación creada:\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
-        elif name == "get_conversation":
-            result = await client.async_get_conversation(arguments["conversation_id"])
-            return [
-                types.TextContent(
-                    type="text",
-                    text=json.dumps(
-                        serialize_for_json(result) if result else None, indent=2
-                    ),
-                )
-            ]
-
-        elif name == "list_conversations":
-            # Filtrar argumentos None
-            filter_args = {k: v for k, v in arguments.items() if v is not None}
-            result = await client.async_list_conversations(**filter_args)
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"💬 Conversaciones encontradas ({len(result)}):\n{json.dumps(serialize_for_json(result), indent=2)}",
                 )
             ]
 
@@ -601,9 +467,7 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
             ]
 
         elif name == "get_messages":
-            conversation_id = arguments["conversation_id"]
-            limit = arguments.get("limit", 100)
-            result = await client.async_get_messages(conversation_id, limit)
+            result = await client.async_get_messages(arguments["conversation_id"])
             return [
                 types.TextContent(
                     type="text",
@@ -612,15 +476,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
             ]
 
         # ===================== FUNCIONES ESPECÍFICAS DEL NEGOCIO =====================
-        elif name == "mark_lead_as_qualified":
-            result = await client.async_mark_lead_as_qualified(arguments["lead_id"])
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"✅ Lead marcado como calificado:\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
         elif name == "mark_lead_as_contacted":
             lead_id = arguments["lead_id"]
             contact_method = arguments.get("contact_method")
@@ -645,15 +500,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 )
             ]
 
-        elif name == "get_qualified_leads":
-            result = client.get_qualified_leads()
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"🎯 Leads calificados ({len(result)}):\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
         elif name == "get_active_conversations":
             lead_id = arguments.get("lead_id")
             result = client.get_active_conversations(lead_id)
@@ -661,34 +507,6 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 types.TextContent(
                     type="text",
                     text=f"💬 Conversaciones activas ({len(result)}):\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
-        elif name == "get_lead_with_conversations":
-            result = client.get_lead_with_conversations(arguments["lead_id"])
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"👤 Lead con conversaciones:\n{json.dumps(serialize_for_json(result), indent=2)}",
-                )
-            ]
-
-        # ===================== UTILIDADES =====================
-        elif name == "health_check":
-            result = await client.async_health_check()
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"🔍 Estado de Supabase:\n{json.dumps(result, indent=2)}",
-                )
-            ]
-
-        elif name == "get_stats":
-            result = client.get_stats()
-            return [
-                types.TextContent(
-                    type="text",
-                    text=f"📊 Estadísticas del CRM:\n{json.dumps(result, indent=2)}",
                 )
             ]
 
@@ -725,25 +543,7 @@ if __name__ == "__main__":
         print("\n2. Configurar variables de entorno:")
         print("   export SUPABASE_URL='https://tu-proyecto.supabase.co'")
         print("   export SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'")
-        print("\n3. Agregar a tu configuración MCP:")
-        print(
-            json.dumps(
-                {
-                    "mcpServers": {
-                        "supabase": {
-                            "command": "python",
-                            "args": [__file__],
-                            "env": {
-                                "SUPABASE_URL": "https://tu-proyecto.supabase.co",
-                                "SUPABASE_ANON_KEY": "tu_key_aqui",
-                            },
-                        }
-                    }
-                },
-                indent=2,
-            )
-        )
-        print("\n4. Ejecutar:")
-        print("   python supabase_mcp.py")
+        print("\n3. Ejecutar:")
+        print("   python app/agents/tools/supabase_mcp.py")
     else:
         asyncio.run(main())

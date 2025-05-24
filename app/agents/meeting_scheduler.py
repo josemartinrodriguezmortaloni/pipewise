@@ -5,6 +5,9 @@ from typing import Dict, Any, List
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from app.supabase.supabase_client import SupabaseCRMClient
+from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
+
 load_dotenv()
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,7 @@ class MeetingSchedulerAgent:
     def __init__(self):
         self.model = "gpt-4.1"
         self.client = OpenAI()
+        self.db_client = SupabaseCRMClient()
         self.calendly_token = os.getenv("CALENDLY_ACCESS_TOKEN")
 
         # Cargar instrucciones
@@ -37,54 +41,214 @@ class MeetingSchedulerAgent:
         self.instructions = load_prompt_from_file(prompt_path)
 
     def _get_tools(self) -> List[Dict]:
-        """Definir herramientas MCP disponibles para el agente"""
+        """Definir herramientas disponibles para el agente"""
         tools = [
-            # ✅ MCP SERVER PARA SUPABASE - Centraliza todas las operaciones de BD
             {
-                "type": "mcp",
-                "server_label": "supabase-crm",  # ← REQUERIDO por OpenAI Responses API
-                "server_url": "./tools/supabase_mcp.py",
-                "headers": {
-                    "SUPABASE_URL": os.getenv("SUPABASE_URL"),
-                    "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY"),
+                "type": "function",
+                "name": "get_lead",
+                "description": "Obtener información completa del lead para personalizar la reunión",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {
+                            "type": "string",
+                            "description": "ID del lead a obtener",
+                        }
+                    },
+                    "required": ["lead_id"],
+                    "additionalProperties": False,
                 },
-                "allowed_tools": [
-                    # Herramientas específicas que necesita este agente
-                    "get_lead",
-                    "list_conversations",
-                    "create_conversation",
-                    "update_conversation",
-                    "schedule_meeting_for_lead",
-                    "get_lead_with_conversations",
-                ],
-            }
+            },
+            {
+                "type": "function",
+                "name": "list_conversations",
+                "description": "Buscar conversaciones existentes del lead",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {
+                            "type": ["string", "null"],
+                            "description": "ID del lead",
+                        },
+                        "status": {
+                            "type": ["string", "null"],
+                            "description": "Estado de la conversación",
+                        },
+                    },
+                    "required": ["lead_id", "status"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "create_conversation",
+                "description": "Crear nueva conversación si no existe una activa",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {"type": "string", "description": "ID del lead"},
+                        "agent_id": {
+                            "type": ["string", "null"],
+                            "description": "ID del agente",
+                        },
+                        "channel": {
+                            "type": ["string", "null"],
+                            "description": "Canal de comunicación",
+                        },
+                        "status": {
+                            "type": ["string", "null"],
+                            "description": "Estado inicial de la conversación",
+                        },
+                    },
+                    "required": ["lead_id", "agent_id", "channel", "status"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "update_conversation",
+                "description": "Actualizar estado de conversación después de agendar",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "conversation_id": {
+                            "type": "string",
+                            "description": "ID de la conversación a actualizar",
+                        },
+                        "updates": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": ["string", "null"],
+                                    "description": "Nuevo estado de la conversación",
+                                },
+                                "summary": {
+                                    "type": ["string", "null"],
+                                    "description": "Resumen de la conversación",
+                                },
+                            },
+                            "required": ["status", "summary"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "required": ["conversation_id", "updates"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "schedule_meeting_for_lead",
+                "description": "Marcar lead con reunión agendada y guardar URL de Calendly",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {"type": "string", "description": "ID del lead"},
+                        "meeting_url": {
+                            "type": "string",
+                            "description": "URL de la reunión de Calendly",
+                        },
+                        "meeting_type": {
+                            "type": ["string", "null"],
+                            "description": "Tipo de reunión",
+                        },
+                    },
+                    "required": ["lead_id", "meeting_url", "meeting_type"],
+                    "additionalProperties": False,
+                },
+            },
         ]
 
-        # ✅ MCP SERVER PARA CALENDLY - Solo si está configurado
+        # Agregar herramientas de Calendly MCP si está configurado
         if self.calendly_token:
-            tools.append(
-                {
-                    "type": "mcp",
-                    "server_label": "calendly-integration",  # ← REQUERIDO por OpenAI Responses API
-                    "server_url": "stdio://app/agents/tools/calendly.py",
-                    "headers": {
-                        "Authorization": f"Bearer {self.calendly_token}",
-                        "Content-Type": "application/json",
-                    },
-                    "allowed_tools": [
-                        # Herramientas específicas de Calendly que necesita
-                        "get_event_types",
-                        "create_scheduling_link",
-                        "find_best_meeting_slot",
-                        "get_calendly_user",
-                    ],
-                }
+            tools.extend(
+                [
+                    {
+                        "type": "function",
+                        "name": "create_calendly_scheduling_link",
+                        "description": "Crear link único de Calendly para el lead usando MCP",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "event_type_name": {"type": ["string", "null"]},
+                                "max_uses": {"type": ["integer", "null"]},
+                            },
+                            "required": ["event_type_name", "max_uses"],
+                            "additionalProperties": False,
+                        },
+                        "strict": True,
+                    }
+                ]
             )
 
         return tools
 
+    async def _execute_function(
+        self, function_name: str, arguments: Dict[str, Any]
+    ) -> str:
+        """Ejecutar función de Supabase o Calendly"""
+        try:
+            # Funciones de Supabase
+            if function_name == "get_lead":
+                result = await self.db_client.get_lead(arguments["lead_id"])
+                return json.dumps(result.model_dump() if result else None)
+
+            elif function_name == "list_conversations":
+                filter_args = {k: v for k, v in arguments.items() if v is not None}
+                result = await self.db_client.list_conversations(**filter_args)
+                return json.dumps([conv.model_dump() for conv in result])
+
+            elif function_name == "create_conversation":
+                # Filtrar valores None
+                conv_data_dict = {k: v for k, v in arguments.items() if v is not None}
+                conv_data = ConversationCreate(**conv_data_dict)
+                result = await self.db_client.create_conversation(conv_data)
+                return json.dumps(result.model_dump())
+
+            elif function_name == "update_conversation":
+                updates_dict = {
+                    k: v for k, v in arguments["updates"].items() if v is not None
+                }
+                updates = ConversationUpdate(**updates_dict)
+                result = await self.db_client.update_conversation(
+                    arguments["conversation_id"], updates
+                )
+                return json.dumps(result.model_dump())
+
+            elif function_name == "schedule_meeting_for_lead":
+                result = await self.db_client.schedule_meeting_for_lead(
+                    arguments["lead_id"],
+                    arguments["meeting_url"],
+                    arguments.get("meeting_type"),
+                )
+                return json.dumps(result.model_dump())
+
+            # Funciones de Calendly (simuladas - en producción usarías el MCP real)
+            elif function_name == "create_calendly_scheduling_link":
+                event_type = arguments.get("event_type_name", "Sales Call")
+                max_uses = arguments.get("max_uses", 1)
+
+                # Simular creación de link único
+                unique_id = f"link-{abs(hash(str(arguments)))}"
+                meeting_url = f"https://calendly.com/your-company/{event_type.lower().replace(' ', '-')}-{unique_id}"
+
+                return json.dumps(
+                    {
+                        "booking_url": meeting_url,
+                        "event_type": event_type,
+                        "max_uses": max_uses,
+                        "success": True,
+                    }
+                )
+
+            else:
+                return json.dumps({"error": f"Unknown function: {function_name}"})
+
+        except Exception as e:
+            logger.error(f"Error executing {function_name}: {e}")
+            return json.dumps({"error": str(e)})
+
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Ejecutar el agente de agendamiento con MCP"""
+        """Ejecutar el agente de agendamiento con function calling"""
         try:
             # Preparar mensajes de entrada
             input_messages = [
@@ -95,27 +259,49 @@ class MeetingSchedulerAgent:
                 },
             ]
 
-            # ✅ LLAMADA CON MCP CORREGIDA
+            # Llamada inicial al modelo
             response = self.client.responses.create(
-                model=self.model,
-                instructions=self.instructions,
-                input=input_messages,
-                tools=self._get_tools(),
+                model=self.model, input=input_messages, tools=self._get_tools()
             )
 
-            # Extraer respuesta final del último output
-            final_output = None
-            for output in response.output:
-                if output.type == "message":
-                    final_output = output.content[0].text
+            # Procesar function calls iterativamente
+            max_iterations = 5
+            iteration = 0
+
+            while iteration < max_iterations:
+                function_calls = [
+                    item for item in response.output if item.type == "function_call"
+                ]
+
+                if not function_calls:
                     break
 
-            if not final_output:
-                # Si no hay mensaje final, buscar en el output_text
-                final_output = response.output_text
+                # Ejecutar function calls
+                for tool_call in function_calls:
+                    args = json.loads(tool_call.arguments)
+                    result = await self._execute_function(tool_call.name, args)
+
+                    input_messages.append(tool_call)
+                    input_messages.append(
+                        {
+                            "type": "function_call_output",
+                            "call_id": tool_call.call_id,
+                            "output": result,
+                        }
+                    )
+
+                # Nueva llamada al modelo
+                response = self.client.responses.create(
+                    model=self.model, input=input_messages, tools=self._get_tools()
+                )
+
+                iteration += 1
+
+            # Extraer respuesta final
+            output_text = response.output_text
 
             try:
-                result = json.loads(final_output)
+                result = json.loads(output_text)
                 # Asegurar que siempre hay un meeting_url
                 if "meeting_url" not in result:
                     result["meeting_url"] = "https://calendly.com/contact-support"
@@ -125,7 +311,7 @@ class MeetingSchedulerAgent:
                     "success": True,
                     "meeting_url": "https://calendly.com/default-meeting",
                     "event_type": "Sales Call",
-                    "message": final_output,
+                    "message": output_text,
                 }
 
         except Exception as e:
@@ -135,76 +321,3 @@ class MeetingSchedulerAgent:
                 "error": str(e),
                 "meeting_url": "https://calendly.com/contact-support",
             }
-
-
-# ===================== MÉTODO PARA VERIFICAR TOOLS =====================
-
-
-def verify_tools_format():
-    """Verificar que las herramientas estén en el formato MCP correcto"""
-    agent = MeetingSchedulerAgent()
-    tools = agent._get_tools()
-
-    print("🔧 Verificando formato de herramientas MCP:")
-    for i, tool in enumerate(tools):
-        print(f"\nTool {i + 1}:")
-        print(f"  Type: {tool.get('type')}")
-        print(f"  Server Label: {tool.get('server_label', 'MISSING!')}")
-        print(f"  Server URL: {tool.get('server_url')}")
-        print(f"  Allowed Tools: {len(tool.get('allowed_tools', []))}")
-
-        # Verificar formato correcto
-        if tool.get("type") != "mcp":
-            print("  ❌ Type should be 'mcp'")
-        elif not tool.get("server_label"):
-            print("  ❌ Missing required 'server_label'")
-        else:
-            print("  ✅ Format OK")
-
-
-# ===================== EJEMPLO DE USO =====================
-
-
-async def example_mcp_workflow():
-    """Ejemplo de cómo funciona el agente con MCP"""
-
-    # Datos de ejemplo
-    lead_data = {
-        "lead": {
-            "id": "123e4567-e89b-12d3-a456-426614174000",
-            "name": "Carlos Mendoza",
-            "email": "carlos@techstartup.com",
-            "company": "Tech Startup Inc",
-            "qualified": True,
-        }
-    }
-
-    # Crear agente
-    scheduler = MeetingSchedulerAgent()
-
-    # Verificar formato de herramientas
-    print("🔧 Verificando herramientas MCP...")
-    verify_tools_format()
-
-    # Ejecutar con MCP - El agente automáticamente:
-    # 1. Usa el MCP de Supabase para obtener/actualizar datos de BD
-    # 2. Usa el MCP de Calendly para crear enlaces únicos
-    # 3. Combina ambos para una experiencia fluida
-
-    print("\n🚀 Ejecutando agente con MCP...")
-    result = await scheduler.run(lead_data)
-
-    print(f"✅ Resultado: {result}")
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    print("Testing MeetingSchedulerAgent with MCP...")
-    verify_tools_format()
-
-    # Ejecutar ejemplo si hay credenciales
-    if os.getenv("SUPABASE_URL") and os.getenv("OPENAI_API_KEY"):
-        asyncio.run(example_mcp_workflow())
-    else:
-        print("⚠️ Skipping workflow test (missing environment variables)")

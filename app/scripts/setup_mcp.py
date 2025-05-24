@@ -8,6 +8,9 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def check_dependencies():
@@ -34,10 +37,10 @@ def check_dependencies():
 def check_environment():
     """Verificar variables de entorno"""
     required_vars = {
-        "SUPABASE_URL": "https://tu-proyecto.supabase.co",
-        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "OPENAI_API_KEY": "sk-...",
-        "CALENDLY_ACCESS_TOKEN": "eyJraWQiOiIxY2UxZTEzNjE3ZGNmNmRiY2... (opcional)",
+        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+        "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY"),
+        "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+        "CALENDLY_ACCESS_TOKEN": os.getenv("CALENDLY_ACCESS_TOKEN"),
     }
 
     print("\n🔧 Verificando variables de entorno:")
