@@ -249,6 +249,7 @@ class MeetingSchedulerAgent:
 
     def _execute_function(self, function_name: str, arguments: Dict[str, Any]) -> str:
         """Ejecutar función de Supabase o Calendly"""
+        logger.info(f"🔧 EXECUTING FUNCTION: {function_name} with args: {arguments}")
         try:
             # Funciones de Supabase/CRM
             if function_name == "get_lead_by_id":
@@ -400,14 +401,14 @@ class MeetingSchedulerAgent:
                             "location": event.get("location", {}).get("type", "N/A"),
                         }
                     )
-
+                logger.info(f"✅ FUNCTION RESULT: {function_name} -> {result[:100]}...")
                 return json.dumps(events)
 
             else:
                 return json.dumps({"error": f"Unknown function: {function_name}"})
 
         except Exception as e:
-            logger.error(f"Error executing {function_name}: {e}")
+            logger.error(f"❌ FUNCTION ERROR: {function_name} -> {str(e)}")
             return json.dumps({"error": str(e)})
 
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
