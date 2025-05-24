@@ -3,12 +3,19 @@ import json
 import logging
 from typing import Dict, Any, List
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from openai import OpenAI
 
 from app.supabase.supabase_client import SupabaseCRMClient
 from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
+
+# Importar el cliente de Calendly separado
+try:
+    from app.clients.calendly_client import CalendlyClient
+except ImportError:
+    # Fallback si no encuentra el archivo
+    from app.agents.tools.calendly import CalendlyClient
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -50,7 +57,9 @@ class MeetingSchedulerAgent:
         self.model = "gpt-4.1"
         self.client = OpenAI()
         self.db_client = SupabaseCRMClient()
-        self.calendly_token = os.getenv("CALENDLY_ACCESS_TOKEN")
+
+        # Inicializar cliente de Calendly (maneja automáticamente token/fallback)
+        self.calendly_client = CalendlyClient()
 
         # Cargar instrucciones
         prompt_path = os.path.join(
@@ -59,8 +68,9 @@ class MeetingSchedulerAgent:
         self.instructions = load_prompt_from_file(prompt_path)
 
     def _get_tools(self) -> List[Dict]:
-        """Definir herramientas disponibles para el agente - CORREGIDO"""
+        """Definir herramientas disponibles para el agente"""
         tools = [
+            # Herramientas de Supabase/CRM
             {
                 "type": "function",
                 "name": "get_lead_by_id",
@@ -117,21 +127,119 @@ class MeetingSchedulerAgent:
                     "additionalProperties": False,
                 },
             },
+            # Herramientas de Calendly
             {
                 "type": "function",
-                "name": "generate_meeting_url",
-                "description": "Generar URL de reunión personalizada",
+                "name": "get_calendly_user",
+                "description": "Obtener información del usuario actual de Calendly",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "get_calendly_event_types",
+                "description": "Obtener tipos de eventos disponibles para agendar en Calendly",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "get_calendly_available_times",
+                "description": "Obtener horarios disponibles para un tipo de evento específico",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "lead_id": {"type": "string", "description": "ID del lead"},
-                        "event_type": {
+                        "event_type_uri": {
                             "type": "string",
-                            "description": "Tipo de evento",
-                            "default": "Sales Call",
+                            "description": "URI del tipo de evento",
+                        },
+                        "days_ahead": {
+                            "type": "integer",
+                            "description": "Número de días hacia adelante para consultar (default: 7)",
+                            "default": 7,
                         },
                     },
-                    "required": ["lead_id"],
+                    "required": ["event_type_uri"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "create_calendly_scheduling_link",
+                "description": "Crear un link único de Calendly para que un lead pueda agendar una reunión",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "event_type_name": {
+                            "type": "string",
+                            "description": "Nombre del tipo de evento (ej: 'Sales Call', 'Demo')",
+                        },
+                        "event_type_uri": {
+                            "type": "string",
+                            "description": "URI del tipo de evento (opcional si se proporciona event_type_name)",
+                        },
+                        "max_uses": {
+                            "type": "integer",
+                            "description": "Máximo número de usos del link (default: 1)",
+                            "default": 1,
+                        },
+                    },
+                    "required": [],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "find_best_calendly_meeting_slot",
+                "description": "Encontrar el mejor horario disponible para agendar una reunión en Calendly",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "event_type_name": {
+                            "type": "string",
+                            "description": "Tipo de reunión (ej: 'Sales Call', 'Demo')",
+                        },
+                        "preferred_time": {
+                            "type": "string",
+                            "description": "Hora preferida (ej: 'morning', 'afternoon', 'evening')",
+                        },
+                        "days_ahead": {
+                            "type": "integer",
+                            "description": "Buscar en los próximos X días (default: 7)",
+                            "default": 7,
+                        },
+                    },
+                    "required": ["event_type_name"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "get_calendly_scheduled_events",
+                "description": "Obtener reuniones programadas en Calendly en un rango de fechas",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "days_ahead": {
+                            "type": "integer",
+                            "description": "Días hacia adelante para consultar (default: 30)",
+                            "default": 30,
+                        },
+                        "include_past": {
+                            "type": "boolean",
+                            "description": "Incluir eventos pasados (default: false)",
+                            "default": False,
+                        },
+                    },
+                    "required": [],
                     "additionalProperties": False,
                 },
             },
@@ -140,27 +248,25 @@ class MeetingSchedulerAgent:
         return tools
 
     def _execute_function(self, function_name: str, arguments: Dict[str, Any]) -> str:
-        """Ejecutar función de Supabase o Calendly - VERSIÓN CORREGIDA CON SERIALIZACIÓN UUID"""
+        """Ejecutar función de Supabase o Calendly"""
         try:
+            # Funciones de Supabase/CRM
             if function_name == "get_lead_by_id":
                 result = self.db_client.get_lead(arguments["lead_id"])
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result) if result else None)
 
             elif function_name == "create_conversation_for_lead":
-                # CORREGIDO: agent_id debe ser None, no string
                 lead_id = arguments["lead_id"]
                 channel = arguments.get("channel", "meeting_scheduler")
 
                 conv_data = ConversationCreate(
                     lead_id=lead_id,
-                    agent_id=None,  # CORREGIDO: None en lugar de string
+                    agent_id=None,
                     channel=channel,
                     status="meeting_scheduling",
                 )
 
                 result = self.db_client.create_conversation(conv_data)
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result))
 
             elif function_name == "schedule_meeting_for_lead":
@@ -171,33 +277,131 @@ class MeetingSchedulerAgent:
                 result = self.db_client.schedule_meeting_for_lead(
                     lead_id, meeting_url, meeting_type
                 )
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result))
 
-            elif function_name == "generate_meeting_url":
-                lead_id = arguments["lead_id"]
-                event_type = arguments.get("event_type", "Sales Call")
+            # Funciones de Calendly usando el cliente separado
+            elif function_name == "get_calendly_user":
+                result = self.calendly_client.get_current_user()
+                user_info = {
+                    "name": result["resource"]["name"],
+                    "email": result["resource"]["email"],
+                    "timezone": result["resource"]["timezone"],
+                    "uri": result["resource"]["uri"],
+                }
+                return json.dumps(user_info)
 
-                # Generar URL única basada en el lead
-                import hashlib
+            elif function_name == "get_calendly_event_types":
+                user_data = self.calendly_client.get_current_user()
+                user_uri = user_data["resource"]["uri"]
 
-                unique_hash = hashlib.md5(
-                    f"{lead_id}-{event_type}".encode()
-                ).hexdigest()[:8]
+                result = self.calendly_client.get_event_types(user_uri)
+                event_types = []
 
-                if self.calendly_token:
-                    meeting_url = f"https://calendly.com/your-company/{event_type.lower().replace(' ', '-')}-{unique_hash}"
-                else:
-                    meeting_url = f"https://calendly.com/sales-demo/{unique_hash}"
+                for event_type in result["collection"]:
+                    event_types.append(
+                        {
+                            "name": event_type["name"],
+                            "duration": event_type["duration"],
+                            "uri": event_type["uri"],
+                            "description": event_type.get("description_plain", ""),
+                            "active": event_type["active"],
+                        }
+                    )
+
+                return json.dumps(event_types)
+
+            elif function_name == "get_calendly_available_times":
+                event_type_uri = arguments["event_type_uri"]
+                days_ahead = arguments.get("days_ahead", 7)
+
+                start_time = datetime.now().isoformat()
+                end_time = (datetime.now() + timedelta(days=days_ahead)).isoformat()
+
+                result = self.calendly_client.get_available_times(
+                    event_type_uri, start_time, end_time
+                )
+
+                available_slots = []
+                for slot in result["collection"]:
+                    start_dt = datetime.fromisoformat(
+                        slot["start_time"].replace("Z", "+00:00")
+                    )
+                    available_slots.append(
+                        {
+                            "start_time": start_dt.strftime("%Y-%m-%d %H:%M"),
+                            "day_of_week": start_dt.strftime("%A"),
+                            "iso_time": slot["start_time"],
+                        }
+                    )
+
+                return json.dumps(available_slots)
+
+            elif function_name == "create_calendly_scheduling_link":
+                event_type_name = arguments.get("event_type_name", "Sales Call")
+                max_uses = arguments.get("max_uses", 1)
+                lead_id = arguments.get("lead_id", "unknown")
+
+                # Usar el método mejorado del cliente
+                result = self.calendly_client.create_personalized_link(
+                    lead_id, event_type_name, max_uses
+                )
 
                 return json.dumps(
                     {
-                        "meeting_url": meeting_url,
-                        "event_type": event_type,
-                        "unique_id": unique_hash,
-                        "success": True,
+                        "booking_url": result["booking_url"],
+                        "max_event_count": result["max_uses"],
+                        "owner_type": "EventType",
+                        "event_type": result["event_type"],
+                        "fallback": result.get("fallback", False),
                     }
                 )
+
+            elif function_name == "find_best_calendly_meeting_slot":
+                event_type_name = arguments["event_type_name"]
+                preferred_time = arguments.get("preferred_time", "")
+                days_ahead = arguments.get("days_ahead", 7)
+
+                # Usar el método mejorado del cliente
+                result = self.calendly_client.find_best_meeting_slot(
+                    event_type_name, preferred_time, days_ahead
+                )
+
+                return json.dumps(result)
+
+            elif function_name == "get_calendly_scheduled_events":
+                days_ahead = arguments.get("days_ahead", 30)
+                include_past = arguments.get("include_past", False)
+
+                user_data = self.calendly_client.get_current_user()
+                user_uri = user_data["resource"]["uri"]
+
+                if include_past:
+                    start_time = (datetime.now() - timedelta(days=30)).isoformat()
+                else:
+                    start_time = datetime.now().isoformat()
+
+                end_time = (datetime.now() + timedelta(days=days_ahead)).isoformat()
+
+                result = self.calendly_client.get_scheduled_events(
+                    user_uri, start_time, end_time
+                )
+
+                events = []
+                for event in result["collection"]:
+                    start_dt = datetime.fromisoformat(
+                        event["start_time"].replace("Z", "+00:00")
+                    )
+                    events.append(
+                        {
+                            "name": event["name"],
+                            "start_time": start_dt.strftime("%Y-%m-%d %H:%M"),
+                            "status": event["status"],
+                            "uuid": event["uri"].split("/")[-1],
+                            "location": event.get("location", {}).get("type", "N/A"),
+                        }
+                    )
+
+                return json.dumps(events)
 
             else:
                 return json.dumps({"error": f"Unknown function: {function_name}"})
@@ -277,16 +481,14 @@ class MeetingSchedulerAgent:
                         except:
                             pass
 
-                    elif tool_call.name == "generate_meeting_url":
+                    elif tool_call.name == "create_calendly_scheduling_link":
                         try:
                             result_data = json.loads(result)
-                            if "meeting_url" in result_data:
+                            if "booking_url" in result_data:
                                 meeting_result["meeting_url"] = result_data[
-                                    "meeting_url"
+                                    "booking_url"
                                 ]
-                                meeting_result["event_type"] = result_data.get(
-                                    "event_type", "Sales Call"
-                                )
+                                meeting_result["event_type"] = "Sales Call"
                         except:
                             pass
 
