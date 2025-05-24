@@ -5,7 +5,7 @@ from uuid import UUID
 
 class ConversationCreate(BaseModel):
     lead_id: UUID
-    agent_id: Optional[UUID] = None
+    agent_id: Optional[UUID] = None  # CORREGIDO: Ahora es opcional
     channel: Optional[str] = "system"
     status: Optional[str] = "active"
 

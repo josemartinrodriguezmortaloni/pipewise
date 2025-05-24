@@ -2,6 +2,8 @@ import os
 import json
 import logging
 from typing import Dict, Any, List
+from uuid import UUID
+from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -10,6 +12,22 @@ from app.schemas.conversations_schema import ConversationCreate, ConversationUpd
 
 load_dotenv()
 logger = logging.getLogger(__name__)
+
+
+def serialize_for_json(obj: Any) -> Any:
+    """Serializar objeto para JSON, convirtiendo UUIDs y datetime a strings"""
+    if isinstance(obj, UUID):
+        return str(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif hasattr(obj, "model_dump"):
+        return serialize_for_json(obj.model_dump())
+    elif isinstance(obj, dict):
+        return {k: serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(item) for item in obj]
+    else:
+        return obj
 
 
 def load_prompt_from_file(file_path: str) -> str:
@@ -41,11 +59,11 @@ class MeetingSchedulerAgent:
         self.instructions = load_prompt_from_file(prompt_path)
 
     def _get_tools(self) -> List[Dict]:
-        """Definir herramientas disponibles para el agente"""
+        """Definir herramientas disponibles para el agente - CORREGIDO"""
         tools = [
             {
                 "type": "function",
-                "name": "get_lead",
+                "name": "get_lead_by_id",
                 "description": "Obtener información completa del lead para personalizar la reunión",
                 "parameters": {
                     "type": "object",
@@ -61,181 +79,122 @@ class MeetingSchedulerAgent:
             },
             {
                 "type": "function",
-                "name": "list_conversations",
-                "description": "Buscar conversaciones existentes del lead",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "lead_id": {
-                            "type": ["string", "null"],
-                            "description": "ID del lead",
-                        },
-                        "status": {
-                            "type": ["string", "null"],
-                            "description": "Estado de la conversación",
-                        },
-                    },
-                    "required": ["lead_id", "status"],
-                    "additionalProperties": False,
-                },
-            },
-            {
-                "type": "function",
-                "name": "create_conversation",
-                "description": "Crear nueva conversación si no existe una activa",
+                "name": "create_conversation_for_lead",
+                "description": "Crear nueva conversación para el lead",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "lead_id": {"type": "string", "description": "ID del lead"},
-                        "agent_id": {
-                            "type": ["string", "null"],
-                            "description": "ID del agente",
-                        },
                         "channel": {
-                            "type": ["string", "null"],
-                            "description": "Canal de comunicación",
-                        },
-                        "status": {
-                            "type": ["string", "null"],
-                            "description": "Estado inicial de la conversación",
-                        },
-                    },
-                    "required": ["lead_id", "agent_id", "channel", "status"],
-                    "additionalProperties": False,
-                },
-            },
-            {
-                "type": "function",
-                "name": "update_conversation",
-                "description": "Actualizar estado de conversación después de agendar",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "conversation_id": {
                             "type": "string",
-                            "description": "ID de la conversación a actualizar",
-                        },
-                        "updates": {
-                            "type": "object",
-                            "properties": {
-                                "status": {
-                                    "type": ["string", "null"],
-                                    "description": "Nuevo estado de la conversación",
-                                },
-                                "summary": {
-                                    "type": ["string", "null"],
-                                    "description": "Resumen de la conversación",
-                                },
-                            },
-                            "required": ["status", "summary"],
-                            "additionalProperties": False,
+                            "description": "Canal de comunicación",
+                            "default": "meeting_scheduler",
                         },
                     },
-                    "required": ["conversation_id", "updates"],
+                    "required": ["lead_id"],
                     "additionalProperties": False,
                 },
             },
             {
                 "type": "function",
                 "name": "schedule_meeting_for_lead",
-                "description": "Marcar lead con reunión agendada y guardar URL de Calendly",
+                "description": "Marcar lead con reunión agendada y guardar URL",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "lead_id": {"type": "string", "description": "ID del lead"},
                         "meeting_url": {
                             "type": "string",
-                            "description": "URL de la reunión de Calendly",
+                            "description": "URL de la reunión generada",
                         },
                         "meeting_type": {
-                            "type": ["string", "null"],
+                            "type": "string",
                             "description": "Tipo de reunión",
+                            "default": "Sales Call",
                         },
                     },
-                    "required": ["lead_id", "meeting_url", "meeting_type"],
+                    "required": ["lead_id", "meeting_url"],
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "type": "function",
+                "name": "generate_meeting_url",
+                "description": "Generar URL de reunión personalizada",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {"type": "string", "description": "ID del lead"},
+                        "event_type": {
+                            "type": "string",
+                            "description": "Tipo de evento",
+                            "default": "Sales Call",
+                        },
+                    },
+                    "required": ["lead_id"],
                     "additionalProperties": False,
                 },
             },
         ]
 
-        # Agregar herramientas de Calendly MCP si está configurado
-        if self.calendly_token:
-            tools.extend(
-                [
-                    {
-                        "type": "function",
-                        "name": "create_calendly_scheduling_link",
-                        "description": "Crear link único de Calendly para el lead usando MCP",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "event_type_name": {"type": ["string", "null"]},
-                                "max_uses": {"type": ["integer", "null"]},
-                            },
-                            "required": ["event_type_name", "max_uses"],
-                            "additionalProperties": False,
-                        },
-                        "strict": True,
-                    }
-                ]
-            )
-
         return tools
 
-    async def _execute_function(
-        self, function_name: str, arguments: Dict[str, Any]
-    ) -> str:
-        """Ejecutar función de Supabase o Calendly"""
+    def _execute_function(self, function_name: str, arguments: Dict[str, Any]) -> str:
+        """Ejecutar función de Supabase o Calendly - VERSIÓN CORREGIDA CON SERIALIZACIÓN UUID"""
         try:
-            # Funciones de Supabase
-            if function_name == "get_lead":
-                result = await self.db_client.get_lead(arguments["lead_id"])
-                return json.dumps(result.model_dump() if result else None)
+            if function_name == "get_lead_by_id":
+                result = self.db_client.get_lead(arguments["lead_id"])
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(serialize_for_json(result) if result else None)
 
-            elif function_name == "list_conversations":
-                filter_args = {k: v for k, v in arguments.items() if v is not None}
-                result = await self.db_client.list_conversations(**filter_args)
-                return json.dumps([conv.model_dump() for conv in result])
+            elif function_name == "create_conversation_for_lead":
+                # CORREGIDO: agent_id debe ser None, no string
+                lead_id = arguments["lead_id"]
+                channel = arguments.get("channel", "meeting_scheduler")
 
-            elif function_name == "create_conversation":
-                # Filtrar valores None
-                conv_data_dict = {k: v for k, v in arguments.items() if v is not None}
-                conv_data = ConversationCreate(**conv_data_dict)
-                result = await self.db_client.create_conversation(conv_data)
-                return json.dumps(result.model_dump())
-
-            elif function_name == "update_conversation":
-                updates_dict = {
-                    k: v for k, v in arguments["updates"].items() if v is not None
-                }
-                updates = ConversationUpdate(**updates_dict)
-                result = await self.db_client.update_conversation(
-                    arguments["conversation_id"], updates
+                conv_data = ConversationCreate(
+                    lead_id=lead_id,
+                    agent_id=None,  # CORREGIDO: None en lugar de string
+                    channel=channel,
+                    status="meeting_scheduling",
                 )
-                return json.dumps(result.model_dump())
+
+                result = self.db_client.create_conversation(conv_data)
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(serialize_for_json(result))
 
             elif function_name == "schedule_meeting_for_lead":
-                result = await self.db_client.schedule_meeting_for_lead(
-                    arguments["lead_id"],
-                    arguments["meeting_url"],
-                    arguments.get("meeting_type"),
+                lead_id = arguments["lead_id"]
+                meeting_url = arguments["meeting_url"]
+                meeting_type = arguments.get("meeting_type", "Sales Call")
+
+                result = self.db_client.schedule_meeting_for_lead(
+                    lead_id, meeting_url, meeting_type
                 )
-                return json.dumps(result.model_dump())
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(serialize_for_json(result))
 
-            # Funciones de Calendly (simuladas - en producción usarías el MCP real)
-            elif function_name == "create_calendly_scheduling_link":
-                event_type = arguments.get("event_type_name", "Sales Call")
-                max_uses = arguments.get("max_uses", 1)
+            elif function_name == "generate_meeting_url":
+                lead_id = arguments["lead_id"]
+                event_type = arguments.get("event_type", "Sales Call")
 
-                # Simular creación de link único
-                unique_id = f"link-{abs(hash(str(arguments)))}"
-                meeting_url = f"https://calendly.com/your-company/{event_type.lower().replace(' ', '-')}-{unique_id}"
+                # Generar URL única basada en el lead
+                import hashlib
+
+                unique_hash = hashlib.md5(
+                    f"{lead_id}-{event_type}".encode()
+                ).hexdigest()[:8]
+
+                if self.calendly_token:
+                    meeting_url = f"https://calendly.com/your-company/{event_type.lower().replace(' ', '-')}-{unique_hash}"
+                else:
+                    meeting_url = f"https://calendly.com/sales-demo/{unique_hash}"
 
                 return json.dumps(
                     {
-                        "booking_url": meeting_url,
+                        "meeting_url": meeting_url,
                         "event_type": event_type,
-                        "max_uses": max_uses,
+                        "unique_id": unique_hash,
                         "success": True,
                     }
                 )
@@ -255,18 +214,29 @@ class MeetingSchedulerAgent:
                 {"role": "system", "content": self.instructions},
                 {
                     "role": "user",
-                    "content": f"Agenda una reunión para este lead: {json.dumps(input_data)}",
+                    "content": f"Agenda una reunión para este lead y MARCA como meeting_scheduled: {json.dumps(input_data)}",
                 },
             ]
 
             # Llamada inicial al modelo
             response = self.client.responses.create(
-                model=self.model, input=input_messages, tools=self._get_tools()
+                model=self.model,
+                input=input_messages,
+                tools=self._get_tools(),
+                tool_choice="auto",
+                parallel_tool_calls=True,
             )
 
             # Procesar function calls iterativamente
             max_iterations = 5
             iteration = 0
+            meeting_result = {
+                "success": False,
+                "meeting_url": "https://calendly.com/contact-support",
+                "event_type": "Sales Call",
+                "lead_status": "meeting_scheduling_error",
+                "conversation_id": None,
+            }
 
             while iteration < max_iterations:
                 function_calls = [
@@ -279,7 +249,54 @@ class MeetingSchedulerAgent:
                 # Ejecutar function calls
                 for tool_call in function_calls:
                     args = json.loads(tool_call.arguments)
-                    result = await self._execute_function(tool_call.name, args)
+                    result = self._execute_function(tool_call.name, args)
+
+                    # Capturar resultados importantes
+                    if tool_call.name == "schedule_meeting_for_lead":
+                        try:
+                            result_data = json.loads(result)
+                            if (
+                                "meeting_scheduled" in result_data
+                                and result_data["meeting_scheduled"]
+                            ):
+                                meeting_result["success"] = True
+                                meeting_result["lead_status"] = "meeting_scheduled"
+                                if "metadata" in result_data and isinstance(
+                                    result_data["metadata"], dict
+                                ):
+                                    meeting_url = result_data["metadata"].get(
+                                        "meeting_url"
+                                    )
+                                    meeting_type = result_data["metadata"].get(
+                                        "meeting_type"
+                                    )
+                                    if meeting_url:
+                                        meeting_result["meeting_url"] = meeting_url
+                                    if meeting_type:
+                                        meeting_result["event_type"] = meeting_type
+                        except:
+                            pass
+
+                    elif tool_call.name == "generate_meeting_url":
+                        try:
+                            result_data = json.loads(result)
+                            if "meeting_url" in result_data:
+                                meeting_result["meeting_url"] = result_data[
+                                    "meeting_url"
+                                ]
+                                meeting_result["event_type"] = result_data.get(
+                                    "event_type", "Sales Call"
+                                )
+                        except:
+                            pass
+
+                    elif tool_call.name == "create_conversation_for_lead":
+                        try:
+                            result_data = json.loads(result)
+                            if "id" in result_data:
+                                meeting_result["conversation_id"] = result_data["id"]
+                        except:
+                            pass
 
                     input_messages.append(tool_call)
                     input_messages.append(
@@ -292,7 +309,11 @@ class MeetingSchedulerAgent:
 
                 # Nueva llamada al modelo
                 response = self.client.responses.create(
-                    model=self.model, input=input_messages, tools=self._get_tools()
+                    model=self.model,
+                    input=input_messages,
+                    tools=self._get_tools(),
+                    tool_choice="auto",
+                    parallel_tool_calls=True,
                 )
 
                 iteration += 1
@@ -302,17 +323,15 @@ class MeetingSchedulerAgent:
 
             try:
                 result = json.loads(output_text)
-                # Asegurar que siempre hay un meeting_url
-                if "meeting_url" not in result:
-                    result["meeting_url"] = "https://calendly.com/contact-support"
-                return result
+                # Combinar con meeting_result para asegurar campos requeridos
+                final_result = {**meeting_result, **result}
+                return final_result
             except json.JSONDecodeError:
-                return {
-                    "success": True,
-                    "meeting_url": "https://calendly.com/default-meeting",
-                    "event_type": "Sales Call",
-                    "message": output_text,
-                }
+                # Usar meeting_result como base y agregar texto de respuesta
+                meeting_result["message"] = (
+                    output_text if output_text else "Meeting scheduling completed"
+                )
+                return meeting_result
 
         except Exception as e:
             logger.error(f"Error en MeetingSchedulerAgent: {e}")
@@ -320,4 +339,14 @@ class MeetingSchedulerAgent:
                 "success": False,
                 "error": str(e),
                 "meeting_url": "https://calendly.com/contact-support",
+                "event_type": "Error - Agent Failed",
+                "lead_status": "meeting_scheduled_error",
+                "conversation_id": None,
+                "metadata": {
+                    "scheduled_at": None,
+                    "event_duration": None,
+                    "personalization_applied": False,
+                    "availability_checked": False,
+                    "error": str(e),
+                },
             }

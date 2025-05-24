@@ -301,6 +301,16 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("get_messages", e)
 
+    def get_messages_with_filters(self, **kwargs) -> List[Message]:
+        """Método alternativo para obtener mensajes con argumentos keyword"""
+        conversation_id = kwargs.get("conversation_id")
+        limit = kwargs.get("limit", 100)
+
+        if not conversation_id:
+            raise ValueError("conversation_id is required")
+
+        return self.get_messages(conversation_id, limit)
+
     # ===================== FUNCIONES ESPECÍFICAS DEL NEGOCIO =====================
 
     def get_qualified_leads(self) -> List[Lead]:

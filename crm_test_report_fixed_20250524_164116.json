@@ -1,0 +1,224 @@
+{
+  "tests": [
+    {
+      "test": "SUPABASE_URL",
+      "status": "PASS",
+      "message": "Found: https://jq...",
+      "timestamp": "2025-05-24T16:40:40.092165"
+    },
+    {
+      "test": "SUPABASE_ANON_KEY",
+      "status": "PASS",
+      "message": "Found: eyJhbGciOi...",
+      "timestamp": "2025-05-24T16:40:40.092165"
+    },
+    {
+      "test": "OPENAI_API_KEY",
+      "status": "PASS",
+      "message": "Found: sk-proj-wB...",
+      "timestamp": "2025-05-24T16:40:40.092165"
+    },
+    {
+      "test": "CALENDLY_ACCESS_TOKEN",
+      "status": "PASS",
+      "message": "Found: eyJraWQiOi...",
+      "timestamp": "2025-05-24T16:40:40.092165"
+    },
+    {
+      "test": "Supabase Client Init",
+      "status": "PASS",
+      "message": "Client created successfully",
+      "timestamp": "2025-05-24T16:40:40.425587"
+    },
+    {
+      "test": "Health Check",
+      "status": "PASS",
+      "message": "Database connection OK",
+      "timestamp": "2025-05-24T16:40:41.089181"
+    },
+    {
+      "test": "Basic Query",
+      "status": "PASS",
+      "message": "Query executed, found 0 leads",
+      "timestamp": "2025-05-24T16:40:41.307048"
+    },
+    {
+      "test": "Stats Query",
+      "status": "PASS",
+      "message": "Stats retrieved, total leads: 0, qualified: 0, contacted: 0, meetings: 0, conversations: 0 (active: 0)",
+      "timestamp": "2025-05-24T16:40:42.636138"
+    },
+    {
+      "test": "LeadAgent Init",
+      "status": "PASS",
+      "message": "Agent initialized",
+      "timestamp": "2025-05-24T16:40:43.118829"
+    },
+    {
+      "test": "LeadAgent Tools",
+      "status": "PASS",
+      "message": "Found 4 function calling tools",
+      "timestamp": "2025-05-24T16:40:43.119829"
+    },
+    {
+      "test": "OutboundAgent Init",
+      "status": "PASS",
+      "message": "Agent initialized",
+      "timestamp": "2025-05-24T16:40:43.587442"
+    },
+    {
+      "test": "OutboundAgent Tools",
+      "status": "PASS",
+      "message": "Found 3 function calling tools",
+      "timestamp": "2025-05-24T16:40:43.587442"
+    },
+    {
+      "test": "MeetingSchedulerAgent Init",
+      "status": "PASS",
+      "message": "Agent initialized",
+      "timestamp": "2025-05-24T16:40:44.059082"
+    },
+    {
+      "test": "MeetingSchedulerAgent Tools",
+      "status": "PASS",
+      "message": "Found 4 function calling tools",
+      "timestamp": "2025-05-24T16:40:44.060082"
+    },
+    {
+      "test": "Create Lead Operation",
+      "status": "PASS",
+      "message": "Lead created with ID: c807dee0-67f4-44d4-a1b5-ba346115c497",
+      "timestamp": "2025-05-24T16:40:44.873935"
+    },
+    {
+      "test": "Get Lead Operation",
+      "status": "PASS",
+      "message": "Lead retrieved successfully",
+      "timestamp": "2025-05-24T16:40:45.098968"
+    },
+    {
+      "test": "Get Lead by Email",
+      "status": "PASS",
+      "message": "Lead found by email",
+      "timestamp": "2025-05-24T16:40:45.351721"
+    },
+    {
+      "test": "Mark Lead Qualified",
+      "status": "PASS",
+      "message": "Lead marked as qualified",
+      "timestamp": "2025-05-24T16:40:45.610216"
+    },
+    {
+      "test": "Delete Test Lead",
+      "status": "PASS",
+      "message": "Test lead cleaned up",
+      "timestamp": "2025-05-24T16:40:45.855744"
+    },
+    {
+      "test": "Agents System Init",
+      "status": "PASS",
+      "message": "Agents system initialized",
+      "timestamp": "2025-05-24T16:40:47.506202"
+    },
+    {
+      "test": "Complete Workflow",
+      "status": "PASS",
+      "message": "Lead ID: 3caba4e7-15f0-4d61-b45d-98a72bb0ab73, Qualified: True",
+      "timestamp": "2025-05-24T16:41:11.563509"
+    },
+    {
+      "test": "Lead Qualification",
+      "status": "PASS",
+      "message": "Lead qualified successfully",
+      "timestamp": "2025-05-24T16:41:11.563509"
+    },
+    {
+      "test": "Outbound Contact",
+      "status": "PASS",
+      "message": "Message: Hola Carlos, gracias por contactarnos desde Test T...",
+      "timestamp": "2025-05-24T16:41:11.564579"
+    },
+    {
+      "test": "Meeting Scheduling",
+      "status": "PASS",
+      "message": "Type: Sales Call, URL: https://calendly.com/your-company/sales-call-d48f5f34",
+      "timestamp": "2025-05-24T16:41:11.564579"
+    },
+    {
+      "test": "Lead Persistence",
+      "status": "PASS",
+      "message": "Lead found in database: test.lead.20250524164047@testcompany.com",
+      "timestamp": "2025-05-24T16:41:12.369104"
+    },
+    {
+      "test": "Lead Status Update",
+      "status": "PASS",
+      "message": "Lead marked as qualified",
+      "timestamp": "2025-05-24T16:41:12.369104"
+    },
+    {
+      "test": "Contact Status Update",
+      "status": "PASS",
+      "message": "Lead marked as contacted",
+      "timestamp": "2025-05-24T16:41:12.369104"
+    },
+    {
+      "test": "Meeting Status Update",
+      "status": "PASS",
+      "message": "Meeting scheduled",
+      "timestamp": "2025-05-24T16:41:12.369104"
+    },
+    {
+      "test": "Conversation Creation",
+      "status": "PASS",
+      "message": "Found 1 conversations",
+      "timestamp": "2025-05-24T16:41:12.596569"
+    },
+    {
+      "test": "Test Lead Deletion",
+      "status": "FAIL",
+      "message": "Error deleting lead: {'message': 'update or delete on table \"leads\" violates foreign key constraint \"conversations_lead_id_fkey\" on table \"conversations\"', 'code': '23503', 'hint': None, 'details': 'Key is still referenced from table \"conversations\".'}",
+      "timestamp": "2025-05-24T16:41:14.917666"
+    },
+    {
+      "test": "Stats Consistency",
+      "status": "PASS",
+      "message": "Lead count updated: 1 -> 1",
+      "timestamp": "2025-05-24T16:41:16.401704"
+    }
+  ],
+  "summary": {
+    "overall_status": "\u26a0\ufe0f WARNING",
+    "total_passed": 30,
+    "total_failed": 1,
+    "failed_tests": [
+      "   \u2022 Test Lead Deletion - Error deleting lead: {'message': 'update or delete on table \"leads\" violates foreign key constraint \"conversations_lead_id_fkey\" on table \"conversations\"', 'code': '23503', 'hint': None, 'details': 'Key is still referenced from table \"conversations\".'}"
+    ],
+    "category_results": {
+      "ENVIRONMENT": {
+        "passed": true,
+        "error": null
+      },
+      "DATABASE": {
+        "passed": true,
+        "error": null
+      },
+      "AGENTS": {
+        "passed": true,
+        "error": null
+      },
+      "SUPABASE_OPS": {
+        "passed": true,
+        "error": null
+      },
+      "WORKFLOW": {
+        "passed": true,
+        "error": null
+      },
+      "CLEANUP": {
+        "passed": true,
+        "error": null
+      }
+    }
+  }
+}

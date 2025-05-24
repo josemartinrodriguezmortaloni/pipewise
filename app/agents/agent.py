@@ -28,85 +28,84 @@ logger = logging.getLogger(__name__)
 
 class LeadProcessor:
     """
-    Procesador principal de leads con agentes que usan MCP automático
+    Procesador principal de leads con agentes corregidos
     """
 
     def __init__(self):
         # Inicializar cliente de Supabase
         self.db_client = SupabaseCRMClient()
 
-        # Inicializar agentes con MCP
+        # Inicializar agentes corregidos
         self.lead_qualifier = LeadAgent()
         self.outbound_agent = OutboundAgent()
         self.meeting_scheduler = MeetingSchedulerAgent()
 
-        logger.info("LeadProcessor initialized with MCP agents")
+        logger.info("LeadProcessor initialized with corrected agents")
 
     async def process_lead_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Flujo completo del procesamiento de leads - AHORA CON MCP AUTOMÁTICO
-
-        Los agentes ahora manejan automáticamente:
-        - Consultas a la base de datos vía MCP Supabase
-        - Actualizaciones de estado
-        - Creación de conversaciones y mensajes
-        - Integración con Calendly vía MCP
+        Flujo completo del procesamiento de leads - CORREGIDO
         """
         try:
             logger.info(
                 f"🚀 Iniciando workflow automatizado para lead: {lead_data.get('email')}"
             )
 
-            # PASO 1: ¿Lead existe? (ahora automático via MCP)
+            # PASO 1: ¿Lead existe?
             existing_lead = await self._check_lead_exists(lead_data)
 
             if existing_lead:
-                # PASO 2a: get_lead
                 logger.info(f"✅ Lead existente encontrado: {existing_lead.id}")
                 current_lead = existing_lead
             else:
-                # PASO 2b: insert_lead
                 logger.info("📝 Creando nuevo lead...")
                 current_lead = await self._create_new_lead(lead_data)
 
-            # PASO 3: LeadProcessor (ya estamos aquí)
-            logger.info(f"🔍 Procesando lead con agentes MCP: {current_lead.id}")
+            logger.info(f"🔍 Procesando lead: {current_lead.id}")
 
-            # PASO 4: lead_qualifier - AHORA CON MCP AUTOMÁTICO
-            logger.info("🎯 Ejecutando calificación automática con MCP...")
-            qualification_result = await self._qualify_lead_automated(current_lead)
+            # PASO 2: Calificación de lead - CORREGIDO
+            logger.info("🎯 Ejecutando calificación...")
+            qualification_result = await self._qualify_lead_corrected(current_lead)
 
-            if not qualification_result["qualified"]:
-                # PASO 5a: update_lead: qualified=False (FIN) - YA MANEJADO POR MCP
-                logger.info("❌ Lead no calificado por el agente automático")
+            if not qualification_result.get("qualified", False):
+                logger.info("❌ Lead no calificado")
                 return {
                     "status": "completed",
                     "lead_id": str(current_lead.id),
                     "qualified": False,
-                    "reason": qualification_result.get("reason"),
+                    "reason": qualification_result.get(
+                        "reason", "No qualification reason"
+                    ),
                     "workflow_completed": True,
                 }
 
-            # PASO 5b: Lead calificado - AGENTE YA ACTUALIZÓ VIA MCP
-            logger.info("✅ Lead calificado automáticamente, continuando workflow...")
+            logger.info("✅ Lead calificado, continuando workflow...")
 
-            # PASO 6-9: outbound_contact - AHORA MANEJA TODO AUTOMÁTICAMENTE VIA MCP
-            logger.info("📞 Ejecutando contacto outbound automatizado...")
-            outbound_result = await self._execute_outbound_automated(current_lead)
+            # PASO 3: Contacto outbound - CORREGIDO
+            logger.info("📞 Ejecutando contacto outbound...")
+            outbound_result = await self._execute_outbound_corrected(current_lead)
 
-            # PASO 10-11: meeting_scheduler - AHORA MANEJA TODO VIA MCP + CALENDLY
-            logger.info("📅 Ejecutando agendamiento automatizado...")
-            meeting_result = await self._schedule_meeting_automated(current_lead)
+            # PASO 4: Agendamiento de reunión - CORREGIDO
+            logger.info("📅 Ejecutando agendamiento...")
+            meeting_result = await self._schedule_meeting_corrected(current_lead)
 
-            # PASO 12: Fin OK - TODO AUTOMATIZADO VIA MCP
-            logger.info("🏁 Workflow completado automáticamente")
+            logger.info("🏁 Workflow completado")
+
+            # PASO 5: Verificar estados finales en base de datos
+            final_lead = self.db_client.get_lead(current_lead.id)
 
             return {
                 "status": "completed",
                 "lead_id": str(current_lead.id),
-                "qualified": True,
-                "contacted": True,
-                "meeting_scheduled": True,
+                "qualified": final_lead.qualified
+                if final_lead
+                else qualification_result.get("qualified", False),
+                "contacted": final_lead.contacted
+                if final_lead
+                else outbound_result.get("success", False),
+                "meeting_scheduled": final_lead.meeting_scheduled
+                if final_lead
+                else meeting_result.get("success", False),
                 "meeting_url": meeting_result.get("meeting_url"),
                 "outbound_message": outbound_result.get("message"),
                 "event_type": meeting_result.get("event_type"),
@@ -114,7 +113,7 @@ class LeadProcessor:
             }
 
         except Exception as e:
-            logger.error(f"❌ Error en workflow automatizado: {str(e)}")
+            logger.error(f"❌ Error en workflow: {str(e)}")
             return {"status": "error", "error": str(e), "workflow_completed": False}
 
     async def _check_lead_exists(self, lead_data: Dict[str, Any]) -> Optional[Any]:
@@ -123,7 +122,8 @@ class LeadProcessor:
         if not email:
             return None
 
-        return await self.db_client.async_get_lead_by_email(email)
+        # CORREGIDO: Usar método síncrono
+        return self.db_client.get_lead_by_email(email)
 
     async def _create_new_lead(self, lead_data: Dict[str, Any]) -> Any:
         """Crear un nuevo lead en la base de datos"""
@@ -138,15 +138,12 @@ class LeadProcessor:
             metadata=lead_data.get("metadata", {}),
         )
 
-        return await self.db_client.async_create_lead(lead_create)
+        # CORREGIDO: Usar método síncrono
+        return self.db_client.create_lead(lead_create)
 
-    async def _qualify_lead_automated(self, lead: Any) -> Dict[str, Any]:
+    async def _qualify_lead_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Calificación automatizada con MCP
-        El agente maneja automáticamente vía MCP:
-        - Buscar leads duplicados
-        - Actualizar estado de calificación
-        - Registrar metadata
+        Calificación corregida que actualiza la base de datos
         """
         try:
             # Preparar datos para el agente
@@ -161,27 +158,31 @@ class LeadProcessor:
                 "metadata": lead.metadata or {},
             }
 
-            # El agente maneja TODO automáticamente via MCP
+            # El agente corregido debe actualizar la base de datos
             qualification_result = await self.lead_qualifier.run(lead_input)
 
-            logger.info(f"Resultado de calificación automática: {qualification_result}")
+            logger.info(f"Resultado de calificación: {qualification_result}")
+
+            # Verificar que realmente se actualizó en la base de datos
+            updated_lead = self.db_client.get_lead(lead.id)
+            if updated_lead and updated_lead.qualified != lead.qualified:
+                logger.info("✅ Estado de calificación actualizado en BD")
+                qualification_result["database_updated"] = True
+            else:
+                logger.warning("⚠️ Estado de calificación NO actualizado en BD")
+                qualification_result["database_updated"] = False
+
             return qualification_result
 
         except Exception as e:
-            logger.error(f"Error en calificación automatizada: {e}")
+            logger.error(f"Error en calificación: {e}")
             return {"qualified": False, "reason": f"Error en calificación: {str(e)}"}
 
-    async def _execute_outbound_automated(self, lead: Any) -> Dict[str, Any]:
+    async def _execute_outbound_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Contacto outbound automatizado con MCP
-        El agente maneja automáticamente vía MCP:
-        - Obtener info del lead
-        - Buscar/crear conversación
-        - Crear mensaje personalizado
-        - Marcar como contactado
+        Contacto outbound corregido que actualiza la base de datos
         """
         try:
-            # El agente necesita mínima información
             contact_input = {
                 "lead": {
                     "id": str(lead.id),
@@ -193,33 +194,35 @@ class LeadProcessor:
                 },
             }
 
-            # El agente maneja TODO automáticamente via MCP
+            # El agente corregido debe marcar como contactado
             outbound_result = await self.outbound_agent.run(contact_input)
 
-            logger.info(f"Resultado de contacto automatizado: {outbound_result}")
+            logger.info(f"Resultado de contacto: {outbound_result}")
+
+            # Verificar que realmente se actualizó en la base de datos
+            updated_lead = self.db_client.get_lead(lead.id)
+            if updated_lead and updated_lead.contacted != lead.contacted:
+                logger.info("✅ Estado de contacto actualizado en BD")
+                outbound_result["database_updated"] = True
+            else:
+                logger.warning("⚠️ Estado de contacto NO actualizado en BD")
+                outbound_result["database_updated"] = False
+
             return outbound_result
 
         except Exception as e:
-            logger.error(f"Error en contacto automatizado: {e}")
+            logger.error(f"Error en contacto: {e}")
             return {
                 "success": False,
                 "error": str(e),
-                "contact_method": "failed",
-                "message": f"Error en contacto automatizado: {str(e)}",
+                "message": f"Error en contacto: {str(e)}",
             }
 
-    async def _schedule_meeting_automated(self, lead: Any) -> Dict[str, Any]:
+    async def _schedule_meeting_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Agendamiento automatizado con MCP Supabase + MCP Calendly
-        El agente maneja automáticamente vía MCP:
-        - Obtener lead y conversaciones
-        - Crear/actualizar conversación
-        - Integrar con Calendly para crear link único
-        - Marcar reunión como agendada
-        - Actualizar estado de conversación
+        Agendamiento corregido que actualiza la base de datos
         """
         try:
-            # Preparar datos para el agente
             meeting_input = {
                 "lead": {
                     "id": str(lead.id),
@@ -231,14 +234,27 @@ class LeadProcessor:
                 },
             }
 
-            # El agente maneja TODO automáticamente via MCP
+            # El agente corregido debe marcar reunión como agendada
             meeting_result = await self.meeting_scheduler.run(meeting_input)
 
-            logger.info(f"Resultado de agendamiento automatizado: {meeting_result}")
+            logger.info(f"Resultado de agendamiento: {meeting_result}")
+
+            # Verificar que realmente se actualizó en la base de datos
+            updated_lead = self.db_client.get_lead(lead.id)
+            if (
+                updated_lead
+                and updated_lead.meeting_scheduled != lead.meeting_scheduled
+            ):
+                logger.info("✅ Estado de reunión actualizado en BD")
+                meeting_result["database_updated"] = True
+            else:
+                logger.warning("⚠️ Estado de reunión NO actualizado en BD")
+                meeting_result["database_updated"] = False
+
             return meeting_result
 
         except Exception as e:
-            logger.error(f"Error en agendamiento automatizado: {e}")
+            logger.error(f"Error en agendamiento: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -246,48 +262,39 @@ class LeadProcessor:
             }
 
 
-# ===================== CLASE PRINCIPAL DE AGENTES - ACTUALIZADA PARA MCP =====================
+# ===================== CLASE PRINCIPAL DE AGENTES - ACTUALIZADA =====================
 
 
 class Agents:
     """
-    Clase principal que orquesta todos los agentes del sistema
-    AHORA CON MCP AUTOMÁTICO
+    Clase principal que orquesta todos los agentes del sistema - CORREGIDA
     """
 
     def __init__(self) -> None:
         self.lead_processor = LeadProcessor()
-        logger.info("Agents system initialized with automated MCP")
+        logger.info("Agents system initialized with corrected workflow")
 
     async def run_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Ejecutar el workflow completo para un lead
-        AHORA COMPLETAMENTE AUTOMATIZADO VIA MCP
-
-        Args:
-            lead_data: Datos del lead (desde POST /leads)
-
-        Returns:
-            Resultado del procesamiento automatizado
+        Ejecutar el workflow completo para un lead - CORREGIDO
         """
         return await self.lead_processor.process_lead_workflow(lead_data)
 
-    # Método síncrono para compatibilidad con código existente
     def run_workflow_sync(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Versión síncrona del workflow automatizado"""
+        """Versión síncrona del workflow"""
         return asyncio.run(self.run_workflow(lead_data))
 
     async def get_lead_status(self, lead_id: str) -> Dict[str, Any]:
         """Obtener estado actual de un lead"""
         try:
-            lead = await self.lead_processor.db_client.async_get_lead(lead_id)
+            # CORREGIDO: Usar método síncrono
+            lead = self.lead_processor.db_client.get_lead(lead_id)
             if not lead:
                 return {"error": "Lead not found"}
 
-            conversations = (
-                await self.lead_processor.db_client.async_list_conversations(
-                    lead_id=lead.id
-                )
+            # CORREGIDO: Usar método síncrono
+            conversations = self.lead_processor.db_client.list_conversations(
+                lead_id=lead.id
             )
 
             return {
@@ -304,22 +311,23 @@ class Agents:
 
     async def get_system_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del sistema"""
-        return await self.lead_processor.db_client.async_health_check()
+        # CORREGIDO: Usar método síncrono
+        return self.lead_processor.db_client.get_stats()
 
 
-# ===================== EJEMPLO DE USO AUTOMATIZADO CON MCP =====================
+# ===================== EJEMPLO DE USO CORREGIDO =====================
 
 
-async def example_mcp_workflow():
-    """Ejemplo de cómo funciona el nuevo workflow automatizado con MCP"""
+async def example_corrected_workflow():
+    """Ejemplo del workflow corregido"""
 
-    # Inicializar sistema de agentes automatizado
+    # Inicializar sistema de agentes corregido
     agents = Agents()
 
-    # Datos de ejemplo de un lead (como vendría de POST /leads)
+    # Datos de ejemplo de un lead
     lead_data = {
-        "name": "Carlos Mendoza",
-        "email": "carlos@techstartup.com",
+        "name": "Carlos Test Mendoza",
+        "email": "carlos.test@techstartup.com",
         "company": "Tech Startup Inc",
         "phone": "+1234567890",
         "message": "Necesitamos automatizar nuestro proceso de ventas para escalarlo. Tenemos un equipo de 25 personas",
@@ -332,41 +340,18 @@ async def example_mcp_workflow():
         },
     }
 
-    # Ejecutar workflow COMPLETAMENTE AUTOMATIZADO CON MCP
-    print("🚀 Iniciando workflow CRM completamente automatizado con MCP...")
+    # Ejecutar workflow CORREGIDO
+    print("🚀 Iniciando workflow CRM corregido...")
     result = await agents.run_workflow(lead_data)
 
-    print(f"✅ Resultado automatizado: {result}")
+    print(f"✅ Resultado corregido: {result}")
 
     # Obtener estadísticas
     stats = await agents.get_system_stats()
     print(f"📊 Estadísticas del sistema: {stats}")
 
 
-# ===================== CONFIGURACIÓN MCP REQUERIDA =====================
-
-"""
-Variables de entorno necesarias:
-
-1. Supabase:
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-2. OpenAI:
-OPENAI_API_KEY=sk-...
-
-3. Calendly (opcional, para MCP):
-CALENDLY_ACCESS_TOKEN=eyJraW...
-
-Servidores MCP requeridos:
-- app/agents/tools/supabase_mcp.py (todas las operaciones de BD)
-- app/agents/tools/calendly.py (integración con Calendly)
-
-Instalación de dependencias:
-pip install openai supabase pydantic python-dotenv mcp
-"""
-
 if __name__ == "__main__":
     # Ejecutar ejemplo
-    print("Ejecutando workflow CRM automatizado con MCP...")
-    asyncio.run(example_mcp_workflow())
+    print("Ejecutando workflow CRM corregido...")
+    asyncio.run(example_corrected_workflow())

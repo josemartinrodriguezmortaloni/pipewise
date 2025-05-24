@@ -2,6 +2,8 @@ import os
 import json
 import logging
 from typing import Dict, Any, List
+from uuid import UUID
+from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -10,6 +12,22 @@ from app.schemas.messsage_schema import MessageCreate
 
 load_dotenv()
 logger = logging.getLogger(__name__)
+
+
+def serialize_for_json(obj: Any) -> Any:
+    """Serializar objeto para JSON, convirtiendo UUIDs y datetime a strings"""
+    if isinstance(obj, UUID):
+        return str(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif hasattr(obj, "model_dump"):
+        return serialize_for_json(obj.model_dump())
+    elif isinstance(obj, dict):
+        return {k: serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(item) for item in obj]
+    else:
+        return obj
 
 
 def load_prompt_from_file(file_path: str) -> str:
@@ -38,107 +56,104 @@ class OutboundAgent:
         self.instructions = load_prompt_from_file(prompt_path)
 
     def _get_supabase_tools(self) -> List[Dict]:
-        """Definir herramientas de Supabase para el agente"""
+        """Definir herramientas de Supabase para el agente - CORREGIDO"""
         return [
-            [
-                {
-                    "type": "function",
-                    "name": "get_lead",
-                    "description": "Obtener información completa del lead antes de contactar",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "lead_id": {
-                                "type": "string",
-                                "description": "ID del lead a obtener",
-                            }
-                        },
-                        "required": ["lead_id"],
-                        "additionalProperties": False,
+            {
+                "type": "function",
+                "name": "get_lead_by_id",
+                "description": "Obtener información completa del lead antes de contactar",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {
+                            "type": "string",
+                            "description": "ID del lead a obtener",
+                        }
                     },
+                    "required": ["lead_id"],
+                    "additionalProperties": False,
                 },
-                {
-                    "type": "function",
-                    "name": "get_conversation",
-                    "description": "Obtener conversación activa del lead",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "conversation_id": {
-                                "type": "string",
-                                "description": "ID de la conversación",
-                            }
+            },
+            {
+                "type": "function",
+                "name": "mark_lead_as_contacted",
+                "description": "Marcar un lead como contactado",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {"type": "string", "description": "ID del lead"},
+                        "contact_method": {
+                            "type": "string",
+                            "description": "Método de contacto utilizado",
+                            "default": "outbound_automated",
                         },
-                        "required": ["conversation_id"],
-                        "additionalProperties": False,
                     },
+                    "required": ["lead_id"],
+                    "additionalProperties": False,
                 },
-                {
-                    "type": "function",
-                    "name": "create_message",
-                    "description": "Registrar mensaje enviado en la conversación",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "conversation_id": {"type": "string"},
-                            "sender": {"type": "string"},
-                            "content": {"type": "string"},
-                            "message_type": {"type": ["string", "null"]},
-                            "metadata": {"type": ["object", "null"]},
+            },
+            {
+                "type": "function",
+                "name": "create_contact_message",
+                "description": "Crear registro del mensaje de contacto enviado",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "lead_id": {"type": "string", "description": "ID del lead"},
+                        "message_content": {
+                            "type": "string",
+                            "description": "Contenido del mensaje enviado",
                         },
-                        "required": [
-                            "conversation_id",
-                            "sender",
-                            "content",
-                            "message_type",
-                            "metadata",
-                        ],
-                        "additionalProperties": False,
-                    },
-                },
-                {
-                    "type": "function",
-                    "name": "get_messages",
-                    "description": "Obtener historial de mensajes de una conversación",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "conversation_id": {"type": "string"},
-                            "limit": {"type": ["integer", "null"]},
+                        "contact_method": {
+                            "type": "string",
+                            "description": "Método de contacto",
                         },
-                        "required": ["conversation_id", "limit"],
-                        "additionalProperties": False,
                     },
+                    "required": ["lead_id", "message_content"],
+                    "additionalProperties": False,
                 },
-            ]
+            },
         ]
 
-    async def _execute_function(
-        self, function_name: str, arguments: Dict[str, Any]
-    ) -> str:
-        """Ejecutar función de Supabase"""
+    def _execute_function(self, function_name: str, arguments: Dict[str, Any]) -> str:
+        """Ejecutar función de Supabase - VERSIÓN CORREGIDA CON SERIALIZACIÓN UUID"""
         try:
-            if function_name == "get_lead":
-                result = await self.db_client.get_lead(arguments["lead_id"])
-                return json.dumps(result.model_dump() if result else None)
+            if function_name == "get_lead_by_id":
+                result = self.db_client.get_lead(arguments["lead_id"])
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(serialize_for_json(result) if result else None)
 
-            elif function_name == "get_conversation":
-                result = await self.db_client.get_conversation(
-                    arguments["conversation_id"]
+            elif function_name == "mark_lead_as_contacted":
+                lead_id = arguments["lead_id"]
+                contact_method = arguments.get("contact_method", "outbound_automated")
+
+                result = self.db_client.mark_lead_as_contacted(lead_id, contact_method)
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(serialize_for_json(result))
+
+            elif function_name == "create_contact_message":
+                lead_id = arguments["lead_id"]
+                message_content = arguments["message_content"]
+                contact_method = arguments.get("contact_method", "outbound_automated")
+
+                # Por ahora, solo actualizar metadata del lead con el mensaje
+                from app.schemas.lead_schema import LeadUpdate
+
+                metadata = {
+                    "last_message": message_content,
+                    "last_contact_method": contact_method,
+                    "message_sent_at": self.db_client._get_current_timestamp(),
+                }
+
+                updates = LeadUpdate(metadata=metadata)
+                result = self.db_client.update_lead(lead_id, updates)
+                # CORREGIDO: Serializar UUID correctamente
+                return json.dumps(
+                    {
+                        "message_saved": True,
+                        "lead_updated": serialize_for_json(result) if result else None,
+                    }
                 )
-                return json.dumps(result.model_dump() if result else None)
-
-            elif function_name == "create_message":
-                # Filtrar valores None
-                msg_data_dict = {k: v for k, v in arguments.items() if v is not None}
-                msg_data = MessageCreate(**msg_data_dict)
-                result = await self.db_client.create_message(msg_data)
-                return json.dumps(result.model_dump())
-
-            elif function_name == "get_messages":
-                filter_args = {k: v for k, v in arguments.items() if v is not None}
-                result = await self.db_client.get_messages(**filter_args)
-                return json.dumps([msg.model_dump() for msg in result])
 
             else:
                 return json.dumps({"error": f"Unknown function: {function_name}"})
@@ -155,18 +170,27 @@ class OutboundAgent:
                 {"role": "system", "content": self.instructions},
                 {
                     "role": "user",
-                    "content": f"Procesa este contacto outbound: {json.dumps(input_data)}",
+                    "content": f"Procesa este contacto outbound y MARCA el lead como contactado: {json.dumps(input_data)}",
                 },
             ]
 
             # Llamada inicial al modelo
             response = self.client.responses.create(
-                model=self.model, input=input_messages, tools=self._get_supabase_tools()
+                model=self.model,
+                input=input_messages,
+                tools=self._get_supabase_tools(),
+                tool_choice="auto",
+                parallel_tool_calls=True,
             )
 
             # Procesar function calls iterativamente
             max_iterations = 5
             iteration = 0
+            contact_result = {
+                "success": False,
+                "message": "No contact performed",
+                "contact_method": "automated",
+            }
 
             while iteration < max_iterations:
                 function_calls = [
@@ -179,7 +203,19 @@ class OutboundAgent:
                 # Ejecutar function calls
                 for tool_call in function_calls:
                     args = json.loads(tool_call.arguments)
-                    result = await self._execute_function(tool_call.name, args)
+                    result = self._execute_function(tool_call.name, args)
+
+                    # Si fue marcar como contactado, capturar resultado
+                    if tool_call.name == "mark_lead_as_contacted":
+                        try:
+                            result_data = json.loads(result)
+                            if "contacted" in result_data and result_data["contacted"]:
+                                contact_result["success"] = True
+                                contact_result["message"] = (
+                                    "Lead marked as contacted successfully"
+                                )
+                        except:
+                            pass
 
                     input_messages.append(tool_call)
                     input_messages.append(
@@ -195,6 +231,8 @@ class OutboundAgent:
                     model=self.model,
                     input=input_messages,
                     tools=self._get_supabase_tools(),
+                    tool_choice="auto",
+                    parallel_tool_calls=True,
                 )
 
                 iteration += 1
@@ -204,14 +242,28 @@ class OutboundAgent:
 
             try:
                 result = json.loads(output_text)
+                # Asegurar que tenemos campos requeridos
+                if "message" not in result:
+                    result["message"] = "Contacto automatizado realizado"
+                if "success" not in result:
+                    result["success"] = contact_result["success"]
+                if "contact_method" not in result:
+                    result["contact_method"] = "outbound_automated"
                 return result
             except json.JSONDecodeError:
                 return {
-                    "message": output_text,
-                    "success": True,
-                    "contact_method": "automated",
+                    "message": output_text
+                    if output_text
+                    else "Contacto automatizado completado",
+                    "success": contact_result["success"],
+                    "contact_method": "outbound_automated",
                 }
 
         except Exception as e:
             logger.error(f"Error en OutboundAgent: {e}")
-            return {"success": False, "error": str(e), "message": "Error en contacto"}
+            return {
+                "success": False,
+                "error": str(e),
+                "message": "Error en contacto automatizado",
+                "contact_method": "failed",
+            }
