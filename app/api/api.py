@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from lead_workflow import LeadAPIHandler
+from app.agents.agent import Agents
 
 app = FastAPI()
 handler = LeadAPIHandler()
@@ -7,4 +8,7 @@ handler = LeadAPIHandler()
 
 @app.post("/leads")
 async def create_lead(lead_data: dict):
-    return await handler.handle_post_leads(lead_data)
+    agents = Agents()
+    # ✅ Workflow completamente automatizado
+    result = await agents.run_workflow(lead_data)
+    return result

@@ -4,8 +4,8 @@ from typing import Dict, Any, Optional
 from uuid import UUID
 from dotenv import load_dotenv
 
-# Importar cliente de Supabase (asumo que está en el mismo proyecto)
-from supabase_crm_client import (
+# IMPORTACIONES ACTUALIZADAS - Con function calling
+from app.supabase.supabase_client import (
     SupabaseCRMClient,
     LeadCreate,
     LeadUpdate,
@@ -13,10 +13,10 @@ from supabase_crm_client import (
     MessageCreate,
 )
 
-# Importar agentes (ajustar las importaciones según tu estructura)
-from lead_qualifier import LeadAgent
-from meeting_scheduler import MeetingSchedulerAgent
-from outbound_contact import OutboundAgent
+# Importar agentes actualizados con function calling
+from app.agents.lead_qualifier import LeadAgent
+from app.agents.meeting_scheduler import MeetingSchedulerAgent
+from app.agents.outbound_contact import OutboundAgent
 
 # Cargar variables de entorno
 load_dotenv()
@@ -28,34 +28,36 @@ logger = logging.getLogger(__name__)
 
 class LeadProcessor:
     """
-    Procesador principal de leads siguiendo el flujo completo del diagrama mermaid
+    Procesador principal de leads con agentes que usan function calling automático
     """
 
     def __init__(self):
         # Inicializar cliente de Supabase
         self.db_client = SupabaseCRMClient()
 
-        # Inicializar agentes
+        # Inicializar agentes con function calling
         self.lead_qualifier = LeadAgent()
         self.outbound_agent = OutboundAgent()
         self.meeting_scheduler = MeetingSchedulerAgent()
 
-        logger.info("LeadProcessor initialized with all agents and database client")
+        logger.info("LeadProcessor initialized with function calling agents")
 
     async def process_lead_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Flujo completo del procesamiento de leads según el diagrama mermaid
+        Flujo completo del procesamiento de leads - AHORA CON FUNCTION CALLING AUTOMÁTICO
 
-        Args:
-            lead_data: Datos del lead (puede venir de POST /leads)
-
-        Returns:
-            Dict con el resultado del procesamiento
+        Los agentes ahora manejan automáticamente:
+        - Consultas a la base de datos
+        - Actualizaciones de estado
+        - Creación de conversaciones y mensajes
+        - Integración con Calendly
         """
         try:
-            logger.info(f"🚀 Iniciando workflow para lead: {lead_data.get('email')}")
+            logger.info(
+                f"🚀 Iniciando workflow automatizado para lead: {lead_data.get('email')}"
+            )
 
-            # PASO 1: ¿Lead existe?
+            # PASO 1: ¿Lead existe? (ahora automático via function calling)
             existing_lead = await self._check_lead_exists(lead_data)
 
             if existing_lead:
@@ -68,18 +70,17 @@ class LeadProcessor:
                 current_lead = await self._create_new_lead(lead_data)
 
             # PASO 3: LeadProcessor (ya estamos aquí)
-            logger.info(f"🔍 Procesando lead: {current_lead.id}")
+            logger.info(
+                f"🔍 Procesando lead con agentes automatizados: {current_lead.id}"
+            )
 
-            # PASO 4: lead_qualifier
-            logger.info("🎯 Ejecutando calificación de lead...")
-            qualification_result = await self._qualify_lead(current_lead)
+            # PASO 4: lead_qualifier - AHORA CON FUNCTION CALLING AUTOMÁTICO
+            logger.info("🎯 Ejecutando calificación automática con function calling...")
+            qualification_result = await self._qualify_lead_automated(current_lead)
 
             if not qualification_result["qualified"]:
-                # PASO 5a: update_lead: qualified=False (FIN)
-                logger.info("❌ Lead no calificado, finalizando workflow")
-                await self._mark_lead_unqualified(
-                    current_lead.id, qualification_result.get("reason")
-                )
+                # PASO 5a: update_lead: qualified=False (FIN) - YA MANEJADO POR EL AGENTE
+                logger.info("❌ Lead no calificado por el agente automático")
                 return {
                     "status": "completed",
                     "lead_id": str(current_lead.id),
@@ -88,58 +89,34 @@ class LeadProcessor:
                     "workflow_completed": True,
                 }
 
-            # PASO 5b: Lead calificado, continuar workflow
-            logger.info("✅ Lead calificado, continuando workflow...")
-            await self._mark_lead_qualified(current_lead.id)
+            # PASO 5b: Lead calificado - AGENTE YA ACTUALIZÓ LA BD
+            logger.info("✅ Lead calificado automáticamente, continuando workflow...")
 
-            # PASO 6: insert_conversation
-            logger.info("💬 Creando conversación...")
-            conversation = await self._create_conversation(current_lead.id)
+            # PASO 6-9: outbound_contact - AHORA MANEJA TODO AUTOMÁTICAMENTE
+            logger.info("📞 Ejecutando contacto outbound automatizado...")
+            outbound_result = await self._execute_outbound_automated(current_lead)
 
-            # PASO 7: outbound_contact
-            logger.info("📞 Ejecutando contacto outbound...")
-            outbound_result = await self._execute_outbound_contact(
-                current_lead, conversation
-            )
+            # PASO 10-11: meeting_scheduler - AHORA MANEJA TODO AUTOMÁTICAMENTE
+            logger.info("📅 Ejecutando agendamiento automatizado...")
+            meeting_result = await self._schedule_meeting_automated(current_lead)
 
-            # PASO 8: insert_message
-            logger.info("📨 Registrando mensaje de contacto...")
-            await self._insert_contact_message(conversation.id, outbound_result)
-
-            # PASO 9: update_lead: contacted=True
-            logger.info("✅ Marcando lead como contactado...")
-            await self._mark_lead_contacted(
-                current_lead.id, outbound_result.get("contact_method")
-            )
-
-            # PASO 10: meeting_scheduler + Calendly
-            logger.info("📅 Ejecutando agendamiento de reunión...")
-            meeting_result = await self._schedule_meeting(current_lead, conversation)
-
-            # PASO 11: update_lead: meeting_scheduled=True
-            logger.info("🎉 Marcando reunión como agendada...")
-            await self._mark_meeting_scheduled(
-                current_lead.id,
-                meeting_result.get("meeting_url"),
-                meeting_result.get("event_type"),
-            )
-
-            # PASO 12: Fin OK
-            logger.info("🏁 Workflow completado exitosamente")
+            # PASO 12: Fin OK - TODO AUTOMATIZADO
+            logger.info("🏁 Workflow completado automáticamente")
 
             return {
                 "status": "completed",
                 "lead_id": str(current_lead.id),
-                "conversation_id": str(conversation.id),
                 "qualified": True,
                 "contacted": True,
                 "meeting_scheduled": True,
                 "meeting_url": meeting_result.get("meeting_url"),
+                "outbound_message": outbound_result.get("message"),
+                "event_type": meeting_result.get("event_type"),
                 "workflow_completed": True,
             }
 
         except Exception as e:
-            logger.error(f"❌ Error en workflow: {str(e)}")
+            logger.error(f"❌ Error en workflow automatizado: {str(e)}")
             return {"status": "error", "error": str(e), "workflow_completed": False}
 
     async def _check_lead_exists(self, lead_data: Dict[str, Any]) -> Optional[Any]:
@@ -165,11 +142,18 @@ class LeadProcessor:
 
         return await self.db_client.create_lead(lead_create)
 
-    async def _qualify_lead(self, lead: Any) -> Dict[str, Any]:
-        """Ejecutar la calificación del lead usando el agente"""
+    async def _qualify_lead_automated(self, lead: Any) -> Dict[str, Any]:
+        """
+        NUEVO: Calificación automatizada con function calling
+        El agente maneja automáticamente:
+        - Buscar leads duplicados
+        - Actualizar estado de calificación
+        - Registrar metadata
+        """
         try:
-            # Preparar datos para el agente calificador
+            # Preparar datos para el agente
             lead_input = {
+                "id": str(lead.id),
                 "name": lead.name,
                 "email": lead.email,
                 "company": lead.company,
@@ -179,40 +163,27 @@ class LeadProcessor:
                 "metadata": lead.metadata or {},
             }
 
-            # Ejecutar agente calificador
+            # El agente maneja TODO automáticamente via function calling
             qualification_result = await self.lead_qualifier.run(lead_input)
 
-            # El agente debe devolver un dict con 'qualified' y opcionalmente 'reason'
+            logger.info(f"Resultado de calificación automática: {qualification_result}")
             return qualification_result
 
         except Exception as e:
-            logger.error(f"Error en calificación: {e}")
+            logger.error(f"Error en calificación automatizada: {e}")
             return {"qualified": False, "reason": f"Error en calificación: {str(e)}"}
 
-    async def _mark_lead_qualified(self, lead_id: UUID) -> None:
-        """Marcar lead como calificado"""
-        await self.db_client.mark_lead_as_qualified(lead_id)
-
-    async def _mark_lead_unqualified(self, lead_id: UUID, reason: str = None) -> None:
-        """Marcar lead como no calificado"""
-        metadata = {"disqualification_reason": reason} if reason else {}
-        updates = LeadUpdate(qualified=False, status="disqualified", metadata=metadata)
-        await self.db_client.update_lead(lead_id, updates)
-
-    async def _create_conversation(self, lead_id: UUID) -> Any:
-        """Crear nueva conversación para el lead"""
-        conversation_data = ConversationCreate(
-            lead_id=lead_id, channel="automated_workflow", status="active"
-        )
-
-        return await self.db_client.create_conversation(conversation_data)
-
-    async def _execute_outbound_contact(
-        self, lead: Any, conversation: Any
-    ) -> Dict[str, Any]:
-        """Ejecutar contacto outbound usando el agente"""
+    async def _execute_outbound_automated(self, lead: Any) -> Dict[str, Any]:
+        """
+        NUEVO: Contacto outbound automatizado con function calling
+        El agente maneja automáticamente:
+        - Obtener info del lead
+        - Buscar/crear conversación
+        - Crear mensaje personalizado
+        - Marcar como contactado
+        """
         try:
-            # Preparar datos para el agente de outbound
+            # El agente necesita mínima información
             contact_input = {
                 "lead": {
                     "id": str(lead.id),
@@ -222,51 +193,35 @@ class LeadProcessor:
                     "phone": lead.phone,
                     "message": lead.message,
                 },
-                "conversation_id": str(conversation.id),
             }
 
-            # Ejecutar agente de outbound
+            # El agente maneja TODO automáticamente via function calling
             outbound_result = await self.outbound_agent.run(contact_input)
 
+            logger.info(f"Resultado de contacto automatizado: {outbound_result}")
             return outbound_result
 
         except Exception as e:
-            logger.error(f"Error en outbound contact: {e}")
+            logger.error(f"Error en contacto automatizado: {e}")
             return {
                 "success": False,
                 "error": str(e),
                 "contact_method": "failed",
-                "message": f"Error en contacto: {str(e)}",
+                "message": f"Error en contacto automatizado: {str(e)}",
             }
 
-    async def _insert_contact_message(
-        self, conversation_id: UUID, outbound_result: Dict[str, Any]
-    ) -> None:
-        """Insertar mensaje de contacto en la conversación"""
-        message_data = MessageCreate(
-            conversation_id=conversation_id,
-            sender="outbound_agent",
-            content=outbound_result.get("message", "Contacto realizado"),
-            message_type="outbound_contact",
-            metadata={
-                "contact_method": outbound_result.get("contact_method"),
-                "success": outbound_result.get("success", False),
-                "details": outbound_result,
-            },
-        )
-
-        await self.db_client.create_message(message_data)
-
-    async def _mark_lead_contacted(
-        self, lead_id: UUID, contact_method: str = None
-    ) -> None:
-        """Marcar lead como contactado"""
-        await self.db_client.mark_lead_as_contacted(lead_id, contact_method)
-
-    async def _schedule_meeting(self, lead: Any, conversation: Any) -> Dict[str, Any]:
-        """Ejecutar agendamiento de reunión usando el agente + Calendly"""
+    async def _schedule_meeting_automated(self, lead: Any) -> Dict[str, Any]:
+        """
+        NUEVO: Agendamiento automatizado con function calling + Calendly MCP
+        El agente maneja automáticamente:
+        - Obtener lead y conversaciones
+        - Crear/actualizar conversación
+        - Integrar con Calendly para crear link único
+        - Marcar reunión como agendada
+        - Actualizar estado de conversación
+        """
         try:
-            # Preparar datos para el agente de reuniones
+            # Preparar datos para el agente
             meeting_input = {
                 "lead": {
                     "id": str(lead.id),
@@ -276,56 +231,52 @@ class LeadProcessor:
                     "profile": lead.metadata or {},
                     "qualified": lead.qualified,
                 },
-                "conversation_id": str(conversation.id),
             }
 
-            # Ejecutar agente de reuniones (que usará Calendly MCP)
+            # El agente maneja TODO automáticamente via function calling + MCP
             meeting_result = await self.meeting_scheduler.run(meeting_input)
 
+            logger.info(f"Resultado de agendamiento automatizado: {meeting_result}")
             return meeting_result
 
         except Exception as e:
-            logger.error(f"Error en meeting scheduling: {e}")
+            logger.error(f"Error en agendamiento automatizado: {e}")
             return {
                 "success": False,
                 "error": str(e),
                 "meeting_url": "https://calendly.com/contact-support",
             }
 
-    async def _mark_meeting_scheduled(
-        self, lead_id: UUID, meeting_url: str, event_type: str = None
-    ) -> None:
-        """Marcar reunión como agendada"""
-        await self.db_client.schedule_meeting_for_lead(lead_id, meeting_url, event_type)
 
-
-# ===================== CLASE PRINCIPAL DE AGENTES =====================
+# ===================== CLASE PRINCIPAL DE AGENTES - ACTUALIZADA =====================
 
 
 class Agents:
     """
     Clase principal que orquesta todos los agentes del sistema
+    AHORA CON FUNCTION CALLING AUTOMÁTICO
     """
 
     def __init__(self) -> None:
         self.lead_processor = LeadProcessor()
-        logger.info("Agents system initialized")
+        logger.info("Agents system initialized with automated function calling")
 
     async def run_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Ejecutar el workflow completo para un lead
+        AHORA COMPLETAMENTE AUTOMATIZADO
 
         Args:
             lead_data: Datos del lead (desde POST /leads)
 
         Returns:
-            Resultado del procesamiento
+            Resultado del procesamiento automatizado
         """
         return await self.lead_processor.process_lead_workflow(lead_data)
 
     # Método síncrono para compatibilidad con código existente
     def run_workflow_sync(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Versión síncrona del workflow"""
+        """Versión síncrona del workflow automatizado"""
         return asyncio.run(self.run_workflow(lead_data))
 
     async def get_lead_status(self, lead_id: str) -> Dict[str, Any]:
@@ -354,3 +305,64 @@ class Agents:
     async def get_system_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del sistema"""
         return self.lead_processor.db_client.get_stats()
+
+
+# ===================== EJEMPLO DE USO AUTOMATIZADO =====================
+
+
+async def example_automated_workflow():
+    """Ejemplo de cómo funciona el nuevo workflow automatizado"""
+
+    # Inicializar sistema de agentes automatizado
+    agents = Agents()
+
+    # Datos de ejemplo de un lead (como vendría de POST /leads)
+    lead_data = {
+        "name": "Carlos Mendoza",
+        "email": "carlos@techstartup.com",
+        "company": "Tech Startup Inc",
+        "phone": "+1234567890",
+        "message": "Necesitamos automatizar nuestro proceso de ventas para escalarlo. Tenemos un equipo de 25 personas",
+        "source": "website_form",
+        "utm_params": {"campaign": "automation_landing", "medium": "organic"},
+        "metadata": {
+            "company_size": "25-50",
+            "industry": "technology",
+            "interest_level": "high",
+        },
+    }
+
+    # Ejecutar workflow COMPLETAMENTE AUTOMATIZADO
+    print("🚀 Iniciando workflow CRM completamente automatizado...")
+    result = await agents.run_workflow(lead_data)
+
+    print(f"✅ Resultado automatizado: {result}")
+
+    # Obtener estadísticas
+    stats = await agents.get_system_stats()
+    print(f"📊 Estadísticas del sistema: {stats}")
+
+
+# ===================== CONFIGURACIÓN REQUERIDA =====================
+
+"""
+Variables de entorno necesarias:
+
+1. Supabase:
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+2. OpenAI:
+OPENAI_API_KEY=sk-...
+
+3. Calendly (opcional, para MCP):
+CALENDLY_ACCESS_TOKEN=eyJraW...
+
+Instalación de dependencias:
+pip install openai supabase pydantic python-dotenv
+"""
+
+if __name__ == "__main__":
+    # Ejecutar ejemplo
+    print("Ejecutando workflow CRM automatizado con function calling...")
+    asyncio.run(example_automated_workflow())
