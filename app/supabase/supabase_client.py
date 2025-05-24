@@ -1,12 +1,19 @@
 import os
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 from uuid import UUID, uuid4
 
 from supabase import create_client, Client
 from postgrest.exceptions import APIError
 
+# IMPORTACIONES FALTANTES - Necesarias para los tipos
+from app.models.lead import Lead
+from app.models.conversation import Conversation
+from app.models.message import Message
+from app.schemas.lead_schema import LeadCreate, LeadUpdate
+from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
+from app.schemas.messsage_schema import MessageCreate
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +48,7 @@ class SupabaseCRMClient:
 
     # ===================== OPERACIONES LEADS =====================
 
-    async def create_lead(self, lead_data: LeadCreate) -> Lead:
+    def create_lead(self, lead_data: LeadCreate) -> Lead:
         """Crear un nuevo lead"""
         try:
             # Preparar datos para inserción
@@ -70,7 +77,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("create_lead", e)
 
-    async def get_lead(self, lead_id: Union[str, UUID]) -> Optional[Lead]:
+    def get_lead(self, lead_id: Union[str, UUID]) -> Optional[Lead]:
         """Obtener un lead por ID"""
         try:
             result = (
@@ -84,7 +91,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("get_lead", e)
 
-    async def get_lead_by_email(self, email: str) -> Optional[Lead]:
+    def get_lead_by_email(self, email: str) -> Optional[Lead]:
         """Obtener un lead por email"""
         try:
             result = self.client.table("leads").select("*").eq("email", email).execute()
@@ -96,7 +103,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("get_lead_by_email", e)
 
-    async def update_lead(self, lead_id: Union[str, UUID], updates: LeadUpdate) -> Lead:
+    def update_lead(self, lead_id: Union[str, UUID], updates: LeadUpdate) -> Lead:
         """Actualizar un lead"""
         try:
             # Filtrar campos None y preparar datos
@@ -120,7 +127,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("update_lead", e)
 
-    async def delete_lead(self, lead_id: Union[str, UUID]) -> bool:
+    def delete_lead(self, lead_id: Union[str, UUID]) -> bool:
         """Eliminar un lead"""
         try:
             result = (
@@ -131,7 +138,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("delete_lead", e)
 
-    async def list_leads(
+    def list_leads(
         self,
         status: str = None,
         qualified: bool = None,
@@ -166,7 +173,7 @@ class SupabaseCRMClient:
 
     # ===================== OPERACIONES CONVERSATIONS =====================
 
-    async def create_conversation(
+    def create_conversation(
         self, conversation_data: ConversationCreate
     ) -> Conversation:
         """Crear una nueva conversación"""
@@ -186,7 +193,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("create_conversation", e)
 
-    async def get_conversation(
+    def get_conversation(
         self, conversation_id: Union[str, UUID]
     ) -> Optional[Conversation]:
         """Obtener una conversación por ID"""
@@ -205,7 +212,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("get_conversation", e)
 
-    async def list_conversations(
+    def list_conversations(
         self, lead_id: Union[str, UUID] = None, status: str = None, limit: int = 50
     ) -> List[Conversation]:
         """Listar conversaciones con filtros"""
@@ -224,7 +231,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("list_conversations", e)
 
-    async def update_conversation(
+    def update_conversation(
         self, conversation_id: Union[str, UUID], updates: ConversationUpdate
     ) -> Conversation:
         """Actualizar una conversación"""
@@ -254,7 +261,7 @@ class SupabaseCRMClient:
 
     # ===================== OPERACIONES MESSAGES =====================
 
-    async def create_message(self, message_data: MessageCreate) -> Message:
+    def create_message(self, message_data: MessageCreate) -> Message:
         """Crear un nuevo mensaje"""
         try:
             msg_dict = message_data.model_dump()
@@ -272,7 +279,7 @@ class SupabaseCRMClient:
         except Exception as e:
             self._handle_error("create_message", e)
 
-    async def get_messages(
+    def get_messages(
         self, conversation_id: Union[str, UUID], limit: int = 100
     ) -> List[Message]:
         """Obtener mensajes de una conversación"""
@@ -293,26 +300,26 @@ class SupabaseCRMClient:
 
     # ===================== FUNCIONES ESPECÍFICAS DEL NEGOCIO =====================
 
-    async def get_qualified_leads(self) -> List[Lead]:
+    def get_qualified_leads(self) -> List[Lead]:
         """Obtener leads calificados que no han sido contactados"""
-        return await self.list_leads(qualified=True, contacted=False)
+        return self.list_leads(qualified=True, contacted=False)
 
-    async def get_contacted_leads_without_meeting(self) -> List[Lead]:
+    def get_contacted_leads_without_meeting(self) -> List[Lead]:
         """Obtener leads contactados sin reunión agendada"""
-        return await self.list_leads(contacted=True, meeting_scheduled=False)
+        return self.list_leads(contacted=True, meeting_scheduled=False)
 
-    async def get_active_conversations(
+    def get_active_conversations(
         self, lead_id: Union[str, UUID] = None
     ) -> List[Conversation]:
         """Obtener conversaciones activas"""
-        return await self.list_conversations(lead_id=lead_id, status="active")
+        return self.list_conversations(lead_id=lead_id, status="active")
 
-    async def mark_lead_as_qualified(self, lead_id: Union[str, UUID]) -> Lead:
+    def mark_lead_as_qualified(self, lead_id: Union[str, UUID]) -> Lead:
         """Marcar un lead como calificado"""
         updates = LeadUpdate(qualified=True, status="qualified")
-        return await self.update_lead(lead_id, updates)
+        return self.update_lead(lead_id, updates)
 
-    async def mark_lead_as_contacted(
+    def mark_lead_as_contacted(
         self, lead_id: Union[str, UUID], contact_method: str = None
     ) -> Lead:
         """Marcar un lead como contactado"""
@@ -321,9 +328,9 @@ class SupabaseCRMClient:
             "last_contacted": self._get_current_timestamp(),
         }
         updates = LeadUpdate(contacted=True, status="contacted", metadata=metadata)
-        return await self.update_lead(lead_id, updates)
+        return self.update_lead(lead_id, updates)
 
-    async def schedule_meeting_for_lead(
+    def schedule_meeting_for_lead(
         self, lead_id: Union[str, UUID], meeting_url: str, meeting_type: str = None
     ) -> Lead:
         """Marcar un lead con reunión agendada"""
@@ -335,22 +342,24 @@ class SupabaseCRMClient:
         updates = LeadUpdate(
             meeting_scheduled=True, status="meeting_scheduled", metadata=metadata
         )
-        return await self.update_lead(lead_id, updates)
+        return self.update_lead(lead_id, updates)
 
-    async def close_conversation(
+    def close_conversation(
         self, conversation_id: Union[str, UUID], summary: str = None
     ) -> Conversation:
         """Cerrar una conversación"""
         updates = ConversationUpdate(status="closed", summary=summary)
-        return await self.update_conversation(conversation_id, updates)
+        return self.update_conversation(conversation_id, updates)
 
-    async def get_lead_with_conversations(self, lead_id: Union[str, UUID]) -> Dict:
+    def get_lead_with_conversations(
+        self, lead_id: Union[str, UUID]
+    ) -> Optional[Dict[str, Any]]:
         """Obtener un lead con sus conversaciones"""
-        lead = await self.get_lead(lead_id)
+        lead = self.get_lead(lead_id)
         if not lead:
             return None
 
-        conversations = await self.list_conversations(lead_id=lead_id)
+        conversations = self.list_conversations(lead_id=lead_id)
 
         return {
             "lead": lead,
@@ -359,15 +368,15 @@ class SupabaseCRMClient:
             "total_conversations": len(conversations),
         }
 
-    async def get_conversation_with_messages(
+    def get_conversation_with_messages(
         self, conversation_id: Union[str, UUID]
-    ) -> Dict:
+    ) -> Optional[Dict[str, Any]]:
         """Obtener una conversación con sus mensajes"""
-        conversation = await self.get_conversation(conversation_id)
+        conversation = self.get_conversation(conversation_id)
         if not conversation:
             return None
 
-        messages = await self.get_messages(conversation_id)
+        messages = self.get_messages(conversation_id)
 
         return {
             "conversation": conversation,
@@ -377,7 +386,7 @@ class SupabaseCRMClient:
 
     # ===================== UTILIDADES =====================
 
-    async def health_check(self) -> Dict:
+    def health_check(self) -> Dict[str, Any]:
         """Verificar el estado de la conexión a Supabase"""
         try:
             # Intentar una consulta simple
@@ -395,7 +404,7 @@ class SupabaseCRMClient:
                 "error": str(e),
             }
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del CRM"""
         try:
             # Contar leads por estado
@@ -453,3 +462,83 @@ class SupabaseCRMClient:
         except Exception as e:
             logger.error(f"Error getting stats: {e}")
             return {"error": str(e)}
+
+    # ===================== MÉTODOS ASYNC PARA COMPATIBILIDAD CON FUNCTION CALLING =====================
+
+    async def async_create_lead(self, lead_data: LeadCreate) -> Lead:
+        """Versión async de create_lead para function calling"""
+        return self.create_lead(lead_data)
+
+    async def async_get_lead(self, lead_id: Union[str, UUID]) -> Optional[Lead]:
+        """Versión async de get_lead para function calling"""
+        return self.get_lead(lead_id)
+
+    async def async_get_lead_by_email(self, email: str) -> Optional[Lead]:
+        """Versión async de get_lead_by_email para function calling"""
+        return self.get_lead_by_email(email)
+
+    async def async_update_lead(
+        self, lead_id: Union[str, UUID], updates: LeadUpdate
+    ) -> Lead:
+        """Versión async de update_lead para function calling"""
+        return self.update_lead(lead_id, updates)
+
+    async def async_list_leads(self, **kwargs) -> List[Lead]:
+        """Versión async de list_leads para function calling"""
+        return self.list_leads(**kwargs)
+
+    async def async_create_conversation(
+        self, conversation_data: ConversationCreate
+    ) -> Conversation:
+        """Versión async de create_conversation para function calling"""
+        return self.create_conversation(conversation_data)
+
+    async def async_get_conversation(
+        self, conversation_id: Union[str, UUID]
+    ) -> Optional[Conversation]:
+        """Versión async de get_conversation para function calling"""
+        return self.get_conversation(conversation_id)
+
+    async def async_list_conversations(self, **kwargs) -> List[Conversation]:
+        """Versión async de list_conversations para function calling"""
+        return self.list_conversations(**kwargs)
+
+    async def async_update_conversation(
+        self, conversation_id: Union[str, UUID], updates: ConversationUpdate
+    ) -> Conversation:
+        """Versión async de update_conversation para function calling"""
+        return self.update_conversation(conversation_id, updates)
+
+    async def async_create_message(self, message_data: MessageCreate) -> Message:
+        """Versión async de create_message para function calling"""
+        return self.create_message(message_data)
+
+    async def async_get_messages(
+        self, conversation_id: Union[str, UUID], limit: int = 100
+    ) -> List[Message]:
+        """Versión async de get_messages para function calling"""
+        return self.get_messages(conversation_id, limit)
+
+    async def async_mark_lead_as_qualified(self, lead_id: Union[str, UUID]) -> Lead:
+        """Versión async de mark_lead_as_qualified para function calling"""
+        return self.mark_lead_as_qualified(lead_id)
+
+    async def async_mark_lead_as_contacted(
+        self, lead_id: Union[str, UUID], contact_method: str = None
+    ) -> Lead:
+        """Versión async de mark_lead_as_contacted para function calling"""
+        return self.mark_lead_as_contacted(lead_id, contact_method)
+
+    async def async_schedule_meeting_for_lead(
+        self, lead_id: Union[str, UUID], meeting_url: str, meeting_type: str = None
+    ) -> Lead:
+        """Versión async de schedule_meeting_for_lead para function calling"""
+        return self.schedule_meeting_for_lead(lead_id, meeting_url, meeting_type)
+
+    async def async_delete_lead(self, lead_id: Union[str, UUID]) -> bool:
+        """Versión async de delete_lead para function calling"""
+        return self.delete_lead(lead_id)
+
+    async def async_health_check(self) -> Dict[str, Any]:
+        """Versión async de health_check para function calling"""
+        return self.health_check()

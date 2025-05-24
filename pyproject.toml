@@ -8,8 +8,9 @@ dependencies = [
     "fastapi>=0.115.12",
     "mcp>=1.9.1",
     "openai>=1.82.0",
-    "pydantic>=2.11.5",
+    "pydantic[email]>=2.11.5",
     "python-dotenv>=1.1.0",
     "requests>=2.32.3",
+    "supabase>=2.15.1",
     "uvicorn>=0.34.2",
 ]

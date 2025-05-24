@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Optional, Any
+from pydantic import BaseModel
+from typing import Optional, Any
+
 from uuid import UUID
 
 

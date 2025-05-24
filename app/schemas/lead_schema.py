@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr, Optional
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 from uuid import UUID
 
 

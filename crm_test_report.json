@@ -1,0 +1,157 @@
+{
+  "timestamp": "2025-05-24T12:09:43.526321",
+  "summary": {
+    "total_passed": 15,
+    "total_failed": 3
+  },
+  "results": {
+    "environment": {
+      "passed": 4,
+      "failed": 0,
+      "details": [
+        {
+          "test": "SUPABASE_URL",
+          "passed": true,
+          "details": "Found: https://jq...",
+          "timestamp": "2025-05-24T12:09:34.305650"
+        },
+        {
+          "test": "SUPABASE_ANON_KEY",
+          "passed": true,
+          "details": "Found: eyJhbGciOi...",
+          "timestamp": "2025-05-24T12:09:34.305650"
+        },
+        {
+          "test": "OPENAI_API_KEY",
+          "passed": true,
+          "details": "Found: sk-proj-wB...",
+          "timestamp": "2025-05-24T12:09:34.305650"
+        },
+        {
+          "test": "CALENDLY_ACCESS_TOKEN",
+          "passed": true,
+          "details": "Calendly integration enabled",
+          "timestamp": "2025-05-24T12:09:34.305650"
+        }
+      ]
+    },
+    "database": {
+      "passed": 4,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Supabase Client Init",
+          "passed": true,
+          "details": "Client created successfully",
+          "timestamp": "2025-05-24T12:09:34.629658"
+        },
+        {
+          "test": "Health Check",
+          "passed": true,
+          "details": "Database connection OK",
+          "timestamp": "2025-05-24T12:09:35.996258"
+        },
+        {
+          "test": "Basic Query",
+          "passed": true,
+          "details": "Query executed, found 0 leads",
+          "timestamp": "2025-05-24T12:09:36.533608"
+        },
+        {
+          "test": "Stats Query",
+          "passed": true,
+          "details": "Stats retrieved, total leads: 0",
+          "timestamp": "2025-05-24T12:09:38.562796"
+        },
+        {
+          "test": "Supabase Operations",
+          "passed": false,
+          "details": "Operations failed: {'message': 'new row violates row-level security policy for table \"leads\"', 'code': '42501', 'hint': None, 'details': None}",
+          "timestamp": "2025-05-24T12:09:40.761312"
+        }
+      ]
+    },
+    "agents": {
+      "passed": 6,
+      "failed": 0,
+      "details": [
+        {
+          "test": "LeadAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T12:09:39.073891"
+        },
+        {
+          "test": "LeadAgent Tools",
+          "passed": true,
+          "details": "Found 3 function calling tools",
+          "timestamp": "2025-05-24T12:09:39.073891"
+        },
+        {
+          "test": "OutboundAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T12:09:39.556546"
+        },
+        {
+          "test": "OutboundAgent Tools",
+          "passed": true,
+          "details": "Found 4 function calling tools",
+          "timestamp": "2025-05-24T12:09:39.556546"
+        },
+        {
+          "test": "MeetingSchedulerAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T12:09:40.068254"
+        },
+        {
+          "test": "MeetingSchedulerAgent Tools",
+          "passed": true,
+          "details": "Found 6 function calling tools",
+          "timestamp": "2025-05-24T12:09:40.068254"
+        }
+      ]
+    },
+    "workflow": {
+      "passed": 1,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Agents System Init",
+          "passed": true,
+          "details": "Agents system initialized",
+          "timestamp": "2025-05-24T12:09:42.501270"
+        },
+        {
+          "test": "Complete Workflow",
+          "passed": false,
+          "details": "Workflow failed: object NoneType can't be used in 'await' expression",
+          "timestamp": "2025-05-24T12:09:43.524414"
+        }
+      ]
+    },
+    "cleanup": {
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "test": "Cleanup",
+          "passed": false,
+          "details": "No test data to clean up",
+          "timestamp": "2025-05-24T12:09:43.524414"
+        }
+      ]
+    }
+  },
+  "environment": {
+    "python_version": "3.11.8 (main, Feb 25 2024, 03:41:44) [MSC v.1929 64 bit (AMD64)]",
+    "working_directory": "D:\\Mis_Docs\\Enprendimiento\\Proyectos\\lead-crm-agent",
+    "environment_variables": {
+      "SUPABASE_URL": "configured",
+      "SUPABASE_ANON_KEY": "configured",
+      "OPENAI_API_KEY": "configured",
+      "CALENDLY_ACCESS_TOKEN": "configured"
+    }
+  }
+}
