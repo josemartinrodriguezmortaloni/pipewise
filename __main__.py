@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python#!/usr/bin/env python3
 """
-__main__.py - Test Autónomo del Sistema CRM con Function Calling
+__main__.py - Test Corregido del Sistema CRM
 
-Ejecuta pruebas completas del sistema para verificar:
-- Conexión a Supabase
-- Agentes con function calling
-- Workflow completo end-to-end
-- Integración con Calendly
-- Persistencia de datos
+CORRECCIONES APLICADAS:
+- Eliminados emojis para evitar errores Unicode
+- Métodos síncronos/async corregidos
+- Logging mejorado con encoding UTF-8
+- Manejo de errores de RLS de Supabase
 
 Uso: python __main__.py
 """
@@ -22,17 +21,29 @@ from typing import Dict, Any, List
 import traceback
 from dotenv import load_dotenv
 
+# Configurar encoding UTF-8 para evitar errores Unicode
+if sys.platform.startswith("win"):
+    import locale
+
+    try:
+        locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+    except locale.Error:
+        pass
+
 # Agregar el directorio raíz al path para importaciones
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Cargar variables de entorno
 load_dotenv()
 
-# Configurar logging
+# Configurar logging SIN emojis para evitar errores Unicode
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("crm_test.log")],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("crm_test_fixed.log", encoding="utf-8"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -45,18 +56,13 @@ try:
     from app.agents.outbound_contact import OutboundAgent
     from app.agents.meeting_scheduler import MeetingSchedulerAgent
 except ImportError as e:
-    print(f"❌ Error importing modules: {e}")
+    print(f"[ERROR] Error importing modules: {e}")
     print("Make sure you're running from the project root directory")
-    print("Available modules:")
-    for root, dirs, files in os.walk("."):
-        for file in files:
-            if file.endswith(".py"):
-                print(f"  {os.path.join(root, file)}")
     sys.exit(1)
 
 
-class CRMSystemTester:
-    """Tester completo del sistema CRM"""
+class FixedCRMSystemTester:
+    """Tester corregido del sistema CRM sin emojis problemáticos"""
 
     def __init__(self):
         self.db_client = None
@@ -71,17 +77,17 @@ class CRMSystemTester:
         self.test_lead_id = None
 
     def print_header(self, title: str):
-        """Imprimir header de sección"""
+        """Imprimir header de sección sin emojis"""
         print(f"\n{'=' * 60}")
-        print(f"🧪 {title}")
+        print(f"[TEST] {title}")
         print(f"{'=' * 60}")
 
     def print_test(self, test_name: str, status: str, details: str = ""):
-        """Imprimir resultado de test"""
-        icon = "✅" if status == "PASS" else "❌"
+        """Imprimir resultado de test sin emojis problemáticos"""
+        icon = "[OK]" if status == "PASS" else "[FAIL]"
         print(f"{icon} {test_name}: {status}")
         if details:
-            print(f"   📝 {details}")
+            print(f"   [NOTE] {details}")
 
     def record_result(
         self, category: str, test_name: str, passed: bool, details: str = ""
@@ -107,7 +113,6 @@ class CRMSystemTester:
         """Test 1: Verificar configuración del entorno"""
         self.print_header("TEST 1: ENVIRONMENT CONFIGURATION")
 
-        # Test variables de entorno
         required_vars = [
             ("SUPABASE_URL", "Supabase connection URL"),
             ("SUPABASE_ANON_KEY", "Supabase anonymous key"),
@@ -154,7 +159,7 @@ class CRMSystemTester:
                 "database", "Supabase Client Init", True, "Client created successfully"
             )
 
-            # Test health check (MÉTODO SÍNCRONO)
+            # Test health check
             health = self.db_client.health_check()
             if health.get("status") == "healthy":
                 self.record_result(
@@ -165,7 +170,7 @@ class CRMSystemTester:
                     "database", "Health Check", False, f"Health check failed: {health}"
                 )
 
-            # Test básico de consulta (MÉTODO SÍNCRONO)
+            # Test básico de consulta
             leads = self.db_client.list_leads(limit=1)
             self.record_result(
                 "database",
@@ -174,7 +179,7 @@ class CRMSystemTester:
                 f"Query executed, found {len(leads)} leads",
             )
 
-            # Test de estadísticas (MÉTODO SÍNCRONO)
+            # Test de estadísticas
             stats = self.db_client.get_stats()
             if "leads" in stats:
                 total_leads = stats["leads"]["total"]
@@ -205,7 +210,6 @@ class CRMSystemTester:
             lead_agent = LeadAgent()
             self.record_result("agents", "LeadAgent Init", True, "Agent initialized")
 
-            # Verificar que tenga las funciones necesarias
             if hasattr(lead_agent, "_get_supabase_tools"):
                 tools = lead_agent._get_supabase_tools()
                 self.record_result(
@@ -233,7 +237,6 @@ class CRMSystemTester:
                 "agents", "OutboundAgent Init", True, "Agent initialized"
             )
 
-            # Verificar que tenga las funciones necesarias
             if hasattr(outbound_agent, "_get_supabase_tools"):
                 tools = outbound_agent._get_supabase_tools()
                 self.record_result(
@@ -261,7 +264,6 @@ class CRMSystemTester:
                 "agents", "MeetingSchedulerAgent Init", True, "Agent initialized"
             )
 
-            # Verificar que tenga las funciones necesarias
             if hasattr(meeting_agent, "_get_tools"):
                 tools = meeting_agent._get_tools()
                 self.record_result(
@@ -309,7 +311,10 @@ class CRMSystemTester:
         )
 
         try:
-            # Test crear lead
+            # Test crear lead - CORREGIDO: Verificar RLS primero
+            print("[NOTE] Attempting to create test lead...")
+
+            # Intentar crear el lead
             created_lead = self.db_client.create_lead(test_lead_data)
             if created_lead and created_lead.id:
                 self.record_result(
@@ -388,14 +393,33 @@ class CRMSystemTester:
                 )
 
         except Exception as e:
-            self.record_result(
-                "database", "Supabase Operations", False, f"Operations failed: {str(e)}"
-            )
+            error_msg = str(e)
+            if "row-level security policy" in error_msg.lower():
+                detailed_msg = (
+                    f"RLS Policy Error: {error_msg}. "
+                    "SOLUTION: Run the SQL commands from the Supabase configuration artifact to fix RLS policies."
+                )
+                self.record_result(
+                    "database", "Supabase Operations", False, detailed_msg
+                )
+                print(f"\n[WARNING] Row-Level Security Error Detected!")
+                print(f"[SOLUTION] You need to configure Supabase RLS policies.")
+                print(
+                    f"[ACTION] Run the SQL commands from the 'Configuración de Supabase para RLS' artifact."
+                )
+            else:
+                self.record_result(
+                    "database",
+                    "Supabase Operations",
+                    False,
+                    f"Operations failed: {error_msg}",
+                )
+
             logger.error(f"Supabase operations error: {e}")
             logger.error(traceback.format_exc())
 
     async def test_complete_workflow(self):
-        """Test 4: Verificar workflow completo end-to-end"""
+        """Test 4: Verificar workflow completo end-to-end - CORREGIDO"""
         self.print_header("TEST 4: COMPLETE WORKFLOW END-TO-END")
 
         if not self.db_client:
@@ -431,7 +455,7 @@ class CRMSystemTester:
 
             # Ejecutar workflow completo
             logger.info(
-                f"🚀 Starting complete workflow test with lead: {test_lead_data['email']}"
+                f"[ROCKET] Starting complete workflow test with lead: {test_lead_data['email']}"
             )
             workflow_result = await self.agents.run_workflow(test_lead_data)
 
@@ -508,8 +532,8 @@ class CRMSystemTester:
     async def _verify_data_persistence(self):
         """Verificar que los datos se guardaron correctamente en la base de datos"""
         try:
-            # Verificar lead creado (MÉTODO SÍNCRONO)
-            lead = self.db_client.get_lead(self.test_lead_id)
+            # Verificar lead creado
+            lead = await self.db_client.async_get_lead(self.test_lead_id)
             if lead:
                 self.record_result(
                     "workflow",
@@ -567,8 +591,10 @@ class CRMSystemTester:
                         "Meeting not scheduled",
                     )
 
-                # Verificar conversaciones (MÉTODO SÍNCRONO)
-                conversations = self.db_client.list_conversations(lead_id=lead.id)
+                # Verificar conversaciones
+                conversations = await self.db_client.async_list_conversations(
+                    lead_id=lead.id
+                )
                 if conversations:
                     self.record_result(
                         "workflow",
@@ -580,7 +606,7 @@ class CRMSystemTester:
                     # Verificar mensajes
                     total_messages = 0
                     for conv in conversations:
-                        messages = self.db_client.get_messages(conv.id)
+                        messages = await self.db_client.async_get_messages(conv.id)
                         total_messages += len(messages)
 
                     if total_messages > 0:
@@ -626,7 +652,7 @@ class CRMSystemTester:
             stats_before = self.db_client.get_stats()
             leads_before = stats_before.get("leads", {}).get("total", 0)
 
-            # Eliminar lead de prueba (esto debería eliminar conversaciones y mensajes en cascada)
+            # Eliminar lead de prueba
             deleted = self.db_client.delete_lead(self.test_lead_id)
             if deleted:
                 self.record_result(
@@ -680,7 +706,7 @@ class CRMSystemTester:
             logger.error(f"Cleanup error: {e}")
 
     def print_final_report(self):
-        """Imprimir reporte final de todos los tests"""
+        """Imprimir reporte final de todos los tests sin emojis problemáticos"""
         self.print_header("FINAL TEST REPORT")
 
         total_passed = 0
@@ -692,20 +718,22 @@ class CRMSystemTester:
             total_passed += passed
             total_failed += failed
 
-            status_icon = "✅" if failed == 0 else "⚠️" if passed > failed else "❌"
+            status_icon = (
+                "[OK]" if failed == 0 else "[WARNING]" if passed > failed else "[FAIL]"
+            )
             print(f"{status_icon} {category.upper()}: {passed} passed, {failed} failed")
 
         print(f"\n{'=' * 60}")
         overall_status = (
-            "✅ ALL TESTS PASSED"
+            "[OK] ALL TESTS PASSED"
             if total_failed == 0
-            else f"⚠️ {total_failed} TESTS FAILED"
+            else f"[WARNING] {total_failed} TESTS FAILED"
         )
-        print(f"🎯 OVERALL RESULT: {overall_status}")
-        print(f"📊 TOTAL: {total_passed} passed, {total_failed} failed")
+        print(f"[TARGET] OVERALL RESULT: {overall_status}")
+        print(f"[STATS] TOTAL: {total_passed} passed, {total_failed} failed")
 
         if total_failed > 0:
-            print(f"\n❌ FAILED TESTS:")
+            print(f"\n[FAIL] FAILED TESTS:")
             for category, results in self.test_results.items():
                 if results["failed"] > 0:
                     for detail in results["details"]:
@@ -718,7 +746,6 @@ class CRMSystemTester:
 
         # Guardar reporte detallado
         self._save_detailed_report()
-
         return total_failed == 0
 
     def _save_detailed_report(self):
@@ -750,19 +777,19 @@ class CRMSystemTester:
             },
         }
 
-        with open("crm_test_report.json", "w") as f:
-            json.dump(report, f, indent=2)
+        with open("crm_test_report_fixed.json", "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
 
-        print(f"📄 Detailed report saved to: crm_test_report.json")
-        print(f"📄 Logs saved to: crm_test.log")
+        print(f"[REPORT] Detailed report saved to: crm_test_report_fixed.json")
+        print(f"[REPORT] Logs saved to: crm_test_fixed.log")
 
 
 async def main():
-    """Función principal del test"""
-    print("🚀 Starting CRM System Autonomous Test Suite")
-    print(f"📅 Test started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    """Función principal del test corregido"""
+    print("[ROCKET] Starting FIXED CRM System Test Suite")
+    print(f"[DATE] Test started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    tester = CRMSystemTester()
+    tester = FixedCRMSystemTester()
 
     try:
         # Ejecutar todos los tests
@@ -780,10 +807,10 @@ async def main():
         sys.exit(0 if success else 1)
 
     except KeyboardInterrupt:
-        print("\n⚠️ Test interrupted by user")
+        print("\n[WARNING] Test interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error during testing: {e}")
+        print(f"\n[FAIL] Unexpected error during testing: {e}")
         logger.error(traceback.format_exc())
         sys.exit(1)
 
@@ -791,21 +818,21 @@ async def main():
 if __name__ == "__main__":
     print("""
     ╔══════════════════════════════════════════════════════════════╗
-    ║                    CRM SYSTEM TEST SUITE                    ║
+    ║                    FIXED CRM SYSTEM TEST SUITE              ║
     ║                                                              ║
-    ║  This script will test your entire CRM system including:    ║
-    ║  • Environment configuration                                 ║
-    ║  • Database connectivity (UPDATED FOR SYNC METHODS)         ║
-    ║  • Individual agents with function calling                  ║
-    ║  • Supabase operations verification                         ║
-    ║  • Complete workflow end-to-end                             ║
-    ║  • Data persistence and cleanup                             ║
+    ║  CORRECCIONES APLICADAS:                                     ║
+    ║  • Eliminados emojis problemáticos                          ║
+    ║  • Corregidos métodos async/sync                             ║
+    ║  • Mejorado manejo de errores RLS                           ║
+    ║  • Configurado encoding UTF-8                               ║
     ║                                                              ║
     ║  Make sure your .env file is configured with:               ║
     ║  • SUPABASE_URL                                             ║
     ║  • SUPABASE_ANON_KEY                                        ║
     ║  • OPENAI_API_KEY                                           ║
     ║  • CALENDLY_ACCESS_TOKEN (optional)                         ║
+    ║                                                              ║
+    ║  IMPORTANT: Run the Supabase SQL configuration first!       ║
     ╚══════════════════════════════════════════════════════════════╝
     """)
 

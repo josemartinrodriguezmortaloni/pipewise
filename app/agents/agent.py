@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 from uuid import UUID
 from dotenv import load_dotenv
 
-# IMPORTACIONES ACTUALIZADAS - Con function calling
+# IMPORTACIONES ACTUALIZADAS - Con MCP
 from app.supabase.supabase_client import (
     SupabaseCRMClient,
     LeadCreate,
@@ -13,7 +13,7 @@ from app.supabase.supabase_client import (
     MessageCreate,
 )
 
-# Importar agentes actualizados con function calling
+# Importar agentes actualizados con MCP
 from app.agents.lead_qualifier import LeadAgent
 from app.agents.meeting_scheduler import MeetingSchedulerAgent
 from app.agents.outbound_contact import OutboundAgent
@@ -28,36 +28,36 @@ logger = logging.getLogger(__name__)
 
 class LeadProcessor:
     """
-    Procesador principal de leads con agentes que usan function calling automático
+    Procesador principal de leads con agentes que usan MCP automático
     """
 
     def __init__(self):
         # Inicializar cliente de Supabase
         self.db_client = SupabaseCRMClient()
 
-        # Inicializar agentes con function calling
+        # Inicializar agentes con MCP
         self.lead_qualifier = LeadAgent()
         self.outbound_agent = OutboundAgent()
         self.meeting_scheduler = MeetingSchedulerAgent()
 
-        logger.info("LeadProcessor initialized with function calling agents")
+        logger.info("LeadProcessor initialized with MCP agents")
 
     async def process_lead_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Flujo completo del procesamiento de leads - AHORA CON FUNCTION CALLING AUTOMÁTICO
+        Flujo completo del procesamiento de leads - AHORA CON MCP AUTOMÁTICO
 
         Los agentes ahora manejan automáticamente:
-        - Consultas a la base de datos
+        - Consultas a la base de datos vía MCP Supabase
         - Actualizaciones de estado
         - Creación de conversaciones y mensajes
-        - Integración con Calendly
+        - Integración con Calendly vía MCP
         """
         try:
             logger.info(
                 f"🚀 Iniciando workflow automatizado para lead: {lead_data.get('email')}"
             )
 
-            # PASO 1: ¿Lead existe? (ahora automático via function calling)
+            # PASO 1: ¿Lead existe? (ahora automático via MCP)
             existing_lead = await self._check_lead_exists(lead_data)
 
             if existing_lead:
@@ -70,16 +70,14 @@ class LeadProcessor:
                 current_lead = await self._create_new_lead(lead_data)
 
             # PASO 3: LeadProcessor (ya estamos aquí)
-            logger.info(
-                f"🔍 Procesando lead con agentes automatizados: {current_lead.id}"
-            )
+            logger.info(f"🔍 Procesando lead con agentes MCP: {current_lead.id}")
 
-            # PASO 4: lead_qualifier - AHORA CON FUNCTION CALLING AUTOMÁTICO
-            logger.info("🎯 Ejecutando calificación automática con function calling...")
+            # PASO 4: lead_qualifier - AHORA CON MCP AUTOMÁTICO
+            logger.info("🎯 Ejecutando calificación automática con MCP...")
             qualification_result = await self._qualify_lead_automated(current_lead)
 
             if not qualification_result["qualified"]:
-                # PASO 5a: update_lead: qualified=False (FIN) - YA MANEJADO POR EL AGENTE
+                # PASO 5a: update_lead: qualified=False (FIN) - YA MANEJADO POR MCP
                 logger.info("❌ Lead no calificado por el agente automático")
                 return {
                     "status": "completed",
@@ -89,18 +87,18 @@ class LeadProcessor:
                     "workflow_completed": True,
                 }
 
-            # PASO 5b: Lead calificado - AGENTE YA ACTUALIZÓ LA BD
+            # PASO 5b: Lead calificado - AGENTE YA ACTUALIZÓ VIA MCP
             logger.info("✅ Lead calificado automáticamente, continuando workflow...")
 
-            # PASO 6-9: outbound_contact - AHORA MANEJA TODO AUTOMÁTICAMENTE
+            # PASO 6-9: outbound_contact - AHORA MANEJA TODO AUTOMÁTICAMENTE VIA MCP
             logger.info("📞 Ejecutando contacto outbound automatizado...")
             outbound_result = await self._execute_outbound_automated(current_lead)
 
-            # PASO 10-11: meeting_scheduler - AHORA MANEJA TODO AUTOMÁTICAMENTE
+            # PASO 10-11: meeting_scheduler - AHORA MANEJA TODO VIA MCP + CALENDLY
             logger.info("📅 Ejecutando agendamiento automatizado...")
             meeting_result = await self._schedule_meeting_automated(current_lead)
 
-            # PASO 12: Fin OK - TODO AUTOMATIZADO
+            # PASO 12: Fin OK - TODO AUTOMATIZADO VIA MCP
             logger.info("🏁 Workflow completado automáticamente")
 
             return {
@@ -125,7 +123,7 @@ class LeadProcessor:
         if not email:
             return None
 
-        return await self.db_client.get_lead_by_email(email)
+        return await self.db_client.async_get_lead_by_email(email)
 
     async def _create_new_lead(self, lead_data: Dict[str, Any]) -> Any:
         """Crear un nuevo lead en la base de datos"""
@@ -140,12 +138,12 @@ class LeadProcessor:
             metadata=lead_data.get("metadata", {}),
         )
 
-        return await self.db_client.create_lead(lead_create)
+        return await self.db_client.async_create_lead(lead_create)
 
     async def _qualify_lead_automated(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Calificación automatizada con function calling
-        El agente maneja automáticamente:
+        NUEVO: Calificación automatizada con MCP
+        El agente maneja automáticamente vía MCP:
         - Buscar leads duplicados
         - Actualizar estado de calificación
         - Registrar metadata
@@ -163,7 +161,7 @@ class LeadProcessor:
                 "metadata": lead.metadata or {},
             }
 
-            # El agente maneja TODO automáticamente via function calling
+            # El agente maneja TODO automáticamente via MCP
             qualification_result = await self.lead_qualifier.run(lead_input)
 
             logger.info(f"Resultado de calificación automática: {qualification_result}")
@@ -175,8 +173,8 @@ class LeadProcessor:
 
     async def _execute_outbound_automated(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Contacto outbound automatizado con function calling
-        El agente maneja automáticamente:
+        NUEVO: Contacto outbound automatizado con MCP
+        El agente maneja automáticamente vía MCP:
         - Obtener info del lead
         - Buscar/crear conversación
         - Crear mensaje personalizado
@@ -195,7 +193,7 @@ class LeadProcessor:
                 },
             }
 
-            # El agente maneja TODO automáticamente via function calling
+            # El agente maneja TODO automáticamente via MCP
             outbound_result = await self.outbound_agent.run(contact_input)
 
             logger.info(f"Resultado de contacto automatizado: {outbound_result}")
@@ -212,8 +210,8 @@ class LeadProcessor:
 
     async def _schedule_meeting_automated(self, lead: Any) -> Dict[str, Any]:
         """
-        NUEVO: Agendamiento automatizado con function calling + Calendly MCP
-        El agente maneja automáticamente:
+        NUEVO: Agendamiento automatizado con MCP Supabase + MCP Calendly
+        El agente maneja automáticamente vía MCP:
         - Obtener lead y conversaciones
         - Crear/actualizar conversación
         - Integrar con Calendly para crear link único
@@ -233,7 +231,7 @@ class LeadProcessor:
                 },
             }
 
-            # El agente maneja TODO automáticamente via function calling + MCP
+            # El agente maneja TODO automáticamente via MCP
             meeting_result = await self.meeting_scheduler.run(meeting_input)
 
             logger.info(f"Resultado de agendamiento automatizado: {meeting_result}")
@@ -248,23 +246,23 @@ class LeadProcessor:
             }
 
 
-# ===================== CLASE PRINCIPAL DE AGENTES - ACTUALIZADA =====================
+# ===================== CLASE PRINCIPAL DE AGENTES - ACTUALIZADA PARA MCP =====================
 
 
 class Agents:
     """
     Clase principal que orquesta todos los agentes del sistema
-    AHORA CON FUNCTION CALLING AUTOMÁTICO
+    AHORA CON MCP AUTOMÁTICO
     """
 
     def __init__(self) -> None:
         self.lead_processor = LeadProcessor()
-        logger.info("Agents system initialized with automated function calling")
+        logger.info("Agents system initialized with automated MCP")
 
     async def run_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Ejecutar el workflow completo para un lead
-        AHORA COMPLETAMENTE AUTOMATIZADO
+        AHORA COMPLETAMENTE AUTOMATIZADO VIA MCP
 
         Args:
             lead_data: Datos del lead (desde POST /leads)
@@ -282,12 +280,14 @@ class Agents:
     async def get_lead_status(self, lead_id: str) -> Dict[str, Any]:
         """Obtener estado actual de un lead"""
         try:
-            lead = await self.lead_processor.db_client.get_lead(lead_id)
+            lead = await self.lead_processor.db_client.async_get_lead(lead_id)
             if not lead:
                 return {"error": "Lead not found"}
 
-            conversations = await self.lead_processor.db_client.list_conversations(
-                lead_id=lead.id
+            conversations = (
+                await self.lead_processor.db_client.async_list_conversations(
+                    lead_id=lead.id
+                )
             )
 
             return {
@@ -304,14 +304,14 @@ class Agents:
 
     async def get_system_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del sistema"""
-        return self.lead_processor.db_client.get_stats()
+        return await self.lead_processor.db_client.async_health_check()
 
 
-# ===================== EJEMPLO DE USO AUTOMATIZADO =====================
+# ===================== EJEMPLO DE USO AUTOMATIZADO CON MCP =====================
 
 
-async def example_automated_workflow():
-    """Ejemplo de cómo funciona el nuevo workflow automatizado"""
+async def example_mcp_workflow():
+    """Ejemplo de cómo funciona el nuevo workflow automatizado con MCP"""
 
     # Inicializar sistema de agentes automatizado
     agents = Agents()
@@ -332,8 +332,8 @@ async def example_automated_workflow():
         },
     }
 
-    # Ejecutar workflow COMPLETAMENTE AUTOMATIZADO
-    print("🚀 Iniciando workflow CRM completamente automatizado...")
+    # Ejecutar workflow COMPLETAMENTE AUTOMATIZADO CON MCP
+    print("🚀 Iniciando workflow CRM completamente automatizado con MCP...")
     result = await agents.run_workflow(lead_data)
 
     print(f"✅ Resultado automatizado: {result}")
@@ -343,7 +343,7 @@ async def example_automated_workflow():
     print(f"📊 Estadísticas del sistema: {stats}")
 
 
-# ===================== CONFIGURACIÓN REQUERIDA =====================
+# ===================== CONFIGURACIÓN MCP REQUERIDA =====================
 
 """
 Variables de entorno necesarias:
@@ -358,11 +358,15 @@ OPENAI_API_KEY=sk-...
 3. Calendly (opcional, para MCP):
 CALENDLY_ACCESS_TOKEN=eyJraW...
 
+Servidores MCP requeridos:
+- app/agents/tools/supabase_mcp.py (todas las operaciones de BD)
+- app/agents/tools/calendly.py (integración con Calendly)
+
 Instalación de dependencias:
-pip install openai supabase pydantic python-dotenv
+pip install openai supabase pydantic python-dotenv mcp
 """
 
 if __name__ == "__main__":
     # Ejecutar ejemplo
-    print("Ejecutando workflow CRM automatizado con function calling...")
-    asyncio.run(example_automated_workflow())
+    print("Ejecutando workflow CRM automatizado con MCP...")
+    asyncio.run(example_mcp_workflow())

@@ -5,9 +5,6 @@ from typing import Dict, Any, List
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from app.supabase.supabase_client import SupabaseCRMClient
-from app.schemas.messsage_schema import MessageCreate
-
 load_dotenv()
 logger = logging.getLogger(__name__)
 
@@ -29,7 +26,6 @@ class OutboundAgent:
     def __init__(self):
         self.model = "gpt-4.1"
         self.client = OpenAI()
-        self.db_client = SupabaseCRMClient()
 
         # Cargar instrucciones
         prompt_path = os.path.join(
@@ -37,120 +33,31 @@ class OutboundAgent:
         )
         self.instructions = load_prompt_from_file(prompt_path)
 
-    def _get_supabase_tools(self) -> List[Dict]:
-        """Definir herramientas de Supabase para el agente"""
+    def _get_tools(self) -> List[Dict]:
+        """Definir herramientas MCP para el agente outbound"""
         return [
             {
-                "type": "function",
-                "name": "get_lead",
-                "description": "Obtener información completa del lead antes de contactar",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "lead_id": {
-                            "type": "string",
-                            "description": "ID del lead a obtener",
-                        }
-                    },
-                    "required": ["lead_id"],
-                    "additionalProperties": False,
+                "type": "mcp",
+                "server_label": "supabase-crm",  # ← REQUERIDO por OpenAI Responses API
+                "server_url": "./tools/supabase_mcp.py",
+                "headers": {
+                    "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+                    "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY"),
                 },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "name": "get_conversation",
-                "description": "Obtener conversación activa del lead",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "conversation_id": {
-                            "type": "string",
-                            "description": "ID de la conversación",
-                        }
-                    },
-                    "required": ["conversation_id"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "name": "create_message",
-                "description": "Registrar mensaje enviado en la conversación",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "conversation_id": {"type": "string"},
-                        "sender": {"type": "string"},
-                        "content": {"type": "string"},
-                        "message_type": {"type": ["string", "null"]},
-                        "metadata": {"type": ["object", "null"]},
-                    },
-                    "required": [
-                        "conversation_id",
-                        "sender",
-                        "content",
-                        "message_type",
-                        "metadata",
-                    ],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "name": "get_messages",
-                "description": "Obtener historial de mensajes de una conversación",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "conversation_id": {"type": "string"},
-                        "limit": {"type": ["integer", "null"]},
-                    },
-                    "required": ["conversation_id", "limit"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
+                "allowed_tools": [
+                    # Herramientas específicas para contacto outbound
+                    "get_lead",
+                    "get_conversation",
+                    "create_message",
+                    "get_messages",
+                    "mark_lead_as_contacted",
+                    "get_active_conversations",
+                ],
+            }
         ]
 
-    async def _execute_function(
-        self, function_name: str, arguments: Dict[str, Any]
-    ) -> str:
-        """Ejecutar función de Supabase"""
-        try:
-            if function_name == "get_lead":
-                result = await self.db_client.get_lead(arguments["lead_id"])
-                return json.dumps(result.model_dump() if result else None)
-
-            elif function_name == "get_conversation":
-                result = await self.db_client.get_conversation(
-                    arguments["conversation_id"]
-                )
-                return json.dumps(result.model_dump() if result else None)
-
-            elif function_name == "create_message":
-                # Filtrar valores None
-                msg_data_dict = {k: v for k, v in arguments.items() if v is not None}
-                msg_data = MessageCreate(**msg_data_dict)
-                result = await self.db_client.create_message(msg_data)
-                return json.dumps(result.model_dump())
-
-            elif function_name == "get_messages":
-                filter_args = {k: v for k, v in arguments.items() if v is not None}
-                result = await self.db_client.get_messages(**filter_args)
-                return json.dumps([msg.model_dump() for msg in result])
-
-            else:
-                return json.dumps({"error": f"Unknown function: {function_name}"})
-
-        except Exception as e:
-            logger.error(f"Error executing {function_name}: {e}")
-            return json.dumps({"error": str(e)})
-
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Ejecutar el agente de outbound con function calling"""
+        """Ejecutar el agente de outbound con MCP"""
         try:
             # Preparar mensajes de entrada
             input_messages = [
@@ -161,55 +68,30 @@ class OutboundAgent:
                 },
             ]
 
-            # Llamada inicial al modelo
+            # ✅ LLAMADA CON MCP CORREGIDA
             response = self.client.responses.create(
-                model=self.model, input=input_messages, tools=self._get_supabase_tools()
+                model=self.model,
+                instructions=self.instructions,
+                input=input_messages,
+                tools=self._get_tools(),
             )
 
-            # Procesar function calls iterativamente
-            max_iterations = 5
-            iteration = 0
-
-            while iteration < max_iterations:
-                function_calls = [
-                    item for item in response.output if item.type == "function_call"
-                ]
-
-                if not function_calls:
+            # Extraer respuesta final
+            final_output = None
+            for output in response.output:
+                if output.type == "message":
+                    final_output = output.content[0].text
                     break
 
-                # Ejecutar function calls
-                for tool_call in function_calls:
-                    args = json.loads(tool_call.arguments)
-                    result = await self._execute_function(tool_call.name, args)
-
-                    input_messages.append(tool_call)
-                    input_messages.append(
-                        {
-                            "type": "function_call_output",
-                            "call_id": tool_call.call_id,
-                            "output": result,
-                        }
-                    )
-
-                # Nueva llamada al modelo
-                response = self.client.responses.create(
-                    model=self.model,
-                    input=input_messages,
-                    tools=self._get_supabase_tools(),
-                )
-
-                iteration += 1
-
-            # Extraer respuesta final
-            output_text = response.output_text
+            if not final_output:
+                final_output = response.output_text
 
             try:
-                result = json.loads(output_text)
+                result = json.loads(final_output)
                 return result
             except json.JSONDecodeError:
                 return {
-                    "message": output_text,
+                    "message": final_output,
                     "success": True,
                     "contact_method": "automated",
                 }
@@ -217,3 +99,32 @@ class OutboundAgent:
         except Exception as e:
             logger.error(f"Error en OutboundAgent: {e}")
             return {"success": False, "error": str(e), "message": "Error en contacto"}
+
+
+# ===================== MÉTODO PARA VERIFICAR TOOLS =====================
+
+
+def verify_tools_format():
+    """Verificar que las herramientas estén en el formato MCP correcto"""
+    agent = OutboundAgent()
+    tools = agent._get_tools()
+
+    print("🔧 Verificando formato de herramientas MCP:")
+    for i, tool in enumerate(tools):
+        print(f"\nTool {i + 1}:")
+        print(f"  Type: {tool.get('type')}")
+        print(f"  Server Label: {tool.get('server_label', 'MISSING!')}")
+        print(f"  Server URL: {tool.get('server_url')}")
+        print(f"  Allowed Tools: {len(tool.get('allowed_tools', []))}")
+
+        # Verificar formato correcto
+        if tool.get("type") != "mcp":
+            print("  ❌ Type should be 'mcp'")
+        elif not tool.get("server_label"):
+            print("  ❌ Missing required 'server_label'")
+        else:
+            print("  ✅ Format OK")
+
+
+if __name__ == "__main__":
+    verify_tools_format()

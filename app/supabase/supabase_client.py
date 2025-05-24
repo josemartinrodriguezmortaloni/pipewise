@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Union, Any
 from uuid import UUID, uuid4
+import json
 
 from supabase import create_client, Client
 from postgrest.exceptions import APIError
@@ -178,7 +179,8 @@ class SupabaseCRMClient:
     ) -> Conversation:
         """Crear una nueva conversación"""
         try:
-            conv_dict = conversation_data.model_dump()
+            # Usar serialize_for_json para manejar UUIDs correctamente
+            conv_dict = serialize_for_json(conversation_data.model_dump())
             conv_dict["id"] = str(uuid4())
             conv_dict["started_at"] = self._get_current_timestamp()
 
@@ -264,7 +266,8 @@ class SupabaseCRMClient:
     def create_message(self, message_data: MessageCreate) -> Message:
         """Crear un nuevo mensaje"""
         try:
-            msg_dict = message_data.model_dump()
+            # Usar serialize_for_json para manejar UUIDs correctamente
+            msg_dict = serialize_for_json(message_data.model_dump())
             msg_dict["id"] = str(uuid4())
             msg_dict["sent_at"] = self._get_current_timestamp()
 
@@ -542,3 +545,35 @@ class SupabaseCRMClient:
     async def async_health_check(self) -> Dict[str, Any]:
         """Versión async de health_check para function calling"""
         return self.health_check()
+
+
+def safe_uuid_to_str(obj: Any) -> str:
+    """Convertir UUID a string de manera segura"""
+    if isinstance(obj, UUID):
+        return str(obj)
+    elif isinstance(obj, str):
+        return obj
+    else:
+        return str(obj)
+
+
+def safe_str_to_uuid(obj: Any) -> UUID:
+    """Convertir string a UUID de manera segura"""
+    if isinstance(obj, UUID):
+        return obj
+    elif isinstance(obj, str):
+        return UUID(obj)
+    else:
+        raise ValueError(f"Cannot convert {type(obj)} to UUID")
+
+
+def serialize_for_json(obj: Any) -> Any:
+    """Serializar objeto para JSON, convirtiendo UUIDs a strings"""
+    if isinstance(obj, UUID):
+        return str(obj)
+    elif isinstance(obj, dict):
+        return {k: serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(v) for v in obj]
+    else:
+        return obj

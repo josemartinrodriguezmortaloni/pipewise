@@ -1,0 +1,241 @@
+{
+  "timestamp": "2025-05-24T15:47:30.932043",
+  "summary": {
+    "total_passed": 23,
+    "total_failed": 9
+  },
+  "results": {
+    "environment": {
+      "passed": 4,
+      "failed": 0,
+      "details": [
+        {
+          "test": "SUPABASE_URL",
+          "passed": true,
+          "details": "Found: https://jq...",
+          "timestamp": "2025-05-24T15:47:20.037925"
+        },
+        {
+          "test": "SUPABASE_ANON_KEY",
+          "passed": true,
+          "details": "Found: eyJhbGciOi...",
+          "timestamp": "2025-05-24T15:47:20.037925"
+        },
+        {
+          "test": "OPENAI_API_KEY",
+          "passed": true,
+          "details": "Found: sk-proj-wB...",
+          "timestamp": "2025-05-24T15:47:20.038986"
+        },
+        {
+          "test": "CALENDLY_ACCESS_TOKEN",
+          "passed": true,
+          "details": "Calendly integration enabled",
+          "timestamp": "2025-05-24T15:47:20.038986"
+        }
+      ]
+    },
+    "database": {
+      "passed": 9,
+      "failed": 0,
+      "details": [
+        {
+          "test": "Supabase Client Init",
+          "passed": true,
+          "details": "Client created successfully",
+          "timestamp": "2025-05-24T15:47:20.344425"
+        },
+        {
+          "test": "Health Check",
+          "passed": true,
+          "details": "Database connection OK",
+          "timestamp": "2025-05-24T15:47:20.905694"
+        },
+        {
+          "test": "Basic Query",
+          "passed": true,
+          "details": "Query executed, found 1 leads",
+          "timestamp": "2025-05-24T15:47:21.131908"
+        },
+        {
+          "test": "Stats Query",
+          "passed": true,
+          "details": "Stats retrieved, total leads: 4",
+          "timestamp": "2025-05-24T15:47:22.413390"
+        },
+        {
+          "test": "Create Lead Operation",
+          "passed": true,
+          "details": "Lead created with ID: 1c376878-1ca6-4e5d-b61e-93781be6aee1",
+          "timestamp": "2025-05-24T15:47:23.449193"
+        },
+        {
+          "test": "Get Lead Operation",
+          "passed": true,
+          "details": "Lead retrieved successfully",
+          "timestamp": "2025-05-24T15:47:23.716868"
+        },
+        {
+          "test": "Get Lead by Email",
+          "passed": true,
+          "details": "Lead found by email",
+          "timestamp": "2025-05-24T15:47:24.032653"
+        },
+        {
+          "test": "Mark Lead Qualified",
+          "passed": true,
+          "details": "Lead marked as qualified",
+          "timestamp": "2025-05-24T15:47:24.359955"
+        },
+        {
+          "test": "Delete Test Lead",
+          "passed": true,
+          "details": "Test lead cleaned up",
+          "timestamp": "2025-05-24T15:47:24.605521"
+        }
+      ]
+    },
+    "agents": {
+      "passed": 4,
+      "failed": 2,
+      "details": [
+        {
+          "test": "LeadAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T15:47:22.651139"
+        },
+        {
+          "test": "LeadAgent Tools",
+          "passed": false,
+          "details": "Function calling tools not found",
+          "timestamp": "2025-05-24T15:47:22.651139"
+        },
+        {
+          "test": "OutboundAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T15:47:22.889605"
+        },
+        {
+          "test": "OutboundAgent Tools",
+          "passed": false,
+          "details": "Function calling tools not found",
+          "timestamp": "2025-05-24T15:47:22.889605"
+        },
+        {
+          "test": "MeetingSchedulerAgent Init",
+          "passed": true,
+          "details": "Agent initialized",
+          "timestamp": "2025-05-24T15:47:23.150563"
+        },
+        {
+          "test": "MeetingSchedulerAgent Tools",
+          "passed": true,
+          "details": "Found 2 function calling tools",
+          "timestamp": "2025-05-24T15:47:23.150563"
+        }
+      ]
+    },
+    "workflow": {
+      "passed": 3,
+      "failed": 7,
+      "details": [
+        {
+          "test": "Agents System Init",
+          "passed": true,
+          "details": "Agents system initialized",
+          "timestamp": "2025-05-24T15:47:25.549356"
+        },
+        {
+          "test": "Complete Workflow",
+          "passed": true,
+          "details": "Lead ID: c4f78bd7-6c8c-4527-837c-772ad77affde, Qualified: False",
+          "timestamp": "2025-05-24T15:47:27.350310"
+        },
+        {
+          "test": "Lead Qualification",
+          "passed": false,
+          "details": "Lead not qualified: None",
+          "timestamp": "2025-05-24T15:47:27.350310"
+        },
+        {
+          "test": "Outbound Contact",
+          "passed": false,
+          "details": "Lead contact failed",
+          "timestamp": "2025-05-24T15:47:27.350310"
+        },
+        {
+          "test": "Meeting Scheduling",
+          "passed": false,
+          "details": "Meeting scheduling failed",
+          "timestamp": "2025-05-24T15:47:27.350310"
+        },
+        {
+          "test": "Lead Persistence",
+          "passed": true,
+          "details": "Lead found in database: test.lead.20250524154724@testcompany.com",
+          "timestamp": "2025-05-24T15:47:27.562782"
+        },
+        {
+          "test": "Lead Status Update",
+          "passed": false,
+          "details": "Lead not marked as qualified",
+          "timestamp": "2025-05-24T15:47:27.562782"
+        },
+        {
+          "test": "Contact Status Update",
+          "passed": false,
+          "details": "Lead not marked as contacted",
+          "timestamp": "2025-05-24T15:47:27.562782"
+        },
+        {
+          "test": "Meeting Status Update",
+          "passed": false,
+          "details": "Meeting not scheduled",
+          "timestamp": "2025-05-24T15:47:27.562782"
+        },
+        {
+          "test": "Conversation Creation",
+          "passed": false,
+          "details": "No conversations found",
+          "timestamp": "2025-05-24T15:47:27.809254"
+        }
+      ]
+    },
+    "cleanup": {
+      "passed": 3,
+      "failed": 0,
+      "details": [
+        {
+          "test": "Test Lead Deletion",
+          "passed": true,
+          "details": "Test lead c4f78bd7-6c8c-4527-837c-772ad77affde deleted",
+          "timestamp": "2025-05-24T15:47:29.377880"
+        },
+        {
+          "test": "Cleanup Verification",
+          "passed": true,
+          "details": "Test lead successfully removed",
+          "timestamp": "2025-05-24T15:47:29.587998"
+        },
+        {
+          "test": "Stats Consistency",
+          "passed": true,
+          "details": "Lead count updated: 5 -> 4",
+          "timestamp": "2025-05-24T15:47:30.930208"
+        }
+      ]
+    }
+  },
+  "environment": {
+    "python_version": "3.11.8 (main, Feb 25 2024, 03:41:44) [MSC v.1929 64 bit (AMD64)]",
+    "working_directory": "D:\\Mis_Docs\\Enprendimiento\\Proyectos\\lead-crm-agent",
+    "environment_variables": {
+      "SUPABASE_URL": "configured",
+      "SUPABASE_ANON_KEY": "configured",
+      "OPENAI_API_KEY": "configured",
+      "CALENDLY_ACCESS_TOKEN": "configured"
+    }
+  }
+}

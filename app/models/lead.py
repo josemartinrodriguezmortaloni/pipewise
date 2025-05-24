@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 from uuid import UUID
+from typing import Optional
 
 
 class Lead(BaseModel):
@@ -19,3 +20,27 @@ class Lead(BaseModel):
     owner_id: UUID | None = None
     utm_params: dict | None = None
     metadata: dict | None = None
+
+    @field_validator("contacted", mode="before")
+    @classmethod
+    def validate_contacted(cls, v):
+        """Convertir None a False para contacted"""
+        if v is None:
+            return False
+        return v
+
+    @field_validator("meeting_scheduled", mode="before")
+    @classmethod
+    def validate_meeting_scheduled(cls, v):
+        """Convertir None a False para meeting_scheduled"""
+        if v is None:
+            return False
+        return v
+
+    @field_validator("qualified", mode="before")
+    @classmethod
+    def validate_qualified(cls, v):
+        """Convertir None a False para qualified"""
+        if v is None:
+            return False
+        return v

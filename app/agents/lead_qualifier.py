@@ -5,9 +5,6 @@ from typing import Dict, Any, List
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from app.supabase.supabase_client import SupabaseCRMClient
-from app.schemas.lead_schema import LeadUpdate
-
 load_dotenv()
 logger = logging.getLogger(__name__)
 
@@ -29,7 +26,6 @@ class LeadAgent:
     def __init__(self):
         self.model = "gpt-4.1"
         self.client = OpenAI()
-        self.db_client = SupabaseCRMClient()
 
         # Cargar instrucciones
         prompt_path = os.path.join(
@@ -37,112 +33,30 @@ class LeadAgent:
         )
         self.instructions = load_prompt_from_file(prompt_path)
 
-    def _get_supabase_tools(self) -> List[Dict]:
-        """Definir herramientas de Supabase para el agente"""
+    def _get_tools(self) -> List[Dict]:
+        """Definir herramientas MCP para el agente de calificación"""
         return [
             {
-                "type": "function",
-                "name": "get_lead",
-                "description": "Obtener un lead por ID o email para verificar si ya existe",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "lead_id": {
-                            "type": ["string", "null"],
-                            "description": "ID del lead a buscar",
-                        },
-                        "email": {
-                            "type": ["string", "null"],
-                            "description": "Email del lead a buscar",
-                        },
-                    },
-                    "required": ["lead_id", "email"],
-                    "additionalProperties": False,
+                "type": "mcp",
+                "server_label": "supabase-crm",  # ← REQUERIDO por OpenAI Responses API
+                "server_url": "./tools/supabase_mcp.py",
+                "headers": {
+                    "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+                    "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY"),
                 },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "name": "update_lead",
-                "description": "Actualizar la información de un lead, incluyendo su estado de calificación",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "lead_id": {
-                            "type": "string",
-                            "description": "ID del lead a actualizar",
-                        },
-                        "updates": {
-                            "type": "object",
-                            "properties": {
-                                "qualified": {"type": ["boolean", "null"]},
-                                "status": {"type": ["string", "null"]},
-                                "metadata": {"type": ["object", "null"]},
-                            },
-                            "required": ["qualified", "status", "metadata"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "required": ["lead_id", "updates"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "name": "list_leads",
-                "description": "Buscar leads existentes con filtros",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "email": {"type": ["string", "null"]},
-                        "status": {"type": ["string", "null"]},
-                        "qualified": {"type": ["boolean", "null"]},
-                        "limit": {"type": ["integer", "null"]},
-                    },
-                    "required": ["email", "status", "qualified", "limit"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
+                "allowed_tools": [
+                    # Solo las herramientas que necesita para calificación
+                    "get_lead",
+                    "get_lead_by_email",
+                    "update_lead",
+                    "list_leads",
+                    "mark_lead_as_qualified",
+                ],
+            }
         ]
 
-    async def _execute_function(
-        self, function_name: str, arguments: Dict[str, Any]
-    ) -> str:
-        """Ejecutar función de Supabase"""
-        try:
-            if function_name == "get_lead":
-                if arguments.get("email"):
-                    result = await self.db_client.get_lead_by_email(arguments["email"])
-                elif arguments.get("lead_id"):
-                    result = await self.db_client.get_lead(arguments["lead_id"])
-                else:
-                    return json.dumps({"error": "Need either email or lead_id"})
-                return json.dumps(result.model_dump() if result else None)
-
-            elif function_name == "update_lead":
-                updates = LeadUpdate(
-                    **{k: v for k, v in arguments["updates"].items() if v is not None}
-                )
-                result = await self.db_client.update_lead(arguments["lead_id"], updates)
-                return json.dumps(result.model_dump())
-
-            elif function_name == "list_leads":
-                # Filtrar argumentos None
-                filter_args = {k: v for k, v in arguments.items() if v is not None}
-                result = await self.db_client.list_leads(**filter_args)
-                return json.dumps([lead.model_dump() for lead in result])
-
-            else:
-                return json.dumps({"error": f"Unknown function: {function_name}"})
-
-        except Exception as e:
-            logger.error(f"Error executing {function_name}: {e}")
-            return json.dumps({"error": str(e)})
-
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Ejecutar el agente calificador con function calling"""
+        """Ejecutar el agente calificador con MCP"""
         try:
             # Preparar mensajes de entrada
             input_messages = [
@@ -153,54 +67,27 @@ class LeadAgent:
                 },
             ]
 
-            # Llamada inicial al modelo
+            # ✅ LLAMADA CON MCP CORREGIDA
             response = self.client.responses.create(
-                model=self.model, input=input_messages, tools=self._get_supabase_tools()
+                model=self.model,
+                instructions=self.instructions,
+                input=input_messages,
+                tools=self._get_tools(),
             )
 
-            # Procesar function calls iterativamente
-            max_iterations = 5
-            iteration = 0
-
-            while iteration < max_iterations:
-                function_calls = [
-                    item for item in response.output if item.type == "function_call"
-                ]
-
-                if not function_calls:
-                    # No hay más function calls, terminamos
+            # Extraer respuesta final
+            final_output = None
+            for output in response.output:
+                if output.type == "message":
+                    final_output = output.content[0].text
                     break
 
-                # Ejecutar todas las function calls
-                for tool_call in function_calls:
-                    args = json.loads(tool_call.arguments)
-                    result = await self._execute_function(tool_call.name, args)
-
-                    # Agregar function call y resultado a los mensajes
-                    input_messages.append(tool_call)
-                    input_messages.append(
-                        {
-                            "type": "function_call_output",
-                            "call_id": tool_call.call_id,
-                            "output": result,
-                        }
-                    )
-
-                # Nueva llamada al modelo con los resultados
-                response = self.client.responses.create(
-                    model=self.model,
-                    input=input_messages,
-                    tools=self._get_supabase_tools(),
-                )
-
-                iteration += 1
-
-            # Extraer respuesta final
-            output_text = response.output_text
+            if not final_output:
+                final_output = response.output_text
 
             # Intentar parsear como JSON
             try:
-                result = json.loads(output_text)
+                result = json.loads(final_output)
                 if "qualified" in result:
                     return result
             except json.JSONDecodeError:
@@ -208,11 +95,40 @@ class LeadAgent:
 
             # Si no es JSON válido, extraer qualified del texto
             qualified = (
-                'qualified": true' in output_text.lower()
-                or '"qualified": true' in output_text
+                'qualified": true' in final_output.lower()
+                or '"qualified": true' in final_output
             )
             return {"qualified": qualified}
 
         except Exception as e:
             logger.error(f"Error en LeadAgent: {e}")
             return {"qualified": False, "error": str(e)}
+
+
+# ===================== MÉTODO PARA VERIFICAR TOOLS =====================
+
+
+def verify_tools_format():
+    """Verificar que las herramientas estén en el formato MCP correcto"""
+    agent = LeadAgent()
+    tools = agent._get_tools()
+
+    print("🔧 Verificando formato de herramientas MCP:")
+    for i, tool in enumerate(tools):
+        print(f"\nTool {i + 1}:")
+        print(f"  Type: {tool.get('type')}")
+        print(f"  Server Label: {tool.get('server_label', 'MISSING!')}")
+        print(f"  Server URL: {tool.get('server_url')}")
+        print(f"  Allowed Tools: {len(tool.get('allowed_tools', []))}")
+
+        # Verificar formato correcto
+        if tool.get("type") != "mcp":
+            print("  ❌ Type should be 'mcp'")
+        elif not tool.get("server_label"):
+            print("  ❌ Missing required 'server_label'")
+        else:
+            print("  ✅ Format OK")
+
+
+if __name__ == "__main__":
+    verify_tools_format()
