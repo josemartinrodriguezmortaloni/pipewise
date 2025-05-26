@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from app.supabase.supabase_client import SupabaseCRMClient
-from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
+from app.schemas.conversations_schema import ConversationCreate
+from app.schemas.lead_schema import LeadUpdate
 
 # Importar el cliente de Calendly separado
 try:
@@ -178,6 +179,10 @@ class MeetingSchedulerAgent:
                 "parameters": {
                     "type": "object",
                     "properties": {
+                        "lead_id": {
+                            "type": "string",
+                            "description": "ID del lead para quien se crea el link",
+                        },
                         "event_type_name": {
                             "type": "string",
                             "description": "Nombre del tipo de evento (ej: 'Sales Call', 'Demo')",
@@ -192,7 +197,7 @@ class MeetingSchedulerAgent:
                             "default": 1,
                         },
                     },
-                    "required": [],
+                    "required": ["lead_id"],
                     "additionalProperties": False,
                 },
             },
@@ -338,9 +343,9 @@ class MeetingSchedulerAgent:
                 return json.dumps(available_slots)
 
             elif function_name == "create_calendly_scheduling_link":
+                lead_id = arguments.get("lead_id", "unknown")
                 event_type_name = arguments.get("event_type_name", "Sales Call")
                 max_uses = arguments.get("max_uses", 1)
-                lead_id = arguments.get("lead_id", "unknown")
 
                 # Usar el método mejorado del cliente
                 result = self.calendly_client.create_personalized_link(
@@ -354,6 +359,8 @@ class MeetingSchedulerAgent:
                         "owner_type": "EventType",
                         "event_type": result["event_type"],
                         "fallback": result.get("fallback", False),
+                        "success": True,  # Marcar como exitoso para lógica posterior
+                        "lead_id": lead_id,  # Incluir lead_id para referencia
                     }
                 )
 
@@ -415,11 +422,20 @@ class MeetingSchedulerAgent:
         """Ejecutar el agente de agendamiento con function calling"""
         try:
             # Preparar mensajes de entrada
+            lead_id = input_data.get("lead", {}).get("id", "unknown")
             input_messages = [
                 {"role": "system", "content": self.instructions},
                 {
                     "role": "user",
-                    "content": f"Agenda una reunión para este lead y MARCA como meeting_scheduled: {json.dumps(input_data)}",
+                    "content": f"""Agenda una reunión para este lead siguiendo estos pasos OBLIGATORIOS:
+
+1. Obtener información del lead (get_lead_by_id)
+2. Crear link de Calendly (create_calendly_scheduling_link) - INCLUYE lead_id: {lead_id}
+3. Marcar lead como meeting_scheduled (schedule_meeting_for_lead)
+
+Datos del lead: {json.dumps(input_data)}
+
+IMPORTANTE: Una vez creado el link de Calendly, el lead debe quedar marcado como meeting_scheduled=true en la base de datos.""",
                 },
             ]
 
@@ -485,13 +501,50 @@ class MeetingSchedulerAgent:
                     elif tool_call.name == "create_calendly_scheduling_link":
                         try:
                             result_data = json.loads(result)
-                            if "booking_url" in result_data:
+                            if "booking_url" in result_data and result_data.get(
+                                "success", False
+                            ):
                                 meeting_result["meeting_url"] = result_data[
                                     "booking_url"
                                 ]
-                                meeting_result["event_type"] = "Sales Call"
-                        except:
-                            pass
+                                meeting_result["event_type"] = result_data.get(
+                                    "event_type", "Sales Call"
+                                )
+                                meeting_result["success"] = True
+                                meeting_result["lead_status"] = "meeting_scheduled"
+
+                                # Auto-call schedule_meeting_for_lead si tenemos lead_id
+                                if (
+                                    "lead_id" in result_data
+                                    and result_data["lead_id"] != "unknown"
+                                ):
+                                    logger.info(
+                                        f"📅 Auto-scheduling meeting for lead {result_data['lead_id']}"
+                                    )
+                                    schedule_args = {
+                                        "lead_id": result_data["lead_id"],
+                                        "meeting_url": result_data["booking_url"],
+                                        "meeting_type": result_data.get(
+                                            "event_type", "Sales Call"
+                                        ),
+                                    }
+                                    schedule_result = self._execute_function(
+                                        "schedule_meeting_for_lead", schedule_args
+                                    )
+                                    logger.info(
+                                        f"📅 Auto-schedule result: {schedule_result}"
+                                    )
+                                    # ─── NUEVO: Actualizar el lead con el link de la reunión ───
+                                    update_data = LeadUpdate(
+                                        metadata={
+                                            "meeting_url": result_data["booking_url"]
+                                        }
+                                    )
+                                    self.db_client.update_lead(
+                                        result_data["lead_id"], update_data
+                                    )
+                        except Exception as e:
+                            logger.error(f"Error processing calendly link result: {e}")
 
                     elif tool_call.name == "create_conversation_for_lead":
                         try:

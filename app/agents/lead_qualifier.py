@@ -133,16 +133,14 @@ class LeadAgent:
         ]
 
     def _execute_function(self, function_name: str, arguments: Dict[str, Any]) -> str:
-        """Ejecutar función de Supabase - VERSIÓN CORREGIDA CON SERIALIZACIÓN UUID"""
+        """Ejecutar función de Supabase"""
         try:
             if function_name == "get_lead_by_email":
                 result = self.db_client.get_lead_by_email(arguments["email"])
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result) if result else None)
 
             elif function_name == "get_lead_by_id":
                 result = self.db_client.get_lead(arguments["lead_id"])
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result) if result else None)
 
             elif function_name == "update_lead_qualification":
@@ -161,12 +159,10 @@ class LeadAgent:
                 )
 
                 result = self.db_client.update_lead(arguments["lead_id"], updates)
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result))
 
             elif function_name == "mark_lead_as_qualified":
                 result = self.db_client.mark_lead_as_qualified(arguments["lead_id"])
-                # CORREGIDO: Serializar UUID correctamente
                 return json.dumps(serialize_for_json(result))
 
             else:
@@ -181,7 +177,6 @@ class LeadAgent:
         try:
             # Preparar mensajes de entrada
             input_messages = [
-                {"role": "system", "content": self.instructions},
                 {
                     "role": "user",
                     "content": f"Califica este lead y actualiza su estado en la base de datos: {json.dumps(input_data)}",
@@ -191,6 +186,7 @@ class LeadAgent:
             # Llamada inicial al modelo
             response = self.client.responses.create(
                 model=self.model,
+                instructions=self.instructions,
                 input=input_messages,
                 tools=self._get_supabase_tools(),
                 tool_choice="auto",

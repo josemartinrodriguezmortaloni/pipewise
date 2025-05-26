@@ -1,16 +1,11 @@
 import asyncio
 import logging
 from typing import Dict, Any, Optional
-from uuid import UUID
 from dotenv import load_dotenv
 
-# IMPORTACIONES ACTUALIZADAS - Con MCP
 from app.supabase.supabase_client import (
     SupabaseCRMClient,
     LeadCreate,
-    LeadUpdate,
-    ConversationCreate,
-    MessageCreate,
 )
 
 # Importar agentes actualizados con MCP
@@ -28,14 +23,12 @@ logger = logging.getLogger(__name__)
 
 class LeadProcessor:
     """
-    Procesador principal de leads con agentes corregidos
+    Procesador principal de leads con agentes
     """
 
     def __init__(self):
         # Inicializar cliente de Supabase
         self.db_client = SupabaseCRMClient()
-
-        # Inicializar agentes corregidos
         self.lead_qualifier = LeadAgent()
         self.outbound_agent = OutboundAgent()
         self.meeting_scheduler = MeetingSchedulerAgent()
@@ -81,13 +74,13 @@ class LeadProcessor:
 
             logger.info("✅ Lead calificado, continuando workflow...")
 
-            # PASO 3: Contacto outbound - CORREGIDO
-            logger.info("📞 Ejecutando contacto outbound...")
-            outbound_result = await self._execute_outbound_corrected(current_lead)
-
-            # PASO 4: Agendamiento de reunión - CORREGIDO
+            # PASO 3: Agendamiento de reunión (REORDENADO: Ahora va antes del contacto outbound)
             logger.info("📅 Ejecutando agendamiento...")
             meeting_result = await self._schedule_meeting_corrected(current_lead)
+
+            # PASO 4: Contacto outbound (REORDENADO: Ahora va después del agendamiento)
+            logger.info("📞 Ejecutando contacto outbound...")
+            outbound_result = await self._execute_outbound_corrected(current_lead)
 
             logger.info("🏁 Workflow completado")
 
@@ -122,7 +115,6 @@ class LeadProcessor:
         if not email:
             return None
 
-        # CORREGIDO: Usar método síncrono
         return self.db_client.get_lead_by_email(email)
 
     async def _create_new_lead(self, lead_data: Dict[str, Any]) -> Any:
@@ -138,12 +130,11 @@ class LeadProcessor:
             metadata=lead_data.get("metadata", {}),
         )
 
-        # CORREGIDO: Usar método síncrono
         return self.db_client.create_lead(lead_create)
 
     async def _qualify_lead_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        Calificación corregida que actualiza la base de datos
+        Calificación que actualiza la base de datos
         """
         try:
             # Preparar datos para el agente
@@ -158,7 +149,6 @@ class LeadProcessor:
                 "metadata": lead.metadata or {},
             }
 
-            # El agente corregido debe actualizar la base de datos
             qualification_result = await self.lead_qualifier.run(lead_input)
 
             logger.info(f"Resultado de calificación: {qualification_result}")
@@ -180,7 +170,7 @@ class LeadProcessor:
 
     async def _execute_outbound_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        Contacto outbound corregido que actualiza la base de datos
+        Contacto outbound que actualiza la base de datos
         """
         try:
             contact_input = {
@@ -194,7 +184,6 @@ class LeadProcessor:
                 },
             }
 
-            # El agente corregido debe marcar como contactado
             outbound_result = await self.outbound_agent.run(contact_input)
 
             logger.info(f"Resultado de contacto: {outbound_result}")
@@ -220,7 +209,7 @@ class LeadProcessor:
 
     async def _schedule_meeting_corrected(self, lead: Any) -> Dict[str, Any]:
         """
-        Agendamiento corregido que actualiza la base de datos
+        Agendamiento que actualiza la base de datos
         """
         try:
             meeting_input = {
@@ -267,7 +256,7 @@ class LeadProcessor:
 
 class Agents:
     """
-    Clase principal que orquesta todos los agentes del sistema - CORREGIDA
+    Clase principal que orquesta todos los agentes del sistema
     """
 
     def __init__(self) -> None:
@@ -276,7 +265,7 @@ class Agents:
 
     async def run_workflow(self, lead_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Ejecutar el workflow completo para un lead - CORREGIDO
+        Ejecutar el workflow completo para un lead
         """
         return await self.lead_processor.process_lead_workflow(lead_data)
 
@@ -287,12 +276,10 @@ class Agents:
     async def get_lead_status(self, lead_id: str) -> Dict[str, Any]:
         """Obtener estado actual de un lead"""
         try:
-            # CORREGIDO: Usar método síncrono
             lead = self.lead_processor.db_client.get_lead(lead_id)
             if not lead:
                 return {"error": "Lead not found"}
 
-            # CORREGIDO: Usar método síncrono
             conversations = self.lead_processor.db_client.list_conversations(
                 lead_id=lead.id
             )
@@ -311,7 +298,6 @@ class Agents:
 
     async def get_system_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del sistema"""
-        # CORREGIDO: Usar método síncrono
         return self.lead_processor.db_client.get_stats()
 
 
@@ -340,7 +326,7 @@ async def example_corrected_workflow():
         },
     }
 
-    # Ejecutar workflow CORREGIDO
+    # Ejecutar workflow
     print("🚀 Iniciando workflow CRM corregido...")
     result = await agents.run_workflow(lead_data)
 

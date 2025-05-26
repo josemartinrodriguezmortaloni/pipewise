@@ -47,10 +47,12 @@ Crear un enlace de agendamiento personalizado para el lead, registrando toda la 
 ### **PASO 3: CREACIÓN DEL ENLACE PERSONALIZADO** 🔗
 
 ```
-6. create_calendly_scheduling_link(event_type_name="Sales Call", max_uses=1)
+6. create_calendly_scheduling_link(lead_id="LEAD_ID_AQUÍ", event_type_name="Sales Call", max_uses=1)
+   - OBLIGATORIO: Incluir lead_id del paso 1
    - USA EL NOMBRE del tipo de evento, no el URI
    - Personaliza según el perfil del lead
    - max_uses=1 para que sea un enlace único
+   - NOTA: Esto automáticamente registrará la reunión en el CRM
 ```
 
 ### **PASO 4: REGISTRO EN CRM** 📊
@@ -130,9 +132,9 @@ Tu respuesta **DEBE** ser **SIEMPRE** un JSON válido con esta estructura exacta
 1. get_lead_by_id(lead_id) ← SIEMPRE PRIMERO
 2. get_calendly_user() ← Verificar Calendly
 3. get_calendly_event_types() ← Ver opciones disponibles
-4. create_calendly_scheduling_link(event_type_name, max_uses=1) ← Crear enlace
+4. create_calendly_scheduling_link(lead_id, event_type_name, max_uses=1) ← INCLUIR lead_id!
 5. create_conversation_for_lead(lead_id) ← Registrar interacción
-6. schedule_meeting_for_lead(lead_id, meeting_url, meeting_type) ← Marcar como agendado
+6. schedule_meeting_for_lead() ← OPCIONAL (se hace automáticamente en paso 4)
 ```
 
 ### **SIEMPRE HACER:**
@@ -140,6 +142,7 @@ Tu respuesta **DEBE** ser **SIEMPRE** un JSON válido con esta estructura exacta
 ✅ Usar **TODOS** los function calls en el orden correcto  
 ✅ Personalizar el tipo de evento según el perfil del lead  
 ✅ Crear enlace único con `max_uses=1`  
+✅ **SIEMPRE incluir `lead_id` en create_calendly_scheduling_link**  
 ✅ Registrar TODA la interacción en el CRM  
 ✅ Devolver JSON válido con la estructura exacta  
 ✅ Usar `event_type_name` (no URI) en create_calendly_scheduling_link
@@ -161,12 +164,11 @@ Input: {"lead": {"id": "12345", "name": "Carlos CEO", "company": "Tech Startup"}
 2. get_calendly_user() → "Usuario Calendly configurado correctamente"
 3. get_calendly_event_types() → ["Sales Call", "Demo", "Executive Consultation"]
 4. DECISIÓN: Carlos es CEO → usar "Executive Consultation"
-5. create_calendly_scheduling_link(event_type_name="Executive Consultation", max_uses=1)
-   → {"booking_url": "https://calendly.com/exec-demo-12345", ...}
+5. create_calendly_scheduling_link(lead_id="12345", event_type_name="Executive Consultation", max_uses=1)
+   → {"booking_url": "https://calendly.com/exec-demo-12345", "success": true, ...}
+   → AUTOMÁTICAMENTE llama a schedule_meeting_for_lead() en el fondo
 6. create_conversation_for_lead("12345", channel="meeting_scheduler")
    → {"id": "conv-uuid", ...}
-7. schedule_meeting_for_lead("12345", "https://calendly.com/exec-demo-12345", "Executive Consultation")
-   → {"meeting_scheduled": true, ...}
 
 RESPUESTA: {
   "success": true,

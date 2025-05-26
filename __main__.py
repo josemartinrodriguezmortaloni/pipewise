@@ -1,7 +1,7 @@
-#!/usr/bin/env python#!/usr/bin/env python#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-__main__.py - Test Suite Principal del CRM System (CORREGIDO)
-Ejecuta tests completos del sistema CRM con todas las correcciones aplicadas.
+Workflow Visualizer - Herramienta para visualizar el comportamiento de los agentes CRM
+Permite ver paso a paso qué hacen los agentes, qué herramientas llaman y qué datos procesan.
 """
 
 import asyncio
@@ -9,635 +9,418 @@ import logging
 import os
 import json
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from dotenv import load_dotenv
+import time
 
 # Importaciones del sistema
 from app.supabase.supabase_client import SupabaseCRMClient
 from app.schemas.lead_schema import LeadCreate
 from app.agents.agent import Agents
 
+# Para interceptar function calls
+from app.agents.lead_qualifier import LeadAgent
+from app.agents.outbound_contact import OutboundAgent
+from app.agents.meeting_scheduler import MeetingSchedulerAgent
+
 # Cargar variables de entorno
 load_dotenv()
 
-# Configurar logging mejorado
+# =====================================================
+# CONFIGURACIÓN DEL LEAD - MODIFICA ESTOS DATOS
+# =====================================================
+
+LEAD_DATA = {
+    "name": "María González",
+    "email": f"maria.gonzalez.{datetime.now().strftime('%Y%m%d%H%M%S')}@techcorp.com",
+    "company": "TechCorp Solutions",
+    "phone": "+34 612 345 678",
+    "message": """
+    Somos una empresa de tecnología con 45 empleados.
+    Necesitamos automatizar nuestro proceso de ventas porque estamos creciendo rápidamente.
+    Actualmente perdemos muchos leads por falta de seguimiento.
+    Buscamos una solución que se integre con nuestras herramientas existentes.
+    """,
+    "source": "website_form",
+    "utm_params": {
+        "campaign": "automation_landing",
+        "medium": "organic",
+        "source": "google",
+    },
+    "metadata": {
+        "company_size": "25-50",
+        "industry": "technology",
+        "interest_level": "high",
+        "current_tools": ["Slack", "Google Workspace", "Hubspot"],
+        "budget_range": "5000-10000",
+        "timeline": "Q1 2025",
+    },
+}
+
+# =====================================================
+# CONFIGURACIÓN DE VISUALIZACIÓN
+# =====================================================
+
+# Configurar logging detallado
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG,
+    format="%(message)s",
     handlers=[
-        logging.FileHandler("crm_test_fixed.log"),
+        logging.FileHandler(
+            f"workflow_debug_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        ),
         logging.StreamHandler(),
     ],
 )
+
+# Silenciar logs no relevantes
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("openai").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 
-class CRMTestSuite:
-    """Suite de tests completa para el sistema CRM con correcciones"""
+class WorkflowVisualizer:
+    """Visualizador detallado del workflow de agentes"""
 
     def __init__(self):
-        self.results = {"tests": [], "summary": {}}
-        self.test_data = {}
+        self.step_count = 0
+        self.function_calls = []
+        self.agent_results = {}
 
-    def log_test(self, test_name: str, status: str, message: str = ""):
-        """Registrar resultado de test"""
-        result = {
-            "test": test_name,
-            "status": status,
-            "message": message,
-            "timestamp": datetime.now().isoformat(),
-        }
-        self.results["tests"].append(result)
+        # Parche para interceptar function calls
+        self._patch_agents()
 
-        # Log visual
-        icon = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
-        print(f"{icon} {test_name}: {status}")
-        if message:
-            print(f"   [NOTE] {message}")
-
-    async def test_environment(self) -> bool:
-        """Test 1: Verificar configuración del entorno"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 1: ENVIRONMENT CONFIGURATION")
-        print("=" * 60)
-
-        required_vars = {
-            "SUPABASE_URL": os.getenv("SUPABASE_URL"),
-            "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY"),
-            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
-            "CALENDLY_ACCESS_TOKEN": os.getenv("CALENDLY_ACCESS_TOKEN"),
+    def _patch_agents(self):
+        """Interceptar las llamadas a funciones de los agentes"""
+        # Guardar métodos originales
+        self._original_methods = {
+            "lead_execute": LeadAgent._execute_function,
+            "outbound_execute": OutboundAgent._execute_function,
+            "meeting_execute": MeetingSchedulerAgent._execute_function,
         }
 
-        all_passed = True
-        for var_name, var_value in required_vars.items():
-            if var_value:
-                masked_value = f"{var_value[:10]}..." if len(var_value) > 10 else "***"
-                self.log_test(f"{var_name}", "PASS", f"Found: {masked_value}")
-            else:
-                if var_name == "CALENDLY_ACCESS_TOKEN":
-                    self.log_test(f"{var_name}", "PASS", "Optional - Calendly disabled")
-                else:
-                    self.log_test(f"{var_name}", "FAIL", "Not configured")
-                    all_passed = False
+        # Crear wrappers
+        def create_wrapper(agent_name, original_method):
+            def wrapper(
+                self_agent, function_name: str, arguments: Dict[str, Any]
+            ) -> str:
+                # Log antes de ejecutar
+                self._log_function_call(agent_name, function_name, arguments)
 
-        return all_passed
+                # Ejecutar función original
+                result = original_method(self_agent, function_name, arguments)
 
-    async def test_database_connection(self) -> bool:
-        """Test 2: Verificar conexión a la base de datos"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 2: DATABASE CONNECTION")
-        print("=" * 60)
+                # Log después de ejecutar
+                self._log_function_result(agent_name, function_name, result)
 
-        try:
-            # Inicializar cliente
-            db_client = SupabaseCRMClient()
-            self.log_test("Supabase Client Init", "PASS", "Client created successfully")
+                return result
 
-            # Test de salud
-            health = db_client.health_check()
-            if health.get("status") == "healthy":
-                self.log_test("Health Check", "PASS", "Database connection OK")
-            else:
-                self.log_test("Health Check", "FAIL", f"Health check failed: {health}")
-                return False
+            return wrapper
 
-            # Test de consulta básica
-            leads = db_client.list_leads(limit=1)
-            self.log_test(
-                "Basic Query", "PASS", f"Query executed, found {len(leads)} leads"
-            )
+        # Aplicar patches
+        LeadAgent._execute_function = create_wrapper(
+            "LeadQualifier", self._original_methods["lead_execute"]
+        )
+        OutboundAgent._execute_function = create_wrapper(
+            "OutboundAgent", self._original_methods["outbound_execute"]
+        )
+        MeetingSchedulerAgent._execute_function = create_wrapper(
+            "MeetingScheduler", self._original_methods["meeting_execute"]
+        )
 
-            # Test de estadísticas
-            stats = db_client.get_stats()
-            if "leads" in stats:
-                total_leads = stats["leads"]["total"]
-                qualified = stats["leads"]["qualified"]
-                contacted = stats["leads"]["contacted"]
-                meetings = stats["leads"]["meetings_scheduled"]
-                conversations = stats["conversations"]["total"]
-                active_convs = stats["conversations"]["active"]
+    def _log_function_call(
+        self, agent_name: str, function_name: str, arguments: Dict[str, Any]
+    ):
+        """Registrar llamada a función"""
+        self.print_box(f"🔧 FUNCTION CALL: {agent_name} -> {function_name}", "yellow")
+        print(f"📥 Arguments:")
+        for key, value in arguments.items():
+            print(f"   • {key}: {value}")
+        print()
 
-                self.log_test(
-                    "Stats Query",
-                    "PASS",
-                    f"Stats retrieved, total leads: {total_leads}, qualified: {qualified}, contacted: {contacted}, meetings: {meetings}, conversations: {conversations} (active: {active_convs})",
-                )
-            else:
-                self.log_test("Stats Query", "FAIL", f"Stats error: {stats}")
-
-            return True
-
-        except Exception as e:
-            self.log_test("Database Connection", "FAIL", f"Error: {str(e)}")
-            return False
-
-    async def test_individual_agents(self) -> bool:
-        """Test 3: Verificar agentes individuales"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 3: INDIVIDUAL AGENTS")
-        print("=" * 60)
-
-        try:
-            # Importar agentes
-            from app.agents.lead_qualifier import LeadAgent
-            from app.agents.outbound_contact import OutboundAgent
-            from app.agents.meeting_scheduler import MeetingSchedulerAgent
-
-            # Test LeadAgent
-            lead_agent = LeadAgent()
-            self.log_test("LeadAgent Init", "PASS", "Agent initialized")
-            lead_tools = lead_agent._get_supabase_tools()
-            self.log_test(
-                "LeadAgent Tools",
-                "PASS",
-                f"Found {len(lead_tools)} function calling tools",
-            )
-
-            # Test OutboundAgent
-            outbound_agent = OutboundAgent()
-            self.log_test("OutboundAgent Init", "PASS", "Agent initialized")
-            outbound_tools = outbound_agent._get_supabase_tools()
-            self.log_test(
-                "OutboundAgent Tools",
-                "PASS",
-                f"Found {len(outbound_tools)} function calling tools",
-            )
-
-            # Test MeetingSchedulerAgent
-            meeting_agent = MeetingSchedulerAgent()
-            self.log_test("MeetingSchedulerAgent Init", "PASS", "Agent initialized")
-            meeting_tools = meeting_agent._get_tools()
-            self.log_test(
-                "MeetingSchedulerAgent Tools",
-                "PASS",
-                f"Found {len(meeting_tools)} function calling tools",
-            )
-
-            return True
-
-        except Exception as e:
-            self.log_test("Individual Agents", "FAIL", f"Error: {str(e)}")
-            return False
-
-    async def test_supabase_operations(self) -> bool:
-        """Test 3.5: Verificar operaciones básicas de Supabase"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 3.5: SUPABASE OPERATIONS")
-        print("=" * 60)
-
-        try:
-            db_client = SupabaseCRMClient()
-
-            # Crear lead de prueba
-            print("[NOTE] Attempting to create test lead...")
-            test_email = (
-                f"test.ops.{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
-            )
-            test_lead_data = LeadCreate(
-                name="Test Operations Lead",
-                email=test_email,
-                company="Test Operations Inc",
-                phone="+1234567890",
-                message="Test message for operations verification",
-                source="test_suite",
-                metadata={"test": True, "created_by": "test_suite"},
-            )
-
-            # Crear lead
-            new_lead = db_client.create_lead(test_lead_data)
-            self.test_data["test_lead_id"] = str(new_lead.id)
-            self.log_test(
-                "Create Lead Operation", "PASS", f"Lead created with ID: {new_lead.id}"
-            )
-
-            # Obtener lead
-            retrieved_lead = db_client.get_lead(new_lead.id)
-            if retrieved_lead and retrieved_lead.id == new_lead.id:
-                self.log_test(
-                    "Get Lead Operation", "PASS", "Lead retrieved successfully"
-                )
-            else:
-                self.log_test("Get Lead Operation", "FAIL", "Lead not found")
-                return False
-
-            # Obtener por email
-            email_lead = db_client.get_lead_by_email(test_email)
-            if email_lead and email_lead.id == new_lead.id:
-                self.log_test("Get Lead by Email", "PASS", "Lead found by email")
-            else:
-                self.log_test("Get Lead by Email", "FAIL", "Lead not found by email")
-                return False
-
-            # Actualizar lead
-            from app.schemas.lead_schema import LeadUpdate
-
-            updates = LeadUpdate(qualified=True, status="qualified")
-            updated_lead = db_client.update_lead(new_lead.id, updates)
-            if updated_lead.qualified:
-                self.log_test("Mark Lead Qualified", "PASS", "Lead marked as qualified")
-            else:
-                self.log_test("Mark Lead Qualified", "FAIL", "Lead not qualified")
-                return False
-
-            # Limpiar lead de prueba
-            deleted = db_client.delete_lead(new_lead.id)
-            if deleted:
-                self.log_test("Delete Test Lead", "PASS", "Test lead cleaned up")
-            else:
-                self.log_test("Delete Test Lead", "FAIL", "Could not delete test lead")
-
-            return True
-
-        except Exception as e:
-            self.log_test("Supabase Operations", "FAIL", f"Error: {str(e)}")
-            return False
-
-    async def test_complete_workflow(self) -> bool:
-        """Test 4: Workflow completo end-to-end CORREGIDO"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 4: COMPLETE WORKFLOW END-TO-END")
-        print("=" * 60)
-
-        try:
-            # Inicializar sistema de agentes
-            agents = Agents()
-            self.log_test("Agents System Init", "PASS", "Agents system initialized")
-
-            # Datos de prueba para el lead
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            test_email = f"test.lead.{timestamp}@testcompany.com"
-
-            lead_data = {
-                "name": "Carlos Test Mendoza",
-                "email": test_email,
-                "company": "Test Tech Startup Inc",
-                "phone": "+1234567890",
-                "message": "Necesitamos automatizar nuestro proceso de ventas urgentemente. Tenemos un equipo de 25 personas y buscamos una solución SaaS robusta.",
-                "source": "website_form",
-                "utm_params": {"campaign": "automation_test", "medium": "organic"},
-                "metadata": {
-                    "company_size": "25-50",
-                    "industry": "technology",
-                    "interest_level": "high",
-                    "test_run": True,
-                },
+        # Guardar para resumen
+        self.function_calls.append(
+            {
+                "agent": agent_name,
+                "function": function_name,
+                "arguments": arguments,
+                "timestamp": datetime.now().isoformat(),
             }
+        )
 
-            logger.info(f"🚀 Starting complete workflow test with lead: {test_email}")
+    def _log_function_result(self, agent_name: str, function_name: str, result: str):
+        """Registrar resultado de función"""
+        try:
+            result_data = json.loads(result)
+            print(f"📤 Result:")
+            self._print_json_pretty(result_data, indent=3)
+        except:
+            print(f"📤 Result: {result[:200]}...")
+        print()
 
-            # Ejecutar workflow completo
-            result = await agents.run_workflow(lead_data)
+    def print_separator(self, char="=", length=80):
+        """Imprimir separador visual"""
+        print(char * length)
 
-            # Verificar resultado del workflow
-            if result.get("status") == "completed":
-                self.log_test(
-                    "Complete Workflow",
-                    "PASS",
-                    f"Lead ID: {result.get('lead_id')}, Qualified: {result.get('qualified')}",
-                )
-                self.test_data["workflow_lead_id"] = result.get("lead_id")
-            elif result.get("status") == "error":
-                self.log_test(
-                    "Complete Workflow",
-                    "FAIL",
-                    f"Workflow error: {result.get('error')}",
-                )
-                return False
-            else:
-                self.log_test(
-                    "Complete Workflow",
-                    "PASS",
-                    f"Workflow completed with status: {result.get('status')}",
-                )
-                self.test_data["workflow_lead_id"] = result.get("lead_id")
+    def print_box(self, text: str, color: str = "blue"):
+        """Imprimir texto en una caja visual"""
+        colors = {
+            "blue": "\033[94m",
+            "green": "\033[92m",
+            "yellow": "\033[93m",
+            "red": "\033[91m",
+            "purple": "\033[95m",
+            "cyan": "\033[96m",
+        }
+        reset = "\033[0m"
 
-            # Verificar los pasos individuales
-            lead_id = result.get("lead_id")
-            if lead_id:
-                # Test calificación
-                if result.get("qualified"):
-                    self.log_test(
-                        "Lead Qualification", "PASS", "Lead qualified successfully"
-                    )
+        self.print_separator()
+        print(f"{colors.get(color, '')}{text}{reset}")
+        self.print_separator()
+
+    def print_step(self, title: str, description: str = ""):
+        """Imprimir un paso del workflow"""
+        self.step_count += 1
+        print(f"\n🔸 STEP {self.step_count}: {title}")
+        if description:
+            print(f"   {description}")
+        print()
+
+    def _print_json_pretty(self, data: Any, indent: int = 0):
+        """Imprimir JSON de forma legible"""
+        prefix = " " * indent
+
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, (dict, list)):
+                    print(f"{prefix}{key}:")
+                    self._print_json_pretty(value, indent + 3)
                 else:
-                    self.log_test(
-                        "Lead Qualification",
-                        "FAIL",
-                        f"Lead not qualified: {result.get('reason', 'Unknown reason')}",
-                    )
+                    print(f"{prefix}{key}: {value}")
+        elif isinstance(data, list):
+            for i, item in enumerate(data):
+                print(f"{prefix}[{i}]:")
+                self._print_json_pretty(item, indent + 3)
+        else:
+            print(f"{prefix}{data}")
 
-                # Test contacto outbound
-                outbound_result = result.get("outbound_message") or result.get(
-                    "contacted"
-                )
-                if outbound_result:
-                    self.log_test(
-                        "Outbound Contact",
-                        "PASS",
-                        f"Message: {str(outbound_result)[:50]}...",
-                    )
-                else:
-                    self.log_test(
-                        "Outbound Contact", "FAIL", "No outbound contact recorded"
-                    )
+    async def visualize_workflow(self, lead_data: Dict[str, Any]):
+        """Ejecutar y visualizar el workflow completo"""
 
-                # Test agendamiento
-                meeting_url = result.get("meeting_url")
-                meeting_type = result.get("event_type", "Unknown")
-                if meeting_url:
-                    self.log_test(
-                        "Meeting Scheduling",
-                        "PASS",
-                        f"Type: {meeting_type}, URL: {meeting_url}",
-                    )
-                else:
-                    self.log_test(
-                        "Meeting Scheduling", "FAIL", "No meeting URL generated"
-                    )
+        self.print_box("🚀 CRM WORKFLOW VISUALIZER", "purple")
+        print(f"📅 Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"👤 Lead: {lead_data['name']} ({lead_data['email']})")
+        print(f"🏢 Company: {lead_data['company']}")
+        print()
 
-                # Verificar persistencia en base de datos
-                try:
-                    db_client = SupabaseCRMClient()
-                    persistent_lead = db_client.get_lead(lead_id)
-
-                    if persistent_lead:
-                        self.log_test(
-                            "Lead Persistence",
-                            "PASS",
-                            f"Lead found in database: {persistent_lead.email}",
-                        )
-
-                        # Verificar estados
-                        if persistent_lead.qualified:
-                            self.log_test(
-                                "Lead Status Update", "PASS", "Lead marked as qualified"
-                            )
-                        else:
-                            self.log_test(
-                                "Lead Status Update",
-                                "FAIL",
-                                "Lead not marked as qualified",
-                            )
-
-                        if persistent_lead.contacted:
-                            self.log_test(
-                                "Contact Status Update",
-                                "PASS",
-                                "Lead marked as contacted",
-                            )
-                        else:
-                            self.log_test(
-                                "Contact Status Update",
-                                "FAIL",
-                                "Lead not marked as contacted",
-                            )
-
-                        if persistent_lead.meeting_scheduled:
-                            self.log_test(
-                                "Meeting Status Update", "PASS", "Meeting scheduled"
-                            )
-                        else:
-                            self.log_test(
-                                "Meeting Status Update", "FAIL", "Meeting not scheduled"
-                            )
-
-                        # Verificar conversaciones
-                        conversations = db_client.list_conversations(lead_id=lead_id)
-                        if conversations:
-                            self.log_test(
-                                "Conversation Creation",
-                                "PASS",
-                                f"Found {len(conversations)} conversations",
-                            )
-                        else:
-                            self.log_test(
-                                "Conversation Creation",
-                                "FAIL",
-                                "No conversations found",
-                            )
-
-                    else:
-                        self.log_test(
-                            "Lead Persistence",
-                            "FAIL",
-                            f"Lead {lead_id} not found in database",
-                        )
-                        return False
-
-                except Exception as e:
-                    self.log_test(
-                        "Database Verification",
-                        "FAIL",
-                        f"Error checking database: {str(e)}",
-                    )
-
-            return True
-
-        except Exception as e:
-            self.log_test("Complete Workflow", "FAIL", f"Error: {str(e)}")
-            logger.error(f"Workflow test failed: {e}", exc_info=True)
-            return False
-
-    async def test_cleanup(self) -> bool:
-        """Test 5: Limpiar datos de prueba"""
-        print("\n" + "=" * 60)
-        print("[TEST] TEST 5: CLEANUP")
-        print("=" * 60)
+        # Mostrar datos del lead
+        self.print_step("Lead Data Input", "Datos iniciales del lead")
+        self._print_json_pretty(lead_data)
 
         try:
-            db_client = SupabaseCRMClient()
+            # Verificar entorno
+            self.print_step("Environment Check", "Verificando configuración")
+            self._check_environment()
 
-            # Obtener estadísticas antes de limpiar
-            stats_before = db_client.get_stats()
+            # Inicializar sistema
+            self.print_step("System Initialization", "Inicializando agentes")
+            agents = Agents()
+            print("✅ Agents system initialized")
 
-            # Limpiar lead del workflow si existe
-            workflow_lead_id = self.test_data.get("workflow_lead_id")
-            if workflow_lead_id:
-                try:
-                    deleted = db_client.delete_lead(workflow_lead_id)
-                    if deleted:
-                        self.log_test(
-                            "Test Lead Deletion",
-                            "PASS",
-                            f"Test lead {workflow_lead_id} deleted",
-                        )
-                    else:
-                        self.log_test(
-                            "Test Lead Deletion",
-                            "FAIL",
-                            f"Could not delete lead {workflow_lead_id}",
-                        )
+            # Mostrar agentes disponibles
+            print("\n📋 Available Agents:")
+            print("   • LeadQualifier - Califica leads entrantes")
+            print("   • OutboundAgent - Contacta leads calificados")
+            print("   • MeetingScheduler - Agenda reuniones con leads")
 
-                    # Verificar que se eliminó
-                    check_lead = db_client.get_lead(workflow_lead_id)
-                    if not check_lead:
-                        self.log_test(
-                            "Cleanup Verification",
-                            "PASS",
-                            "Test lead successfully removed",
-                        )
-                    else:
-                        self.log_test(
-                            "Cleanup Verification", "FAIL", "Test lead still exists"
-                        )
+            # Ejecutar workflow
+            self.print_box("🔄 STARTING WORKFLOW EXECUTION", "green")
 
-                except Exception as e:
-                    self.log_test(
-                        "Test Lead Deletion", "FAIL", f"Error deleting lead: {str(e)}"
-                    )
+            # Interceptar el workflow para mostrar cada agente
+            lead_processor = agents.lead_processor
 
-            # Verificar estadísticas después de limpiar
-            stats_after = db_client.get_stats()
-            leads_before = stats_before.get("leads", {}).get("total", 0)
-            leads_after = stats_after.get("leads", {}).get("total", 0)
+            # PASO 1: Verificar/Crear Lead
+            self.print_step("Lead Processing", "Verificando si el lead existe")
+            existing_lead = await lead_processor._check_lead_exists(lead_data)
 
-            self.log_test(
-                "Stats Consistency",
-                "PASS",
-                f"Lead count updated: {leads_before} -> {leads_after}",
+            if existing_lead:
+                print(f"✅ Lead existente encontrado: {existing_lead.id}")
+                current_lead = existing_lead
+            else:
+                print("📝 Creando nuevo lead...")
+                current_lead = await lead_processor._create_new_lead(lead_data)
+                print(f"✅ Lead creado: {current_lead.id}")
+
+            print(f"\n📊 Lead Status:")
+            print(f"   • ID: {current_lead.id}")
+            print(f"   • Qualified: {current_lead.qualified}")
+            print(f"   • Contacted: {current_lead.contacted}")
+            print(f"   • Meeting Scheduled: {current_lead.meeting_scheduled}")
+
+            # PASO 2: Calificación
+            self.print_box("🎯 AGENT 1: LEAD QUALIFIER", "cyan")
+            print("Este agente analiza si el lead cumple criterios de calificación")
+            await asyncio.sleep(1)  # Pausa dramática
+
+            qualification_result = await lead_processor._qualify_lead_corrected(
+                current_lead
             )
+            self.agent_results["qualification"] = qualification_result
 
-            return True
+            print(f"\n📊 Qualification Result:")
+            print(f"   • Qualified: {qualification_result.get('qualified', False)}")
+            print(f"   • Reason: {qualification_result.get('reason', 'N/A')}")
+
+            if not qualification_result.get("qualified", False):
+                self.print_box("❌ WORKFLOW STOPPED - Lead Not Qualified", "red")
+                return
+
+            # PASO 3: Agendamiento de reunión (REORDENADO: Ahora va antes del contacto outbound)
+            self.print_box("📅 AGENT 2: MEETING SCHEDULER", "cyan")
+            print("Este agente crea links de Calendly y agenda reuniones")
+            await asyncio.sleep(1)
+
+            meeting_result = await lead_processor._schedule_meeting_corrected(
+                current_lead
+            )
+            self.agent_results["meeting"] = meeting_result
+
+            print(f"\n📊 Meeting Result:")
+            print(f"   • Success: {meeting_result.get('success', False)}")
+            print(f"   • Meeting URL: {meeting_result.get('meeting_url', 'N/A')}")
+            print(f"   • Event Type: {meeting_result.get('event_type', 'N/A')}")
+
+            # PASO 4: Contacto Outbound (REORDENADO: Ahora va después del agendamiento)
+            self.print_box("📞 AGENT 3: OUTBOUND CONTACT", "cyan")
+            print("Este agente genera y envía mensajes personalizados al lead")
+            await asyncio.sleep(1)
+
+            outbound_result = await lead_processor._execute_outbound_corrected(
+                current_lead
+            )
+            self.agent_results["outbound"] = outbound_result
+
+            print(f"\n📊 Outbound Result:")
+            print(f"   • Success: {outbound_result.get('success', False)}")
+            if "message" in outbound_result:
+                print(f"   • Message Preview: {outbound_result['message'][:100]}...")
+
+            # Resumen final
+            self.print_box("✅ WORKFLOW COMPLETED", "green")
+            self._print_final_summary(current_lead)
 
         except Exception as e:
-            self.log_test("Cleanup", "FAIL", f"Error: {str(e)}")
-            return False
+            self.print_box(f"❌ ERROR: {str(e)}", "red")
+            logger.error(f"Workflow error: {e}", exc_info=True)
 
-    async def run_all_tests(self) -> Dict[str, Any]:
-        """Ejecutar todos los tests"""
-        print("🚀 Starting FIXED CRM System Test Suite")
-        print(f"📅 Test started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-        # Ejecutar tests en orden
-        test_methods = [
-            self.test_environment,
-            self.test_database_connection,
-            self.test_individual_agents,
-            self.test_supabase_operations,
-            self.test_complete_workflow,
-            self.test_cleanup,
-        ]
-
-        test_categories = [
-            "ENVIRONMENT",
-            "DATABASE",
-            "AGENTS",
-            "SUPABASE_OPS",
-            "WORKFLOW",
-            "CLEANUP",
-        ]
-
-        category_results = {}
-
-        for i, (test_method, category) in enumerate(zip(test_methods, test_categories)):
-            try:
-                result = await test_method()
-                category_results[category] = {"passed": True, "error": None}
-            except Exception as e:
-                logger.error(f"Test category {category} failed: {e}", exc_info=True)
-                category_results[category] = {"passed": False, "error": str(e)}
-
-        # Generar resumen
-        self.generate_summary(category_results)
-
-        return self.results
-
-    def generate_summary(self, category_results: Dict[str, Dict]):
-        """Generar resumen de resultados"""
-        print("\n" + "=" * 60)
-        print("[TEST] FINAL TEST REPORT")
-        print("=" * 60)
-
-        total_passed = 0
-        total_failed = 0
-        failed_tests = []
-
-        # Contar resultados por categoría
-        for test in self.results["tests"]:
-            if test["status"] == "PASS":
-                total_passed += 1
-            elif test["status"] == "FAIL":
-                total_failed += 1
-                failed_tests.append(f"   • {test['test']} - {test['message']}")
-
-        # Mostrar resumen por categoría
-        for category, result in category_results.items():
-            category_tests = [
-                t
-                for t in self.results["tests"]
-                if category.lower() in t["test"].lower()
-                or any(
-                    cat_word in t["test"].lower()
-                    for cat_word in category.lower().split("_")
-                )
-            ]
-            passed = len([t for t in category_tests if t["status"] == "PASS"])
-            failed = len([t for t in category_tests if t["status"] == "FAIL"])
-
-            status_icon = "✅" if result["passed"] else "⚠️" if failed > 0 else "✅"
-            print(f"{status_icon} {category}: {passed} passed, {failed} failed")
-
-        # Resultado general
-        if total_failed == 0:
-            overall_status = "✅ SUCCESS"
-            print(f"\n🎉 OVERALL RESULT: {overall_status}")
-        elif total_failed <= 4:
-            overall_status = "⚠️ WARNING"
-            print(f"\n⚠️ OVERALL RESULT: {overall_status} - {total_failed} TESTS FAILED")
-        else:
-            overall_status = "❌ FAILED"
-            print(
-                f"\n❌ OVERALL RESULT: {overall_status} - {total_failed} TESTS FAILED"
-            )
-
-        print(f"📊 TOTAL: {total_passed} passed, {total_failed} failed")
-
-        if failed_tests:
-            print(f"\n❌ FAILED TESTS:")
-            for failed_test in failed_tests:
-                print(failed_test)
-
-        # Guardar resumen
-        self.results["summary"] = {
-            "overall_status": overall_status,
-            "total_passed": total_passed,
-            "total_failed": total_failed,
-            "failed_tests": failed_tests,
-            "category_results": category_results,
+    def _check_environment(self):
+        """Verificar variables de entorno"""
+        env_vars = {
+            "SUPABASE_URL": "✅" if os.getenv("SUPABASE_URL") else "❌",
+            "SUPABASE_ANON_KEY": "✅" if os.getenv("SUPABASE_ANON_KEY") else "❌",
+            "OPENAI_API_KEY": "✅" if os.getenv("OPENAI_API_KEY") else "❌",
+            "CALENDLY_ACCESS_TOKEN": "✅"
+            if os.getenv("CALENDLY_ACCESS_TOKEN")
+            else "⚠️ (Optional)",
         }
 
-        # Guardar resultados completos
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = f"crm_test_report_fixed_{timestamp}.json"
-        with open(report_file, "w") as f:
-            json.dump(self.results, f, indent=2, default=str)
+        for var, status in env_vars.items():
+            print(f"   {status} {var}")
 
-        print("=" * 60)
-        print(f"📄 Detailed report saved to: {report_file}")
-        print(f"📋 Logs saved to: crm_test_fixed.log")
+    def _print_final_summary(self, lead):
+        """Imprimir resumen final del workflow"""
+        # Obtener estado final del lead
+        db_client = SupabaseCRMClient()
+        final_lead = db_client.get_lead(lead.id)
+
+        print(f"\n📊 FINAL LEAD STATUS:")
+        print(f"   • ID: {final_lead.id}")
+        print(f"   • Status: {final_lead.status}")
+        print(f"   • Qualified: {'✅' if final_lead.qualified else '❌'}")
+        print(f"   • Contacted: {'✅' if final_lead.contacted else '❌'}")
+        print(
+            f"   • Meeting Scheduled: {'✅' if final_lead.meeting_scheduled else '❌'}"
+        )
+
+        # Mostrar mensaje outbound final si existe
+        outbound_message = self.agent_results.get("outbound", {}).get(
+            "outbound_message"
+        )
+        meeting_url = self.agent_results.get("meeting", {}).get("meeting_url")
+        if outbound_message:
+            self.print_box("📨 MENSAJE ENVIADO AL CLIENTE (OUTBOUND)", "green")
+            print(outbound_message.strip())
+            if meeting_url and meeting_url not in outbound_message:
+                print(f"\nAgenda tu reunión aquí: {meeting_url}")
+            print()
+
+        print(f"\n🔧 FUNCTION CALLS SUMMARY:")
+        print(f"   • Total function calls: {len(self.function_calls)}")
+
+        # Agrupar por agente
+        agent_calls = {}
+        for call in self.function_calls:
+            agent = call["agent"]
+            if agent not in agent_calls:
+                agent_calls[agent] = []
+            agent_calls[agent].append(call["function"])
+
+        for agent, functions in agent_calls.items():
+            print(f"\n   {agent}:")
+            for func in functions:
+                print(f"      • {func}")
+
+        # Guardar resumen detallado
+        summary_file = (
+            f"workflow_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        with open(summary_file, "w") as f:
+            json.dump(
+                {
+                    "lead_data": LEAD_DATA,
+                    "final_status": {
+                        "id": str(final_lead.id),
+                        "status": final_lead.status,
+                        "qualified": final_lead.qualified,
+                        "contacted": final_lead.contacted,
+                        "meeting_scheduled": final_lead.meeting_scheduled,
+                    },
+                    "function_calls": self.function_calls,
+                    "agent_results": self.agent_results,
+                },
+                f,
+                indent=2,
+                default=str,
+            )
+
+        print(f"\n💾 Detailed summary saved to: {summary_file}")
 
 
 async def main():
     """Función principal"""
-    test_suite = CRMTestSuite()
-    results = await test_suite.run_all_tests()
-
-    # Retornar código de salida basado en resultados
-    if results["summary"]["total_failed"] == 0:
-        return 0
-    else:
-        return 1
+    visualizer = WorkflowVisualizer()
+    await visualizer.visualize_workflow(LEAD_DATA)
 
 
 if __name__ == "__main__":
-    import sys
+    print("\n" + "=" * 80)
+    print("CRM WORKFLOW VISUALIZER")
+    print("=" * 80)
+    print(
+        "\n📌 Para modificar los datos del lead, edita LEAD_DATA al inicio del archivo"
+    )
+    print("📌 El workflow mostrará paso a paso qué hace cada agente\n")
+
+    input("Presiona ENTER para comenzar...")
 
     try:
-        exit_code = asyncio.run(main())
-        sys.exit(exit_code)
+        asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n⚠️ Test interrupted by user")
-        sys.exit(1)
+        print("\n\n⚠️ Workflow interrumpido por el usuario")
     except Exception as e:
-        print(f"\n❌ Test suite failed with error: {e}")
-        sys.exit(1)
+        print(f"\n\n❌ Error fatal: {e}")
+        import traceback
+
+        traceback.print_exc()

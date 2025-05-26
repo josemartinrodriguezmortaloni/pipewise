@@ -163,7 +163,7 @@ class OutboundAgent:
             return json.dumps({"error": str(e)})
 
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Ejecutar el agente de outbound con function calling"""
+        """Ejecutar el agente de outbound con function calling y registrar mensaje en la DB"""
         try:
             # Preparar mensajes de entrada
             input_messages = [
@@ -191,6 +191,8 @@ class OutboundAgent:
                 "message": "No contact performed",
                 "contact_method": "automated",
             }
+            outbound_message_content = None
+            lead_id = input_data.get("lead", {}).get("id")
 
             while iteration < max_iterations:
                 function_calls = [
@@ -217,6 +219,14 @@ class OutboundAgent:
                         except:
                             pass
 
+                    # Si es un mensaje generado por el modelo, capturarlo
+                    if tool_call.name == "create_contact_message":
+                        try:
+                            # El mensaje real está en los argumentos
+                            outbound_message_content = args.get("message_content")
+                        except:
+                            pass
+
                     input_messages.append(tool_call)
                     input_messages.append(
                         {
@@ -239,7 +249,7 @@ class OutboundAgent:
 
             # Extraer respuesta final
             output_text = response.output_text
-
+            final_message = None
             try:
                 result = json.loads(output_text)
                 # Asegurar que tenemos campos requeridos
@@ -249,15 +259,63 @@ class OutboundAgent:
                     result["success"] = contact_result["success"]
                 if "contact_method" not in result:
                     result["contact_method"] = "outbound_automated"
-                return result
+                # Si el modelo generó un mensaje, usarlo
+                final_message = result.get("message")
             except json.JSONDecodeError:
-                return {
-                    "message": output_text
-                    if output_text
-                    else "Contacto automatizado completado",
-                    "success": contact_result["success"],
-                    "contact_method": "outbound_automated",
-                }
+                final_message = (
+                    output_text if output_text else "Contacto automatizado completado"
+                )
+
+            # --- REGISTRO EN DB: conversación y mensaje ---
+            if lead_id and final_message:
+                # Recuperar el lead actualizado para extraer el link de la reunión
+                lead_info = self.db_client.get_lead(lead_id)
+                meeting_link = None
+                if lead_info:
+                    meeting_link = getattr(lead_info, "meeting_url", None)
+                    if (
+                        not meeting_link
+                        and hasattr(lead_info, "metadata")
+                        and isinstance(lead_info.metadata, dict)
+                    ):
+                        meeting_link = lead_info.metadata.get("meeting_url")
+                if meeting_link and meeting_link not in final_message:
+                    final_message = (
+                        final_message.strip()
+                        + "\n\nAgenda tu reunión aquí: "
+                        + meeting_link
+                    )
+
+                # Buscar conversación outbound única para el lead
+                conversations = self.db_client.list_conversations(
+                    lead_id=lead_id, status="active"
+                )
+                outbound_conv = None
+                for conv in conversations:
+                    if getattr(conv, "channel", None) == "outbound":
+                        outbound_conv = conv
+                        break
+                if not outbound_conv:
+                    # Crear conversación outbound
+                    from app.schemas.conversations_schema import ConversationCreate
+
+                    conv_data = ConversationCreate(
+                        lead_id=lead_id, channel="outbound", status="active"
+                    )
+                    outbound_conv = self.db_client.create_conversation(conv_data)
+                # Crear mensaje
+                from app.schemas.messsage_schema import MessageCreate
+
+                msg_data = MessageCreate(
+                    conversation_id=outbound_conv.id,
+                    sender="CRM",
+                    content=final_message,
+                    message_type="text",
+                )
+                self.db_client.create_message(msg_data)
+                contact_result["outbound_message"] = final_message
+
+            return contact_result
 
         except Exception as e:
             logger.error(f"Error en OutboundAgent: {e}")
