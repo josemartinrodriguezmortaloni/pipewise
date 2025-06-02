@@ -2,7 +2,7 @@
 
 ## The Global Speed-to-Lead Challenge in B2B Companies
 
-**Pipewise** is an intelligent automation platform designed to solve one of the most critical problems in B2B sales: slow response to inbound leads. In today's competitive landscape, the speed at which you respond to a new lead can make or break a deal. Pipewise automates the entire lead journey—from qualification, to personalized outreach, to meeting scheduling—ensuring you never lose a hot lead to slow processes or internal bottlenecks.
+**Pipewise** is an intelligent automation solution designed to solve one of the most critical problems in B2B sales: slow response to inbound leads. In today's competitive landscape, the speed at which you respond to a new lead can make or break a deal. Pipewise automates the entire lead journey—from qualification, to personalized outreach, to meeting scheduling—ensuring you never lose a hot lead to slow processes or internal bottlenecks.
 
 ---
 
