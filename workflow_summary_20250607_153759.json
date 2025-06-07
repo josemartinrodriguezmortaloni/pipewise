@@ -1,0 +1,133 @@
+{
+  "lead_data": {
+    "name": "Mar\u00eda Gonz\u00e1lez",
+    "email": "maria.gonzalez.20250607153715@techcorp.com",
+    "company": "TechCorp Solutions",
+    "phone": "+34 612 345 678",
+    "message": "\n    Somos una empresa de tecnolog\u00eda con 45 empleados.\n    Necesitamos automatizar nuestro proceso de ventas porque estamos creciendo r\u00e1pidamente.\n    Actualmente perdemos muchos leads por falta de seguimiento.\n    Buscamos una soluci\u00f3n que se integre con nuestras herramientas existentes.\n    ",
+    "source": "website_form",
+    "utm_params": {
+      "campaign": "automation_landing",
+      "medium": "organic",
+      "source": "google"
+    },
+    "metadata": {
+      "company_size": "25-50",
+      "industry": "technology",
+      "interest_level": "high",
+      "current_tools": [
+        "Slack",
+        "Google Workspace",
+        "Hubspot"
+      ],
+      "budget_range": "5000-10000",
+      "timeline": "Q1 2025"
+    }
+  },
+  "final_status": {
+    "id": "93161edd-1651-41e7-8daf-0b83bffc237c",
+    "status": "contacted",
+    "qualified": true,
+    "contacted": true,
+    "meeting_scheduled": true
+  },
+  "function_calls": [
+    {
+      "agent": "LeadQualifier",
+      "function": "mark_lead_as_qualified",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c"
+      },
+      "timestamp": "2025-06-07T15:37:25.784583"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "get_lead_by_id",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c"
+      },
+      "timestamp": "2025-06-07T15:37:40.707993"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "get_calendly_user",
+      "arguments": {},
+      "timestamp": "2025-06-07T15:37:42.392135"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "get_calendly_event_types",
+      "arguments": {},
+      "timestamp": "2025-06-07T15:37:43.287769"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "create_calendly_scheduling_link",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c",
+        "event_type_name": "Demo",
+        "max_uses": 1
+      },
+      "timestamp": "2025-06-07T15:37:44.903067"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "schedule_meeting_for_lead",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c",
+        "meeting_url": "https://calendly.com/demo-booking/7b3d3071",
+        "meeting_type": "Demo"
+      },
+      "timestamp": "2025-06-07T15:37:44.905068"
+    },
+    {
+      "agent": "MeetingScheduler",
+      "function": "create_conversation_for_lead",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c",
+        "channel": "meeting_scheduler"
+      },
+      "timestamp": "2025-06-07T15:37:47.269894"
+    },
+    {
+      "agent": "OutboundAgent",
+      "function": "get_lead_by_id",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c"
+      },
+      "timestamp": "2025-06-07T15:37:51.997868"
+    },
+    {
+      "agent": "OutboundAgent",
+      "function": "mark_lead_as_contacted",
+      "arguments": {
+        "lead_id": "93161edd-1651-41e7-8daf-0b83bffc237c",
+        "contact_method": "outbound_automated"
+      },
+      "timestamp": "2025-06-07T15:37:54.238710"
+    }
+  ],
+  "agent_results": {
+    "qualification": {
+      "qualified": true,
+      "reason": "Lead updated successfully",
+      "database_updated": true
+    },
+    "meeting": {
+      "success": true,
+      "meeting_url": "https://calendly.com/demo-booking/7b3d3071",
+      "event_type": "Demo",
+      "lead_status": "meeting_scheduled",
+      "conversation_id": "0c8a084d-b7f0-4a7f-97fe-19196a4e4a24",
+      "message": "Meeting scheduling completed",
+      "database_updated": true
+    },
+    "outbound": {
+      "success": true,
+      "message": "Lead marked as contacted successfully",
+      "contact_method": "automated",
+      "outbound_message": "Hola Mar\u00eda, muchas gracias por contactar a TechCorp Solutions. Hemos visto que est\u00e1n creciendo r\u00e1pidamente y que buscan automatizar su proceso de ventas e integrar la soluci\u00f3n con sus herramientas actuales. Entendemos la importancia de no perder m\u00e1s leads por falta de seguimiento; por eso, nuestro equipo le ayudar\u00e1 a encontrar la mejor opci\u00f3n adaptada a sus necesidades. Hemos registrado su inter\u00e9s y confirmado la reuni\u00f3n programada. Si tiene alguna pregunta previa, no dude en responder a este mensaje.",
+      "database_updated": true
+    }
+  }
+}

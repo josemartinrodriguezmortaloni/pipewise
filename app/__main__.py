@@ -9,13 +9,11 @@ import logging
 import os
 import json
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from dotenv import load_dotenv
-import time
 
 # Importaciones del sistema
 from app.supabase.supabase_client import SupabaseCRMClient
-from app.schemas.lead_schema import LeadCreate
 from app.agents.agent import Agents
 
 # Para interceptar function calls

@@ -18,7 +18,7 @@ from app.services.email_service import email_service
 
 # Importaciones existentes del CRM
 # from app.api.api import app as crm_app  # Comentado para tests
-from app.agents.agent import Agent
+from app.agents.agent import Agents
 
 # Cargar variables de entorno
 load_dotenv()
@@ -67,7 +67,7 @@ async def startup_checks():
 
         # Verificar CRM Agents
         try:
-            agent = Agent()
+            agent = Agents()
             logger.info("✅ CRM Agents initialized")
         except Exception as e:
             logger.warning(f"⚠️ CRM Agents initialization warning: {e}")
