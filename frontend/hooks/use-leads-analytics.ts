@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authenticatedFetch } from "@/lib/auth";
 
 interface LeadsAnalyticsData {
   date: string;
@@ -31,13 +32,14 @@ export function useLeadsAnalytics(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `/api/analytics/leads?timerange=${timerange}`
+      const response = await authenticatedFetch(
+        `/api/analytics/leads?timerange=${timerange}`,
+        { signal }
       );
 
       if (!response.ok) {
@@ -46,7 +48,8 @@ export function useLeadsAnalytics(
 
       const result: LeadsAnalyticsResponse = await response.json();
       setData(result.data);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === "AbortError") return; // petición cancelada
       console.error("Error fetching leads analytics:", err);
       setError(
         err instanceof Error ? err.message : "Failed to fetch leads analytics"

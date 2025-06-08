@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { authenticatedFetch } from "@/lib/auth";
 
 // Interfaces
 interface Lead {
@@ -62,12 +63,7 @@ export function useLeadStats(): LeadStats {
       setError(null);
 
       // Obtener leads desde la API
-      const response = await fetch("/api/leads?per_page=1000", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await authenticatedFetch("/api/leads?per_page=1000");
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -112,7 +108,8 @@ export function useLeadStats(): LeadStats {
           costSavings: Math.round(costSavings),
         },
       });
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
       console.error("Error fetching lead stats:", err);
       setError(err instanceof Error ? err.message : "Unknown error occurred");
     } finally {
