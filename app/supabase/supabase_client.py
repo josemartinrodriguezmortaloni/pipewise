@@ -410,8 +410,8 @@ class SupabaseCRMClient:
     def create_contact(self, contact_data: ContactCreate) -> Dict[str, Any]:
         """Crear un nuevo contacto"""
         try:
-contact_dict = serialize_for_json(contact_data.model_dump())
-contact_dict.setdefault("id", str(uuid4()))
+            contact_dict = serialize_for_json(contact_data.model_dump())
+            contact_dict["id"] = str(uuid4())
             contact_dict["created_at"] = self._get_current_timestamp()
 
             result = self.client.table("contacts").insert(contact_dict).execute()
@@ -476,7 +476,7 @@ contact_dict.setdefault("id", str(uuid4()))
             if platform:
                 query = query.eq("platform", platform)
             if user_id:
-                query = query.eq("metadata->>user_id", user_id)
+                query = query.eq("user_id", user_id)
 
             result = (
                 query.order("created_at", desc=True)

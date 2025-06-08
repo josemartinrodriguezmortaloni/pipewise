@@ -25,6 +25,7 @@ import {
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+import { useAuth, useUserData } from "@/hooks/use-auth";
 import {
   Sidebar,
   SidebarContent,
@@ -83,6 +84,34 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useUserData();
+  const { logout } = useAuth();
+
+  if (!user) {
+    return (
+      <Sidebar collapsible="offcanvas" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className="data-[slot=sidebar-menu-button]:!p-1.5"
+              >
+                <Link href="/">
+                  <IconInnerShadowTop className="!size-5" />
+                  <span className="text-base font-semibold">Acme Inc.</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={data.navMain} />
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -105,7 +134,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user.full_name,
+            email: user.email,
+            avatar: `https://avatar.vercel.sh/${user.email}`,
+          }}
+          onLogout={logout}
+        />
       </SidebarFooter>
     </Sidebar>
   );

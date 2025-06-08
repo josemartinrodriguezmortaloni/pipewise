@@ -53,7 +53,7 @@ export function SignupForm({
     } else if (formData.password.length < 8) {
       newErrors.password = "La contraseña debe tener al menos 8 caracteres";
     } else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
         formData.password
       )
     ) {
@@ -91,23 +91,27 @@ export function SignupForm({
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Error al crear la cuenta";
+      let hasSpecificError = false;
 
       if (error instanceof Error) {
         // Handle specific server validation errors
         if (error.message.includes("email already exists")) {
           errorMessage = "Este email ya está registrado";
           setErrors({ email: errorMessage });
+          hasSpecificError = true;
         } else if (error.message.includes("weak password")) {
           errorMessage =
             "La contraseña no cumple con los requisitos de seguridad";
           setErrors({ password: errorMessage });
+          hasSpecificError = true;
         } else {
           errorMessage = error.message;
         }
       }
 
       toast.error(errorMessage);
-      if (!errors.email && !errors.password) {
+      // Use the local flag instead of checking stale state
+      if (!hasSpecificError) {
         setErrors({ general: errorMessage });
       }
     }

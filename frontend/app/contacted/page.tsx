@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 import {
   Mail,
   MessageCircle,
@@ -104,10 +108,12 @@ function ContactedPageContent() {
   );
   const [contactMessages, setContactMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchContacts = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const params = new URLSearchParams();
       if (platformFilter !== "all") {
         params.append("platform", platformFilter);
@@ -123,6 +129,7 @@ function ContactedPageContent() {
       setContacts(data.contacts || []);
     } catch (error) {
       console.error("Error fetching contacts:", error);
+      setError("Failed to load contacts. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -131,10 +138,14 @@ function ContactedPageContent() {
   const fetchStats = async () => {
     try {
       const response = await fetch("/api/contacts/stats");
+      if (!response.ok) {
+        throw new Error(`Stats fetch failed: ${response.status}`);
+      }
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error("Error fetching stats:", error);
+      setStats(null); // Clear stats on error
     }
   };
 
@@ -204,363 +215,238 @@ function ContactedPageContent() {
     );
   }
 
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Personas Contactadas
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Gestiona todos los contactos realizados a través de diferentes
-            plataformas
-          </p>
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center text-red-500">
+          <p>{error}</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">
-                {stats.total_contacts}
-              </CardTitle>
-              <CardDescription>Total Contactados</CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">
-                {stats.messages_sent}
-              </CardTitle>
-              <CardDescription>Mensajes Enviados</CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">
-                {stats.meetings_scheduled}
-              </CardTitle>
-              <CardDescription>Reuniones Agendadas</CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">
-                {stats.conversion_rate?.toFixed(1) || 0}%
-              </CardTitle>
-              <CardDescription>Tasa de Conversión</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+  return (
+    <div className="flex flex-col h-full">
+      {/* Filters and Search */}
+      <div className="p-4 bg-background border-b sticky top-0 z-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nombre, email o username..."
+              type="search"
+              placeholder="Search by name, email, or username..."
+              className="pl-8 w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={platformFilter} onValueChange={setPlatformFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="twitter">Twitter</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="scheduled">Meeting Scheduled</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-
-        <Select value={platformFilter} onValueChange={setPlatformFilter}>
-          <SelectTrigger className="w-[180px]">
-            <Filter className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Plataforma" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas las plataformas</SelectItem>
-            <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-            <SelectItem value="instagram">Instagram</SelectItem>
-            <SelectItem value="twitter">Twitter</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <Calendar className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            <SelectItem value="scheduled">Con reunión agendada</SelectItem>
-            <SelectItem value="pending">Sin reunión agendada</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Contacts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Contactos ({filteredContacts.length})</CardTitle>
-          <CardDescription>
-            Lista de todas las personas contactadas a través de diferentes
-            plataformas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Plataforma</TableHead>
-                <TableHead>Información</TableHead>
-                <TableHead>Mensajes</TableHead>
-                <TableHead>Último Contacto</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredContacts.map((contact) => {
-                const PlatformIcon = platformIcons[contact.platform];
-                return (
-                  <TableRow key={contact.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{contact.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {contact.email || contact.username || contact.phone}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
+      <div className="flex-1 overflow-auto p-4">
+        {stats && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Contacts
+                </CardTitle>
+                <User className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total_contacts}</div>
+                <p className="text-xs text-muted-foreground">
+                  Across all platforms
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Meetings Scheduled
+                </CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stats.meetings_scheduled}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {stats.conversion_rate.toFixed(1)}% conversion rate
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Messages Sent
+                </CardTitle>
+                <MessageCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.messages_sent}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total outbound messages
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-                    <TableCell>
-                      <Badge className={platformColors[contact.platform]}>
-                        <PlatformIcon className="w-3 h-3 mr-1" />
-                        {contact.platform}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="space-y-1 text-sm">
-                        {contact.email && (
-                          <div className="flex items-center">
-                            <Mail className="w-3 h-3 mr-1 text-gray-400" />
-                            {contact.email}
-                          </div>
-                        )}
-                        {contact.phone && (
-                          <div className="flex items-center">
-                            <Phone className="w-3 h-3 mr-1 text-gray-400" />
-                            {contact.phone}
-                          </div>
-                        )}
-                        {contact.username && (
-                          <div className="flex items-center">
-                            <AtSign className="w-3 h-3 mr-1 text-gray-400" />@
-                            {contact.username}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge variant="outline">
-                        {contact.total_messages} mensaje
-                        {contact.total_messages !== 1 ? "s" : ""}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      {contact.last_message_at ? (
-                        <div className="text-sm">
-                          {formatDate(contact.last_message_at)}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {contact.meeting_scheduled ? (
-                        <Badge className="bg-green-100 text-green-800">
-                          Reunión agendada
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline">Pendiente</Badge>
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant={
-                            selectedContactId === contact.id
-                              ? "default"
-                              : "outline"
-                          }
-                          size="sm"
-                          onClick={() => handleViewMessages(contact)}
-                        >
-                          {selectedContactId === contact.id
-                            ? "Ocultar mensajes"
-                            : "Ver mensajes"}
-                        </Button>
-
-                        {contact.meeting_url && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              window.open(contact.meeting_url, "_blank")
-                            }
-                          >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                            Reunión
-                          </Button>
-                        )}
-
-                        {contact.profile_url && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              window.open(contact.profile_url, "_blank")
-                            }
-                          >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                            Perfil
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-
-          {filteredContacts.length === 0 && (
-            <div className="text-center py-8">
-              <User className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No hay contactos
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {searchTerm ||
-                platformFilter !== "all" ||
-                statusFilter !== "all"
-                  ? "No se encontraron contactos que coincidan con los filtros."
-                  : "Aún no has contactado a ninguna persona."}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Sección de mensajes expandible */}
-      {selectedContactId && (
         <Card>
           <CardHeader>
-            <CardTitle>
-              Mensajes de{" "}
-              {contacts.find((c) => c.id === selectedContactId)?.name}
-            </CardTitle>
-            <CardDescription>
-              Historial completo de conversación con este contacto
-            </CardDescription>
+            <CardTitle>Contact List</CardTitle>
+            <CardDescription>A list of all contacted users.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loadingMessages ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : contactMessages.length > 0 ? (
-              <div className="space-y-4">
-                {contactMessages.map((message) => (
-                  <div
-                    key={message.id}
-                    className="border rounded-lg p-4 bg-gray-50"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="text-xs">
-                          {message.message_type}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Platform</TableHead>
+                  <TableHead>Last Activity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredContacts.map((contact) => (
+                  <>
+                    <TableRow key={contact.id}>
+                      <TableCell>
+                        <div className="font-medium">{contact.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {contact.email || contact.username}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${
+                            platformColors[
+                              contact.platform as keyof typeof platformColors
+                            ]
+                          }`}
+                        >
+                          {platformIcons[
+                            contact.platform as keyof typeof platformIcons
+                          ] && <MessageCircle className="mr-1 h-3 w-3" />}
+                          {contact.platform}
                         </Badge>
-                        {message.template_name && (
-                          <Badge variant="secondary" className="text-xs">
-                            {message.template_name}
-                          </Badge>
-                        )}
+                      </TableCell>
+                      <TableCell>
+                        {contact.last_message_at
+                          ? formatDate(contact.last_message_at)
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
                         <Badge
                           variant={
-                            message.status === "sent" ? "default" : "secondary"
+                            contact.meeting_scheduled ? "default" : "secondary"
                           }
-                          className="text-xs"
                         >
-                          {message.status}
+                          {contact.meeting_scheduled
+                            ? "Meeting Scheduled"
+                            : "Pending"}
                         </Badge>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-gray-500">
-                          {formatDate(message.sent_at)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewMessages(contact)}
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            {selectedContactId === contact.id
+                              ? "Hide Messages"
+                              : "View Messages"}
+                          </Button>
+                          {contact.profile_url && (
+                            <Button variant="ghost" size="sm" asChild>
+                              <a
+                                href={contact.profile_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
                         </div>
-                        <div className="text-xs text-gray-400 capitalize">
-                          {message.platform}
-                        </div>
-                      </div>
-                    </div>
-
-                    {message.subject && (
-                      <h4 className="font-medium mb-2 text-gray-900">
-                        {message.subject}
-                      </h4>
+                      </TableCell>
+                    </TableRow>
+                    {selectedContactId === contact.id && (
+                      <TableRow>
+                        <TableCell colSpan={5}>
+                          {loadingMessages ? (
+                            <p>Loading messages...</p>
+                          ) : (
+                            <div className="p-4 bg-muted/50 rounded-lg">
+                              <h4 className="font-semibold mb-2">
+                                Message History for {contact.name}
+                              </h4>
+                              {contactMessages.length > 0 ? (
+                                <ul className="space-y-4">
+                                  {contactMessages.map((msg) => (
+                                    <li
+                                      key={msg.id}
+                                      className="p-3 bg-background rounded-md border"
+                                    >
+                                      <div className="flex justify-between items-center mb-1">
+                                        <span className="font-semibold text-sm">
+                                          {msg.subject || "Message"}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                          {formatDate(msg.sent_at)}
+                                        </span>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">
+                                        {msg.content}
+                                      </p>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p>No messages found for this contact.</p>
+                              )}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
                     )}
-
-                    <div className="prose prose-sm max-w-none">
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {message.content}
-                      </p>
-                    </div>
-
-                    {message.metadata &&
-                      Object.keys(message.metadata).length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <details className="text-xs text-gray-500">
-                            <summary className="cursor-pointer hover:text-gray-700">
-                              Detalles técnicos
-                            </summary>
-                            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-                              {JSON.stringify(message.metadata, null, 2)}
-                            </pre>
-                          </details>
-                        </div>
-                      )}
-                  </div>
+                  </>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <MessageCircle className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  No hay mensajes
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Aún no se han enviado mensajes a este contacto.
-                </p>
-              </div>
-            )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-      )}
+      </div>
     </div>
   );
 }
@@ -577,11 +463,13 @@ export default function ContactedPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex flex-1 flex-col h-screen overflow-hidden">
+          <header className="sticky top-0 z-40 flex h-[--header-height] shrink-0 items-center gap-2 bg-background/80 px-4 backdrop-blur lg:px-6">
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1 overflow-y-auto">
             <ContactedPageContent />
-          </div>
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>

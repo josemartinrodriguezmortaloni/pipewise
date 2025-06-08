@@ -2,10 +2,17 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { CalendarView } from "@/components/calendar-view";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { useAuth, useUserData } from "@/hooks/use-auth";
+import { Separator } from "@/components/ui/separator";
 
 export default function CalendarPage() {
+  const { logout } = useAuth();
+  const { user } = useUserData();
   return (
     <SidebarProvider
       style={
@@ -17,8 +24,10 @@ export default function CalendarPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
         <div className="flex flex-1 flex-col">
+          <header className="sticky top-0 z-40 flex h-[--header-height] shrink-0 items-center gap-2 bg-background/80 px-4 backdrop-blur lg:px-6">
+            <SidebarTrigger />
+          </header>
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">

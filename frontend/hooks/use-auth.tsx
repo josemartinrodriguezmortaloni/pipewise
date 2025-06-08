@@ -55,16 +55,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           tokenStorage.clearTokens();
           userStorage.clearUser();
-        } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        } else if (
+          event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "INITIAL_SESSION"
+        ) {
           if (session?.user) {
-            // Let's use the user profile from our own DB via validateToken
-            const validatedUser = await validateToken();
-            setUser(validatedUser);
-            if (session.access_token && session.refresh_token) {
+            // guardar tokens primero para que validateToken los use
+            if (session.access_token && session.refresh_token)
               tokenStorage.setTokens(
                 session.access_token,
                 session.refresh_token
               );
+
+            let validatedUser = null;
+            try {
+              validatedUser = await validateToken();
+            } catch {
+              /* ignore */
+            }
+
+            if (validatedUser) {
+              setUser(validatedUser);
+            } else {
+              // fallback: construir perfil básico desde session
+              setUser({
+                id: session.user.id,
+                email: session.user.email ?? "",
+                full_name:
+                  (session.user.user_metadata?.full_name as string) ||
+                  session.user.email?.split("@")[0] ||
+                  "Usuario",
+                company: session.user.user_metadata?.company as
+                  | string
+                  | undefined,
+                phone: session.user.user_metadata?.phone as string | undefined,
+                role: "user",
+                is_active: true,
+                email_confirmed: true,
+                has_2fa: false,
+                created_at: session.user.created_at ?? new Date().toISOString(),
+                last_login: new Date().toISOString(),
+              } as any);
             }
           }
         }
@@ -100,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Login error:", error);
       throw error;
     } finally {
-      /* no-op: listener will flip loading state */
+      setIsLoading(false);
     }
   };
 
@@ -143,6 +175,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Google login error:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

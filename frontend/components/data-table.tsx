@@ -737,11 +737,12 @@ function TableCellViewer({ item }: { item: TableRow }) {
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleString();
-    } catch {
+    const date = new Date(dateString);
+    // Check if date is invalid by checking if getTime() returns NaN
+    if (isNaN(date.getTime())) {
       return dateString;
     }
+    return date.toLocaleString();
   };
 
   return (
@@ -873,32 +874,42 @@ function TableCellViewer({ item }: { item: TableRow }) {
                 </Button>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="edit-name">Lead Name</Label>
-                <Input id="edit-name" defaultValue={item.name} />
+                <Label htmlFor={`edit-name-${item.leadId}`}>Lead Name</Label>
+                <Input
+                  id={`edit-name-${item.leadId}`}
+                  defaultValue={item.name}
+                />
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="edit-company">Company</Label>
-                <Input id="edit-company" defaultValue={item.company} />
+                <Label htmlFor={`edit-company-${item.leadId}`}>Company</Label>
+                <Input
+                  id={`edit-company-${item.leadId}`}
+                  defaultValue={item.company}
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="edit-email">Email</Label>
+                  <Label htmlFor={`edit-email-${item.leadId}`}>Email</Label>
                   <Input
-                    id="edit-email"
+                    id={`edit-email-${item.leadId}`}
                     type="email"
                     defaultValue={item.email}
                   />
                 </div>
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="edit-phone">Phone</Label>
-                  <Input id="edit-phone" type="tel" defaultValue={item.phone} />
+                  <Label htmlFor={`edit-phone-${item.leadId}`}>Phone</Label>
+                  <Input
+                    id={`edit-phone-${item.leadId}`}
+                    type="tel"
+                    defaultValue={item.phone}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="edit-status">Status</Label>
+                  <Label htmlFor={`edit-status-${item.leadId}`}>Status</Label>
                   <Select defaultValue={item.status}>
-                    <SelectTrigger id="edit-status">
+                    <SelectTrigger id={`edit-status-${item.leadId}`}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -910,18 +921,18 @@ function TableCellViewer({ item }: { item: TableRow }) {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <Label htmlFor="edit-source">Source</Label>
+                  <Label htmlFor={`edit-source-${item.leadId}`}>Source</Label>
                   <Input
-                    id="edit-source"
+                    id={`edit-source-${item.leadId}`}
                     defaultValue={item.source || ""}
                     placeholder="Lead source"
                   />
                 </div>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="edit-message">Message</Label>
+                <Label htmlFor={`edit-message-${item.leadId}`}>Message</Label>
                 <textarea
-                  id="edit-message"
+                  id={`edit-message-${item.leadId}`}
                   className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   defaultValue={item.message || ""}
                   placeholder="Enter message or notes about this lead..."

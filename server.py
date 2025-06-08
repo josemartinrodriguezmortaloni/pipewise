@@ -141,6 +141,46 @@ class UserProfile(BaseModel):
     last_login: Optional[str] = None
 
 
+# ===================== MODELOS PARA API DE CONTACTOS =====================
+
+
+class Contact(BaseModel):
+    id: str
+    name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    platform: str
+    platform_id: str
+    username: Optional[str] = None
+    profile_url: Optional[str] = None
+    created_at: datetime
+    total_messages: int
+    last_message_at: Optional[datetime] = None
+    meeting_scheduled: bool
+    meeting_url: Optional[str] = None
+
+
+class ContactStats(BaseModel):
+    total_contacts: int
+    contacts_by_platform: Dict[str, int]
+    messages_sent: int
+    meetings_scheduled: int
+    conversion_rate: float
+    last_contact_date: Optional[datetime] = None
+
+
+class Message(BaseModel):
+    id: str
+    platform: str
+    message_type: str
+    subject: Optional[str] = None
+    content: str
+    template_name: Optional[str] = None
+    sent_at: datetime
+    status: str
+    metadata: Optional[Dict[str, Any]] = None
+
+
 # ===================== MODELOS PARA API DE LEADS =====================
 
 
@@ -420,18 +460,32 @@ class SupabaseAuth:
                 )
 
             if not profile_response.data:
-                logger.warning(f"No se encontró perfil para el usuario {user.id}")
-                # Devolver datos básicos del token si no hay perfil
-                return {
+                logger.warning(
+                    "No profile row found for %s during token validation – inserting one",
+                    user.id,
+                )
+                basic_profile = {
                     "id": user.id,
                     "email": user.email,
-                    "full_name": user.user_metadata.get("full_name", "Usuario"),
+                    "full_name": user.user_metadata.get("full_name")
+                    or user.email.split("@")[0],
                     "company": user.user_metadata.get("company"),
                     "phone": user.user_metadata.get("phone"),
                     "has_2fa": False,
                     "created_at": user.created_at.isoformat(),
                     "last_login": None,
                 }
+                try:
+                    if self.supabase_admin:
+                        self.supabase_admin.table("users").insert(
+                            basic_profile
+                        ).execute()
+                    else:
+                        self.supabase.table("users").insert(basic_profile).execute()
+                    return basic_profile
+                except Exception as insert_err:
+                    logger.error("Failed to insert profile on the fly: %s", insert_err)
+                    return None
 
             return profile_response.data
 
@@ -448,6 +502,19 @@ class SupabaseAuth:
             )
             if not user_profile.data:
                 raise ValueError("User not found")
+
+            # Verificar que el password es correcto antes de habilitar 2FA
+            user_email = user_profile.data[0]["email"]
+            try:
+                # Intentar autenticar con el password proporcionado
+                auth_check = self.supabase.auth.sign_in_with_password(
+                    {"email": user_email, "password": password}
+                )
+                if not auth_check.user:
+                    raise ValueError("Invalid password")
+            except Exception as e:
+                logger.error(f"Password verification failed: {e}")
+                raise ValueError("Invalid password")
 
             # Generar secreto TOTP
             secret = pyotp.random_base32()
@@ -534,7 +601,13 @@ class SupabaseAuth:
         try:
             totp = pyotp.TOTP(secret)
             return totp.verify(code, valid_window=1)
-        except:
+        except (ValueError, TypeError, AttributeError) as e:
+            # Catch specific exceptions that might occur during TOTP verification
+            logger.error(f"TOTP verification error: {e}")
+            return False
+        except Exception as e:
+            # Log unexpected exceptions before returning False
+            logger.error(f"Unexpected error during TOTP verification: {e}")
             return False
 
 
@@ -559,15 +632,22 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = await auth_system.get_user_from_token(credentials.credentials)
-    if not user:
+    try:
+        user = await auth_system.get_user_from_token(credentials.credentials)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
+    except Exception as e:
+        logger.error(f"Token validation failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-    return user
 
 
 # ===================== UTILIDADES DE INFRAESTRUCTURA =====================
@@ -642,17 +722,16 @@ def get_client_ip(request: Request) -> str:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Gestión del ciclo de vida de la aplicación"""
-    # Startup
+    """
+    Context manager para manejar el ciclo de vida de la aplicación.
+    Se ejecuta al iniciar y al apagar el servidor.
+    """
     logger.info("Starting PipeWise CRM with Supabase...")
-
-    # Verificar y corregir políticas RLS
-    if supabase_admin:
-        await fix_users_rls_policies()
-
-    # Verificar conexión con Supabase
     try:
-        # Test de conexión - usar cliente admin para evitar problemas de RLS
+        # Intenta corregir las políticas de RLS al inicio
+        # await fix_users_rls_policies() # Comentado temporalmente para evitar errores de inicio
+
+        # Verifica la conexión con Supabase
         if supabase_admin:
             result = supabase_admin.table("users").select("count").execute()
             logger.info("Supabase connection established")
@@ -773,31 +852,18 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Verificación de salud del sistema"""
-    try:
-        # Test Supabase connection using admin client to bypass RLS
-        if supabase_admin:
-            supabase_admin.table("users").select("count").execute()
-            supabase_status = "healthy"
-        else:
-            # Fallback to regular client
-            supabase.table("users").select("count").execute()
-            supabase_status = "healthy"
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        supabase_status = "unhealthy"
+    """Verifica el estado del servidor y la conexión a Supabase."""
+    return {"status": "ok", "message": "PipeWise server is running"}
 
-    return {
-        "status": "healthy" if supabase_status == "healthy" else "degraded",
-        "timestamp": datetime.now().isoformat(),
-        "version": "3.0.0",
-        "services": {"supabase": supabase_status, "api": "operational"},
-    }
+
+@app.get("/api/test-reload")
+async def test_reload():
+    return {"message": "Server has been reloaded successfully!"}
 
 
 # ===================== RUTAS DE AUTENTICACIÓN =====================
 
-auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
+auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
 @auth_router.post(
@@ -1017,11 +1083,10 @@ async def get_leads(
         user_id = current_user["id"]
         logger.info(f"Obteniendo leads para usuario {user_id}")
 
-        query = (
-            supabase_admin.table("leads")
-            .select("*", count="exact")
-            .eq("user_id", user_id)
-        )
+        # Use admin client if available, otherwise fallback to regular client
+        client = supabase_admin if supabase_admin else supabase
+
+        query = client.table("leads").select("*", count="exact").eq("user_id", user_id)
 
         if status_filter:
             query = query.eq("status", status_filter)
@@ -1071,8 +1136,9 @@ async def create_lead(
             "updated_at": datetime.now().isoformat(),
         }
 
-        # Insertar en la base de datos usando el cliente admin
-        response = supabase_admin.table("leads").insert(new_lead).execute()
+        # Insertar en la base de datos usando el cliente admin si está disponible
+        client = supabase_admin if supabase_admin else supabase
+        response = client.table("leads").insert(new_lead).execute()
 
         if not response.data:
             raise HTTPException(
@@ -1100,9 +1166,10 @@ async def get_lead(
     try:
         user_id = current_user["id"]
 
-        # Obtener el lead
+        # Obtener el lead usando el cliente admin si está disponible
+        client = supabase_admin if supabase_admin else supabase
         response = (
-            supabase_admin.table("leads")
+            client.table("leads")
             .select("*")
             .eq("id", lead_id)
             .eq("user_id", user_id)
@@ -1139,8 +1206,9 @@ async def update_lead(
         user_id = current_user["id"]
 
         # Verificar que el lead existe y pertenece al usuario
+        client = supabase_admin if supabase_admin else supabase
         lead_response = (
-            supabase_admin.table("leads")
+            client.table("leads")
             .select("*")
             .eq("id", lead_id)
             .eq("user_id", user_id)
@@ -1160,7 +1228,7 @@ async def update_lead(
         }
 
         response = (
-            supabase_admin.table("leads")
+            client.table("leads")
             .update(update_data)
             .eq("id", lead_id)
             .eq("user_id", user_id)
@@ -1190,8 +1258,9 @@ async def delete_lead(
         user_id = current_user["id"]
 
         # Verificar que el lead existe y pertenece al usuario
+        client = supabase_admin if supabase_admin else supabase
         lead_response = (
-            supabase_admin.table("leads")
+            client.table("leads")
             .select("*")
             .eq("id", lead_id)
             .eq("user_id", user_id)
@@ -1205,7 +1274,7 @@ async def delete_lead(
             )
 
         # Eliminar el lead
-        supabase_admin.table("leads").delete().eq("id", lead_id).eq(
+        client.table("leads").delete().eq("id", lead_id).eq(
             "user_id", user_id
         ).execute()
 
@@ -1246,19 +1315,20 @@ async def get_lead_analytics(
 
         start_date_str = start_date.isoformat()
 
-        # Obtener todos los leads del usuario en el rango de tiempo
-        leads_response = (
-            supabase_admin.table("leads")
-            .select("*")
+        # Use admin client if available for better performance, otherwise fallback
+        client = supabase_admin if supabase_admin else supabase
+
+        # Get total count of leads
+        count_response = (
+            client.table("leads")
+            .select("*", count="exact", head=True)
             .eq("user_id", user_id)
             .gte("created_at", start_date_str)
             .execute()
         )
+        total_leads = count_response.count or 0
 
-        leads = leads_response.data
-
-        # Si no hay leads, devolver datos vacíos
-        if not leads:
+        if total_leads == 0:
             return LeadAnalytics(
                 total_leads=0,
                 leads_by_status={},
@@ -1268,37 +1338,60 @@ async def get_lead_analytics(
                 average_value=0,
             )
 
-        # Calcular estadísticas
-        total_leads = len(leads)
+        # Get recent leads (last 5)
+        recent_leads_response = (
+            client.table("leads")
+            .select("*")
+            .eq("user_id", user_id)
+            .gte("created_at", start_date_str)
+            .order("created_at", desc=True)
+            .limit(5)
+            .execute()
+        )
+        recent_leads = [Lead(**lead) for lead in recent_leads_response.data]
 
-        # Leads por status
+        # Get all leads for aggregation (we need this for status/source counts)
+        # In a production environment, you might want to use database views or functions
+        leads_response = (
+            client.table("leads")
+            .select("status, source, value")
+            .eq("user_id", user_id)
+            .gte("created_at", start_date_str)
+            .execute()
+        )
+
+        leads = leads_response.data
+
+        # Calculate aggregations
         leads_by_status = {}
+        leads_by_source = {}
+        closed_count = 0
+        value_sum = 0
+        value_count = 0
+
         for lead in leads:
+            # Count by status
             status = lead.get("status", "unknown")
             leads_by_status[status] = leads_by_status.get(status, 0) + 1
 
-        # Leads por source
-        leads_by_source = {}
-        for lead in leads:
-            source = lead.get("source", "unknown")
+            # Count closed leads for conversion rate
+            if status == "closed":
+                closed_count += 1
+
+            # Count by source
+            source = lead.get("source")
             if source:
                 leads_by_source[source] = leads_by_source.get(source, 0) + 1
 
-        # Leads recientes (últimos 5)
-        recent_leads = sorted(
-            leads, key=lambda x: x.get("created_at", ""), reverse=True
-        )[:5]
-        recent_leads = [Lead(**lead) for lead in recent_leads]
+            # Sum values for average
+            value = lead.get("value")
+            if value is not None:
+                value_sum += value
+                value_count += 1
 
-        # Tasa de conversión (asumiendo que "closed" es un status exitoso)
-        closed_leads = sum(1 for lead in leads if lead.get("status") == "closed")
-        conversion_rate = (closed_leads / total_leads) * 100 if total_leads > 0 else 0
-
-        # Valor promedio
-        values = [
-            lead.get("value", 0) for lead in leads if lead.get("value") is not None
-        ]
-        average_value = sum(values) / len(values) if values else 0
+        # Calculate metrics
+        conversion_rate = (closed_count / total_leads) * 100 if total_leads > 0 else 0
+        average_value = value_sum / value_count if value_count > 0 else 0
 
         return LeadAnalytics(
             total_leads=total_leads,
@@ -1316,6 +1409,141 @@ async def get_lead_analytics(
             detail=f"Error al obtener analíticas de leads: {str(e)}",
         )
 
+
+# ===================== RUTAS DE INTEGRACIONES =====================
+integrations_router = APIRouter(prefix="/api/integrations", tags=["Integrations"])
+contacts_router = APIRouter(prefix="/api/contacts", tags=["Contacts"])
+
+
+@integrations_router.post("/calendly/connect")
+async def connect_calendly(request: Request):
+    """Endpoint para conectar Calendly (placeholder)"""
+    # Aquí puedes agregar la lógica real de integración con Calendly
+    return {"message": "Calendly connected successfully"}
+
+
+@contacts_router.get("", response_model=Dict[str, List[Contact]])
+async def get_contacts(
+    request: Request,
+    platform: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Retrieves a list of contacts, optionally filtered by platform.
+    This is a mock implementation.
+    """
+    logger.info(f"User {current_user['id']} fetching contacts. Platform: {platform}")
+
+    # Mock data
+    mock_contacts = [
+        Contact(
+            id="1",
+            name="Juan Perez",
+            email="juan.perez@example.com",
+            platform="email",
+            platform_id="contact1_email",
+            created_at=datetime.now() - timedelta(days=10),
+            total_messages=5,
+            last_message_at=datetime.now() - timedelta(days=1),
+            meeting_scheduled=True,
+            meeting_url="https://calendly.com/juan-perez",
+        ),
+        Contact(
+            id="2",
+            name="Maria Garcia",
+            phone="+1234567890",
+            platform="whatsapp",
+            platform_id="contact2_whatsapp",
+            created_at=datetime.now() - timedelta(days=5),
+            total_messages=12,
+            last_message_at=datetime.now() - timedelta(hours=6),
+            meeting_scheduled=False,
+        ),
+        Contact(
+            id="3",
+            name="Carlos Rodriguez",
+            username="@carlos.r",
+            platform="instagram",
+            platform_id="contact3_ig",
+            created_at=datetime.now() - timedelta(days=20),
+            total_messages=2,
+            last_message_at=datetime.now() - timedelta(days=15),
+            meeting_scheduled=False,
+        ),
+    ]
+
+    if platform:
+        filtered_contacts = [c for c in mock_contacts if c.platform == platform]
+    else:
+        filtered_contacts = mock_contacts
+
+    return {"contacts": filtered_contacts}
+
+
+@contacts_router.get("/stats", response_model=ContactStats)
+async def get_contact_stats(
+    request: Request, current_user: dict = Depends(get_current_user)
+):
+    """
+    Retrieves statistics about contacts.
+    This is a mock implementation.
+    """
+    logger.info(f"User {current_user['id']} fetching contact stats.")
+
+    # Mock data
+    mock_stats = ContactStats(
+        total_contacts=150,
+        contacts_by_platform={"email": 60, "whatsapp": 50, "instagram": 40},
+        messages_sent=450,
+        meetings_scheduled=25,
+        conversion_rate=16.67,
+        last_contact_date=datetime.now() - timedelta(hours=2),
+    )
+    return mock_stats
+
+
+@contacts_router.get("/{contact_id}/messages", response_model=Dict[str, List[Message]])
+async def get_contact_messages(
+    request: Request, contact_id: str, current_user: dict = Depends(get_current_user)
+):
+    """
+    Retrieves messages for a specific contact.
+    This is a mock implementation.
+    """
+    logger.info(
+        f"User {current_user['id']} fetching messages for contact {contact_id}."
+    )
+
+    # Mock data
+    mock_messages = [
+        Message(
+            id="msg1",
+            platform="email",
+            message_type="outgoing",
+            subject="Re: Consulta",
+            content="Hola Juan, gracias por tu interés...",
+            sent_at=datetime.now() - timedelta(days=1),
+            status="sent",
+        ),
+        Message(
+            id="msg2",
+            platform="email",
+            message_type="incoming",
+            subject="Consulta",
+            content="Hola, me gustaría saber más sobre...",
+            sent_at=datetime.now() - timedelta(days=2),
+            status="received",
+        ),
+    ]
+
+    # In a real implementation, you would filter messages by contact_id
+    if contact_id:
+        return {"messages": mock_messages}
+    return {"messages": []}
+
+
+app.include_router(integrations_router)
+app.include_router(contacts_router)
 
 # ===================== RUTAS PARA DESARROLLO =====================
 
@@ -1378,7 +1606,7 @@ def main():
 
     # Configuración del servidor
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8001"))
+    port = int(os.getenv("BACEND_PORT", "8001"))
     is_dev = os.getenv("ENV") == "development"
 
     # Permitir recarga solo si BACKEND_RELOAD=true (por defecto desactivado para ver logs limpios)

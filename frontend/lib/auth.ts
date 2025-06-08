@@ -71,7 +71,13 @@ export const userStorage = {
   getUser: (): User | null => {
     if (typeof window === "undefined") return null;
     const userData = localStorage.getItem("user_data");
-    return userData ? JSON.parse(userData) : null;
+    if (!userData) return null;
+    try {
+      return JSON.parse(userData);
+    } catch (err) {
+      console.error("Failed to parse user_data from localStorage", err);
+      return null;
+    }
   },
 
   setUser: (user: User): void => {

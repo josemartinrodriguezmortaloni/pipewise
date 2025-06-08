@@ -114,9 +114,13 @@ export function CalendarView() {
         0
       );
 
-      // Format dates for API
-      const startDate = startOfMonth.toISOString().split("T")[0];
-      const endDate = endOfMonth.toISOString().split("T")[0];
+      // Format dates for API using local time instead of UTC
+      const startDate = `${startOfMonth.getFullYear()}-${String(
+        startOfMonth.getMonth() + 1
+      ).padStart(2, "0")}-${String(startOfMonth.getDate()).padStart(2, "0")}`;
+      const endDate = `${endOfMonth.getFullYear()}-${String(
+        endOfMonth.getMonth() + 1
+      ).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
 
       const response = await fetch(
         `/api/meetings?start_date=${startDate}&end_date=${endDate}`
