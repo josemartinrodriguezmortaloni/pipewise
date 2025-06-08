@@ -184,7 +184,7 @@ class OutboundAgent:
             )
 
             # Procesar function calls iterativamente
-            max_iterations = 5
+            max_iterations = 3
             iteration = 0
             contact_result = {
                 "success": False,

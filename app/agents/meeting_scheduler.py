@@ -10,13 +10,7 @@ from openai import OpenAI
 from app.supabase.supabase_client import SupabaseCRMClient
 from app.schemas.conversations_schema import ConversationCreate
 from app.schemas.lead_schema import LeadUpdate
-
-# Importar el cliente de Calendly separado
-try:
-    from app.clients.calendly_client import CalendlyClient
-except ImportError:
-    # Fallback si no encuentra el archivo
-    from app.agents.tools.calendly import CalendlyClient
+from app.agents.tools.calendly import CalendlyClient
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -54,13 +48,14 @@ def load_prompt_from_file(file_path: str) -> str:
 
 
 class MeetingSchedulerAgent:
-    def __init__(self):
-        self.model = "gpt-4.1"
+    def __init__(self, calendly_token: str = None, user_id: str = None):
+        self.model = "gpt-4o"
         self.client = OpenAI()
         self.db_client = SupabaseCRMClient()
+        self.user_id = user_id
 
-        # Inicializar cliente de Calendly (maneja automáticamente token/fallback)
-        self.calendly_client = CalendlyClient()
+        # Inicializar cliente de Calendly con token específico o fallback
+        self.calendly_client = CalendlyClient(calendly_token)
 
         # Cargar instrucciones
         prompt_path = os.path.join(

@@ -45,6 +45,9 @@ async def get_leads(
         if owner_filter:
             filters["owner_id"] = owner_filter
 
+        # Agregar filtro por usuario
+        filters["user_id"] = str(current_user.id)
+
         # Obtener leads desde la base de datos
         leads = crm_client.list_leads(limit=per_page, offset=offset, **filters)
 
@@ -63,6 +66,7 @@ async def get_leads(
                     "meeting_scheduled": False,
                     "source": "website",
                     "owner_id": str(current_user.id),
+                    "user_id": str(current_user.id),
                     "created_at": datetime.utcnow().isoformat(),
                     "updated_at": datetime.utcnow().isoformat(),
                 },
@@ -78,6 +82,7 @@ async def get_leads(
                     "meeting_scheduled": False,
                     "source": "referral",
                     "owner_id": str(current_user.id),
+                    "user_id": str(current_user.id),
                     "created_at": datetime.utcnow().isoformat(),
                     "updated_at": datetime.utcnow().isoformat(),
                 },
@@ -93,6 +98,7 @@ async def get_leads(
                     "meeting_scheduled": True,
                     "source": "linkedin",
                     "owner_id": str(current_user.id),
+                    "user_id": str(current_user.id),
                     "created_at": datetime.utcnow().isoformat(),
                     "updated_at": datetime.utcnow().isoformat(),
                 },

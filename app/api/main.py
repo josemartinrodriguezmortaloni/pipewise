@@ -249,6 +249,8 @@ async def rate_limiting_middleware(request: Request, call_next):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Manejador personalizado de excepciones HTTP"""
+    from datetime import datetime
+
     client_ip = get_client_ip(request)
     logger.warning(
         f"HTTP {exc.status_code}: {exc.detail} for {request.method} {request.url.path} from {client_ip}"
@@ -329,6 +331,11 @@ app.include_router(search_router)
 from app.api.config import router as config_router
 
 app.include_router(config_router)
+
+# Incluir router de integraciones
+from app.api.integrations import router as integrations_router
+
+app.include_router(integrations_router)
 
 
 # ===================== RUTAS DE SALUD Y ESTADO =====================

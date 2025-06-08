@@ -5,7 +5,6 @@ import {
   IconTrendingDown,
   IconTrendingUp,
   IconRobot,
-  IconClock,
   IconCheck,
   IconCalendar,
 } from "@tabler/icons-react";
@@ -30,20 +29,9 @@ export function SectionCards() {
     contactRate,
     qualificationRate,
     meetingRate,
-    automationImpact,
     isLoading,
     error,
   } = useLeadStats();
-
-  // Helper function to format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Helper function to determine trend
   const getTrendIcon = (rate: number) => {
@@ -164,80 +152,6 @@ export function SectionCards() {
           </div>
           <div className="text-muted-foreground">
             Ready for sales conversations
-          </div>
-        </CardFooter>
-      </Card>
-
-      {/* Automation Impact - Time Saved */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Time Saved</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : `${automationImpact.timesSaved}h`}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconClock />
-              This Month
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Automation efficiency gains <IconClock className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Hours freed up for strategic work
-          </div>
-        </CardFooter>
-      </Card>
-
-      {/* Automation Impact - Cost Savings */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Cost Savings</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : formatCurrency(automationImpact.costSavings)}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              Monthly
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Automation ROI impact <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Reduced manual labor costs
-          </div>
-        </CardFooter>
-      </Card>
-
-      {/* Messages Automated */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Messages Automated</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading
-              ? "..."
-              : automationImpact.messagesAutomated.toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconRobot />
-              AI-Powered
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Intelligent communication <IconRobot className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Personalized outreach at scale
           </div>
         </CardFooter>
       </Card>

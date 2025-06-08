@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { authenticatedFetch } from "@/lib/auth";
 
 // Tipos
 interface Lead {
@@ -75,26 +76,29 @@ export function useLeads(options: UseLeadsOptions = {}): UseLeadsReturn {
       });
 
       if (status_filter) {
-        params.append("status_filter", status_filter);
+        params.append("status", status_filter);
       }
 
-      const response = await fetch(`/api/leads?${params}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          // En producción, añadir: 'Authorization': `Bearer ${token}`
-        },
-      });
+      const response = await authenticatedFetch(
+        `/api/leads?${params.toString()}`
+      );
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({
+            detail: `HTTP ${response.status}: ${response.statusText}`,
+          }));
+        throw new Error(
+          errorData.detail || `HTTP ${response.status}: ${response.statusText}`
+        );
       }
 
       const data: LeadsResponse = await response.json();
 
-      setLeads(data.leads);
-      setTotal(data.total);
-      setTotalPages(data.total_pages);
+      setLeads(data.leads || []);
+      setTotal(data.total || 0);
+      setTotalPages(data.total_pages || 0);
     } catch (err) {
       console.error("Error fetching leads:", err);
       setError(err instanceof Error ? err.message : "Unknown error occurred");

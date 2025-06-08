@@ -1,4 +1,4 @@
-$$# Resumen de Implementación - API Routes para Frontend
+# Resumen de Implementación – API Routes para Frontend
 
 ## 📋 Resumen Ejecutivo
 

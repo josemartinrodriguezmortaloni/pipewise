@@ -735,77 +735,200 @@ export function DataTable({
 function TableCellViewer({ item }: { item: TableRow }) {
   const isMobile = useIsMobile();
 
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
+          {item.name}
         </Button>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="max-h-[90vh]">
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
-          <DrawerDescription>Lead details from {item.type}</DrawerDescription>
+          <DrawerTitle>{item.name}</DrawerTitle>
+          <DrawerDescription>
+            Complete lead information from {item.company}
+          </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <div className="grid gap-3">
-            <div className="flex justify-between">
-              <span className="font-medium">Status:</span>
-              <Badge variant="outline">{item.status}</Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Company:</span>
-              <span>{item.type}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Email:</span>
-              <a
-                href={`mailto:${item.target}`}
-                className="text-blue-600 underline"
-              >
-                {item.target}
-              </a>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Phone:</span>
-              <span className="font-mono">{item.limit}</span>
+        <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-4 text-sm">
+          {/* Lead Details Section */}
+          <div className="grid gap-4">
+            <h3 className="text-lg font-semibold">Lead Details</h3>
+            <div className="grid gap-3">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">ID:</span>
+                <span className="font-mono text-xs">{item.leadId}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">Name:</span>
+                <span className="font-medium">{item.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Email:
+                </span>
+                <a
+                  href={`mailto:${item.email}`}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  {item.email}
+                </a>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Company:
+                </span>
+                <span>{item.company}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Phone:
+                </span>
+                <span className="font-mono">{item.phone}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Status:
+                </span>
+                <Badge variant="outline">{item.status}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Source:
+                </span>
+                <Badge variant="secondary">{item.source || "Unknown"}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Created At:
+                </span>
+                <span className="text-xs">{formatDate(item.created_at)}</span>
+              </div>
             </div>
           </div>
+
+          {/* Progress Status Section */}
+          <div className="grid gap-4">
+            <h3 className="text-lg font-semibold">Progress Status</h3>
+            <div className="grid gap-3">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Qualified:
+                </span>
+                <Badge variant={item.qualified ? "default" : "secondary"}>
+                  {item.qualified ? "✓ Yes" : "✗ No"}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Contacted:
+                </span>
+                <Badge variant={item.contacted ? "default" : "secondary"}>
+                  {item.contacted ? "✓ Yes" : "✗ No"}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-muted-foreground">
+                  Meeting Scheduled:
+                </span>
+                <Badge
+                  variant={item.meeting_scheduled ? "default" : "secondary"}
+                >
+                  {item.meeting_scheduled ? "✓ Yes" : "✗ No"}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Message Section */}
+          {item.message && (
+            <div className="grid gap-4">
+              <h3 className="text-lg font-semibold">Message</h3>
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-sm leading-relaxed">{item.message}</p>
+              </div>
+            </div>
+          )}
+
           <Separator />
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="name">Lead Name</Label>
-              <Input id="name" defaultValue={item.header} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="company">Company</Label>
-              <Input id="company" defaultValue={item.type} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue={item.target} />
+
+          {/* Edit Form Section */}
+          <div className="grid gap-4">
+            <h3 className="text-lg font-semibold">Edit Lead</h3>
+            <form className="flex flex-col gap-4">
+              <div className="flex gap-2 mt-4">
+                <Button type="submit" size="sm">
+                  Save Changes
+                </Button>
+                <Button type="button" variant="outline" size="sm">
+                  Cancel
+                </Button>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" type="tel" defaultValue={item.limit} />
+                <Label htmlFor="edit-name">Lead Name</Label>
+                <Input id="edit-name" defaultValue={item.name} />
               </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="status">Status</Label>
-              <Select defaultValue={item.status}>
-                <SelectTrigger id="status" className="w-full">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="New">New</SelectItem>
-                  <SelectItem value="Qualified">Qualified</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Done">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </form>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="edit-company">Company</Label>
+                <Input id="edit-company" defaultValue={item.company} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="edit-email">Email</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    defaultValue={item.email}
+                  />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="edit-phone">Phone</Label>
+                  <Input id="edit-phone" type="tel" defaultValue={item.phone} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select defaultValue={item.status}>
+                    <SelectTrigger id="edit-status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="New">New</SelectItem>
+                      <SelectItem value="Qualified">Qualified</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Done">Done</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="edit-source">Source</Label>
+                  <Input
+                    id="edit-source"
+                    defaultValue={item.source || ""}
+                    placeholder="Lead source"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="edit-message">Message</Label>
+                <textarea
+                  id="edit-message"
+                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  defaultValue={item.message || ""}
+                  placeholder="Enter message or notes about this lead..."
+                />
+              </div>
+            </form>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

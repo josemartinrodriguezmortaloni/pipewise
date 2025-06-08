@@ -5,6 +5,7 @@ import * as React from "react";
 import {
   // IconCamera,
   // IconChartBar,
+  IconCalendar,
   IconDashboard,
   // IconDatabase,
   // IconFileAi,
@@ -51,11 +52,21 @@ const data = {
       url: "/leads",
       icon: IconListDetails,
     },
+    {
+      title: "Contacted",
+      url: "/contacted",
+      icon: IconListDetails,
+    },
+    {
+      title: "Calendar",
+      url: "/calendar",
+      icon: IconCalendar,
+    },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {

@@ -1,4 +1,4 @@
-#!/usr/bin/env python#!/usr/bin/env python#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 __main__.py - Test Suite Principal del CRM System (CORREGIDO)
 Ejecuta tests completos del sistema CRM con todas las correcciones aplicadas.

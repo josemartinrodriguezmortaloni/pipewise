@@ -15,6 +15,11 @@ from app.models.message import Message
 from app.schemas.lead_schema import LeadCreate, LeadUpdate
 from app.schemas.conversations_schema import ConversationCreate, ConversationUpdate
 from app.schemas.messsage_schema import MessageCreate
+from app.schemas.contacts_schema import (
+    ContactCreate,
+    ContactUpdate,
+    OutreachMessageCreate,
+)
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -145,6 +150,7 @@ class SupabaseCRMClient:
         qualified: bool = None,
         contacted: bool = None,
         meeting_scheduled: bool = None,
+        user_id: str = None,
         limit: int = 100,
         offset: int = 0,
     ) -> List[Lead]:
@@ -160,6 +166,8 @@ class SupabaseCRMClient:
                 query = query.eq("contacted", contacted)
             if meeting_scheduled is not None:
                 query = query.eq("meeting_scheduled", meeting_scheduled)
+            if user_id is not None:
+                query = query.eq("user_id", user_id)
 
             result = (
                 query.order("created_at", desc=True)
@@ -396,6 +404,201 @@ class SupabaseCRMClient:
             "messages": messages,
             "message_count": len(messages),
         }
+
+    # ===================== OPERACIONES CONTACTOS =====================
+
+    def create_contact(self, contact_data: ContactCreate) -> Dict[str, Any]:
+        """Crear un nuevo contacto"""
+        try:
+contact_dict = serialize_for_json(contact_data.model_dump())
+contact_dict.setdefault("id", str(uuid4()))
+            contact_dict["created_at"] = self._get_current_timestamp()
+
+            result = self.client.table("contacts").insert(contact_dict).execute()
+
+            if result.data:
+                logger.info(f"Contact created successfully: {result.data[0]['id']}")
+                return result.data[0]
+            else:
+                raise Exception("No data returned from insert operation")
+
+        except Exception as e:
+            self._handle_error("create_contact", e)
+
+    def get_contact(self, contact_id: Union[str, UUID]) -> Optional[Dict[str, Any]]:
+        """Obtener un contacto por ID"""
+        try:
+            result = (
+                self.client.table("contacts")
+                .select("*")
+                .eq("id", str(contact_id))
+                .execute()
+            )
+
+            if result.data:
+                return result.data[0]
+            return None
+
+        except Exception as e:
+            self._handle_error("get_contact", e)
+
+    def get_contact_by_platform(
+        self, platform: str, platform_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """Obtener contacto por plataforma y platform_id"""
+        try:
+            result = (
+                self.client.table("contacts")
+                .select("*")
+                .eq("platform", platform)
+                .eq("platform_id", platform_id)
+                .execute()
+            )
+
+            if result.data:
+                return result.data[0]
+            return None
+
+        except Exception as e:
+            self._handle_error("get_contact_by_platform", e)
+
+    def list_contacts(
+        self,
+        platform: str = None,
+        user_id: str = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Dict[str, Any]]:
+        """Listar contactos con filtros opcionales"""
+        try:
+            query = self.client.table("contacts_with_stats").select("*")
+
+            if platform:
+                query = query.eq("platform", platform)
+            if user_id:
+                query = query.eq("metadata->>user_id", user_id)
+
+            result = (
+                query.order("created_at", desc=True)
+                .range(offset, offset + limit - 1)
+                .execute()
+            )
+
+            return result.data
+
+        except Exception as e:
+            self._handle_error("list_contacts", e)
+
+    def update_contact(
+        self, contact_id: Union[str, UUID], updates: ContactUpdate
+    ) -> Dict[str, Any]:
+        """Actualizar un contacto"""
+        try:
+            update_data = {
+                k: v for k, v in updates.model_dump().items() if v is not None
+            }
+
+            result = (
+                self.client.table("contacts")
+                .update(update_data)
+                .eq("id", str(contact_id))
+                .execute()
+            )
+
+            if result.data:
+                logger.info(f"Contact updated successfully: {contact_id}")
+                return result.data[0]
+            else:
+                raise Exception(f"Contact with ID {contact_id} not found")
+
+        except Exception as e:
+            self._handle_error("update_contact", e)
+
+    def create_outreach_message(
+        self, message_data: OutreachMessageCreate
+    ) -> Dict[str, Any]:
+        """Crear mensaje de outreach"""
+        try:
+            message_dict = message_data.model_dump()
+            message_dict["id"] = str(uuid4())
+            message_dict["sent_at"] = self._get_current_timestamp()
+
+            result = (
+                self.client.table("outreach_messages").insert(message_dict).execute()
+            )
+
+            if result.data:
+                logger.info(f"Outreach message created: {result.data[0]['id']}")
+                return result.data[0]
+            else:
+                raise Exception("No data returned from insert operation")
+
+        except Exception as e:
+            self._handle_error("create_outreach_message", e)
+
+    def get_contact_messages(
+        self, contact_id: Union[str, UUID]
+    ) -> List[Dict[str, Any]]:
+        """Obtener mensajes de un contacto"""
+        try:
+            result = (
+                self.client.table("outreach_messages")
+                .select("*")
+                .eq("contact_id", str(contact_id))
+                .order("sent_at", desc=True)
+                .execute()
+            )
+
+            return result.data
+
+        except Exception as e:
+            self._handle_error("get_contact_messages", e)
+
+    def get_contact_stats(self, user_id: str = None) -> Dict[str, Any]:
+        """Obtener estadísticas de contactos"""
+        try:
+            # Usar función SQL para obtener estadísticas agregadas
+            result = self.client.rpc(
+                "get_contact_stats", {"user_id_param": user_id}
+            ).execute()
+
+            if result.data:
+                return result.data
+
+            # Fallback: calcular estadísticas manualmente
+            contacts = self.list_contacts(user_id=user_id)
+
+            platform_counts = {}
+            total_messages = 0
+            meetings_scheduled = 0
+
+            for contact in contacts:
+                platform = contact["platform"]
+                platform_counts[platform] = platform_counts.get(platform, 0) + 1
+                total_messages += contact.get("total_messages", 0)
+                if contact.get("meeting_scheduled", False):
+                    meetings_scheduled += 1
+
+            return {
+                "total_contacts": len(contacts),
+                "contacts_by_platform": platform_counts,
+                "messages_sent": total_messages,
+                "meetings_scheduled": meetings_scheduled,
+                "conversion_rate": (meetings_scheduled / len(contacts) * 100)
+                if contacts
+                else 0,
+                "last_contact_date": max(
+                    [
+                        c.get("last_message_at")
+                        for c in contacts
+                        if c.get("last_message_at")
+                    ],
+                    default=None,
+                ),
+            }
+
+        except Exception as e:
+            self._handle_error("get_contact_stats", e)
 
     # ===================== UTILIDADES =====================
 
