@@ -9,10 +9,11 @@ export default function AuthCallbackPage() {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
     if (isAuthenticated) {
-      router.replace("/dashboard");
+      router.replace(`${base}/dashboard`);
     } else if (!isLoading) {
-      router.replace("/login");
+      router.replace(`${base}/login`);
     }
   }, [isAuthenticated, isLoading, router]);
 

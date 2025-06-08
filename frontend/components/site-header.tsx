@@ -27,7 +27,8 @@ export function SiteHeader({ className }: { className?: string }) {
     try {
       await logout();
       toast.success("Sesión cerrada correctamente");
-      router.push("/login");
+      const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
+      router.replace(`${base}/login`);
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Error al cerrar sesión");
