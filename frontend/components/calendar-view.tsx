@@ -10,28 +10,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { useApi } from "@/hooks/use-api";
 
 interface Meeting {
   id: string;
   title: string;
-  start_time: string;
-  end_time: string;
-  attendees: Array<{
-    email: string;
-    name?: string;
-  }>;
-  description?: string;
-  location?: string;
-  lead?: {
-    id: string;
-    name: string;
-    email: string;
-    company?: string;
-    phone?: string;
-    message?: string;
-    source: string;
-  };
+  start: string;
+  end: string;
+  participants: string[];
+  url?: string;
+  platform: string;
 }
 
 interface CalendarDay {
@@ -44,8 +33,23 @@ interface CalendarDay {
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const onMeetingsSuccess = useCallback((data: { meetings: Meeting[] }) => {
+    setMeetings(data.meetings || []);
+  }, []);
+
+  const {
+    loading,
+    error,
+    execute: fetchMeetings,
+  } = useApi<{ meetings: Meeting[] }>(
+    "/calendar/meetings",
+    {},
+    {
+      onSuccess: onMeetingsSuccess,
+      onError: () => setMeetings([]),
+    }
+  );
 
   // Generate calendar days for the current month
   const generateCalendarDays = (): CalendarDay[] => {
@@ -75,7 +79,7 @@ export function CalendarView() {
       date.setDate(date.getDate() + 1)
     ) {
       const dayMeetings = meetings.filter((meeting) => {
-        const meetingDate = new Date(meeting.start_time);
+        const meetingDate = new Date(meeting.start);
         return (
           meetingDate.getDate() === date.getDate() &&
           meetingDate.getMonth() === date.getMonth() &&
@@ -97,48 +101,26 @@ export function CalendarView() {
     return days;
   };
 
-  const fetchMeetings = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Fetch meetings when month changes
+  useEffect(() => {
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
 
-      // Construct date range for the current month view
-      const startOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        1
-      );
-      const endOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        0
-      );
+    const startDate = startOfMonth.toISOString().split("T")[0];
+    const endDate = endOfMonth.toISOString().split("T")[0];
 
-      // Format dates for API using local time instead of UTC
-      const startDate = `${startOfMonth.getFullYear()}-${String(
-        startOfMonth.getMonth() + 1
-      ).padStart(2, "0")}-${String(startOfMonth.getDate()).padStart(2, "0")}`;
-      const endDate = `${endOfMonth.getFullYear()}-${String(
-        endOfMonth.getMonth() + 1
-      ).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
-
-      const response = await fetch(
-        `/api/meetings?start_date=${startDate}&end_date=${endDate}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error fetching meetings: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setMeetings(data.meetings || []);
-    } catch (err) {
-      console.error("Failed to fetch meetings:", err);
-      setError(err instanceof Error ? err.message : "Failed to load meetings");
-    } finally {
-      setLoading(false);
-    }
-  }, [currentDate]);
+    fetchMeetings(
+      `/calendar/meetings?start_date=${startDate}&end_date=${endDate}`
+    );
+  }, [currentDate, fetchMeetings]);
 
   // Navigate to previous month
   const previousMonth = () => {
@@ -158,11 +140,6 @@ export function CalendarView() {
   const goToToday = () => {
     setCurrentDate(new Date());
   };
-
-  // Fetch meetings when month changes
-  useEffect(() => {
-    fetchMeetings();
-  }, [fetchMeetings]);
 
   const calendarDays = generateCalendarDays();
   const monthNames = [
@@ -192,6 +169,19 @@ export function CalendarView() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendar</CardTitle>
+          <CardDescription>
+            <span className="text-red-500">{error.message}</span>
+          </CardDescription>
+        </CardHeader>
       </Card>
     );
   }
@@ -226,18 +216,6 @@ export function CalendarView() {
         </CardHeader>
       </Card>
 
-      {/* Error Display */}
-      {error && (
-        <Card className="border-destructive">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 text-destructive">
-              <Calendar className="h-4 w-4" />
-              <p className="text-sm">{error}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Calendar Grid */}
       <Card>
         <CardContent className="p-0">
@@ -254,35 +232,49 @@ export function CalendarView() {
           </div>
 
           {/* Calendar Days */}
-          <div className="grid grid-cols-7 h-[600px]">
-            {calendarDays.map(({ date, meetings, isCurrentMonth, isToday }) => (
-              <div
-                key={date.toString()}
-                className={`p-2 border-r border-b ${
-                  !isCurrentMonth ? "bg-muted/50" : ""
-                } ${isToday ? "bg-primary/10" : ""}`}
-              >
-                <span
-                  className={`text-sm ${
-                    !isCurrentMonth ? "text-muted-foreground" : ""
-                  }`}
-                >
-                  {date.getDate()}
-                </span>
-                <div className="mt-1 space-y-1">
-                  {meetings.map((meeting) => (
-                    <Badge
-                      key={meeting.id}
-                      variant="secondary"
-                      className="w-full text-left font-normal"
-                    >
-                      {meeting.title}
-                    </Badge>
-                  ))}
-                </div>
+          {!loading && meetings.length === 0 ? (
+            <div className="flex h-[600px] items-center justify-center">
+              <div className="text-center">
+                <Calendar className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">No Meetings Found</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  There are no meetings scheduled for this month.
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-7 h-[600px]">
+              {calendarDays.map(
+                ({ date, meetings, isCurrentMonth, isToday }) => (
+                  <div
+                    key={date.toString()}
+                    className={`p-2 border-r border-b ${
+                      !isCurrentMonth ? "bg-muted/50" : ""
+                    } ${isToday ? "bg-primary/10" : ""}`}
+                  >
+                    <span
+                      className={`text-sm ${
+                        !isCurrentMonth ? "text-muted-foreground" : ""
+                      }`}
+                    >
+                      {date.getDate()}
+                    </span>
+                    <div className="mt-1 space-y-1">
+                      {meetings.map((meeting) => (
+                        <Badge
+                          key={meeting.id}
+                          variant="secondary"
+                          className="w-full text-left font-normal"
+                        >
+                          {meeting.title}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

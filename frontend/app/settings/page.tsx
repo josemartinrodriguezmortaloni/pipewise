@@ -3,7 +3,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { IntegrationsSettings } from "@/components/integrations-settings";
-import { NavUser } from "@/components/nav-user";
 
 export default function SettingsPage() {
   return (

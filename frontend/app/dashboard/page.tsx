@@ -9,7 +9,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useAuth, useUserData } from "@/hooks/use-auth";
 
 export default function Page() {
   return (

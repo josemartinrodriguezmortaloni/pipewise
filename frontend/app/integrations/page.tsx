@@ -1,6 +1,5 @@
 "use client";
 import { IntegrationsSettings } from "@/components/integrations-settings";
-import { useAuth, useUserData } from "@/hooks/use-auth";
 import {
   SidebarProvider,
   SidebarInset,

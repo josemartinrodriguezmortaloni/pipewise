@@ -16,7 +16,6 @@ import {
   Filter,
   Search,
   User,
-  Phone,
   AtSign,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +43,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useApi } from "@/hooks/use-api";
+import React from "react";
 
 interface Contact {
   id: string;
@@ -59,6 +60,7 @@ interface Contact {
   last_message_at?: string;
   meeting_scheduled: boolean;
   meeting_url?: string;
+  last_contact_date?: string;
 }
 
 interface ContactStats {
@@ -99,7 +101,6 @@ const platformColors = {
 function ContactedPageContent() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [stats, setStats] = useState<ContactStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -107,76 +108,81 @@ function ContactedPageContent() {
     null
   );
   const [contactMessages, setContactMessages] = useState<Message[]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchContacts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const params = new URLSearchParams();
-      if (platformFilter !== "all") {
-        params.append("platform", platformFilter);
-      }
+  // Memoize callback functions to prevent re-creation on every render
+  const onContactsSuccess = useCallback((data: { contacts: Contact[] }) => {
+    setContacts(data.contacts || []);
+  }, []);
 
-      const response = await fetch(`/api/contacts?${params}`, {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(`Contacts fetch failed: ${response.status}`);
-      }
-      const data = await response.json();
-      setContacts(data.contacts || []);
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      setError("Failed to load contacts. Please try again later.");
-    } finally {
-      setLoading(false);
+  const onStatsSuccess = useCallback((data: ContactStats) => {
+    setStats(data);
+  }, []);
+
+  const onStatsError = useCallback(() => {
+    setStats(null);
+  }, []);
+
+  const onMessagesSuccess = useCallback((data: { messages: Message[] }) => {
+    setContactMessages(data.messages || []);
+  }, []);
+
+  // API Hooks
+  const {
+    loading: loadingContacts,
+    error: contactsError,
+    execute: fetchContacts,
+  } = useApi<{ contacts: Contact[] }>(
+    "/contacts",
+    {},
+    {
+      onSuccess: onContactsSuccess,
     }
-  }, [platformFilter]);
+  );
 
-  const fetchStats = async () => {
-    try {
-      const response = await fetch("/api/contacts/stats");
-      if (!response.ok) {
-        throw new Error(`Stats fetch failed: ${response.status}`);
-      }
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      setStats(null); // Clear stats on error
+  const {
+    loading: loadingStats,
+    error: statsError,
+    execute: fetchStats,
+  } = useApi<ContactStats>(
+    "/contacts/stats",
+    {},
+    {
+      onSuccess: onStatsSuccess,
+      onError: onStatsError,
     }
-  };
+  );
+
+  const { loading: messagesApiLoading, execute: fetchContactMessagesApi } =
+    useApi<{ messages: Message[] }>(
+      `/contacts/${selectedContactId}/messages`,
+      {},
+      {
+        onSuccess: onMessagesSuccess,
+        onError: () => setContactMessages([]),
+      }
+    );
 
   useEffect(() => {
-    fetchContacts();
+    const params = new URLSearchParams();
+    if (platformFilter !== "all") {
+      params.append("platform", platformFilter);
+    }
+    const queryString = params.toString();
+    fetchContacts(queryString ? `/contacts?${queryString}` : "/contacts");
+  }, [platformFilter, fetchContacts]);
+
+  useEffect(() => {
     fetchStats();
-  }, [fetchContacts]);
+  }, [fetchStats]);
 
   const fetchContactMessages = async (contactId: string) => {
-    try {
-      setLoadingMessages(true);
-      const response = await fetch(`/api/contacts/${contactId}/messages`);
-      const data = await response.json();
-      setContactMessages(data.messages || []);
-    } catch (error) {
-      console.error("Error fetching contact messages:", error);
-      setContactMessages([]);
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
-
-  const handleViewMessages = (contact: Contact) => {
-    if (selectedContactId === contact.id) {
-      // Si ya está seleccionado, lo cerramos
+    if (selectedContactId === contactId) {
       setSelectedContactId(null);
       setContactMessages([]);
     } else {
-      // Seleccionar nuevo contacto y cargar sus mensajes
-      setSelectedContactId(contact.id);
-      fetchContactMessages(contact.id);
+      setSelectedContactId(contactId);
+      // The endpoint in useApi is dynamic, but we need to trigger it for a specific ID
+      await fetchContactMessagesApi(`/contacts/${contactId}/messages`);
     }
   };
 
@@ -204,22 +210,25 @@ function ContactedPageContent() {
     return matchesSearch && matchesStatus;
   });
 
-  if (loading) {
+  const isLoading = loadingContacts || loadingStats;
+  const pageError = contactsError || statsError;
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando contactos...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading data...</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (pageError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center text-red-500">
-          <p>{error}</p>
+          <p>{pageError.message}</p>
         </div>
       </div>
     );
@@ -336,8 +345,8 @@ function ContactedPageContent() {
               </TableHeader>
               <TableBody>
                 {filteredContacts.map((contact) => (
-                  <>
-                    <TableRow key={contact.id}>
+                  <React.Fragment key={contact.id}>
+                    <TableRow>
                       <TableCell>
                         <div className="font-medium">{contact.name}</div>
                         <div className="text-sm text-muted-foreground">
@@ -380,7 +389,7 @@ function ContactedPageContent() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewMessages(contact)}
+                            onClick={() => fetchContactMessages(contact.id)}
                           >
                             <Mail className="mr-2 h-4 w-4" />
                             {selectedContactId === contact.id
@@ -404,7 +413,7 @@ function ContactedPageContent() {
                     {selectedContactId === contact.id && (
                       <TableRow>
                         <TableCell colSpan={5}>
-                          {loadingMessages ? (
+                          {messagesApiLoading ? (
                             <p>Loading messages...</p>
                           ) : (
                             <div className="p-4 bg-muted/50 rounded-lg">
@@ -440,7 +449,7 @@ function ContactedPageContent() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

@@ -7,12 +7,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useAuth, useUserData } from "@/hooks/use-auth";
-import { Separator } from "@/components/ui/separator";
 
 export default function CalendarPage() {
-  const { logout } = useAuth();
-  const { user } = useUserData();
   return (
     <SidebarProvider
       style={
