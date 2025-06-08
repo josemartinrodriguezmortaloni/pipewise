@@ -10,16 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Calendar,
-  Clock,
-  User,
-  Building,
-  Phone,
-  Mail,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Meeting {
   id: string;
