@@ -1,7 +1,7 @@
 -- ====================================================
 -- PipeWise CRM - Database Setup ROBUST VERSION
 -- ====================================================
--- PASO 1: Crear tabla users PRIMERO (sin dependencias)
+-- PASO 1: Crear tabla users y usuario por defecto
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT UNIQUE NOT NULL,
@@ -16,6 +16,14 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- Crear un usuario por defecto si no existe ninguno, para asegurar que las FKs no fallen
+INSERT INTO users (id, email, full_name, company)
+VALUES (
+        gen_random_uuid(),
+        'admin@pipewise.com',
+        'Admin User',
+        'PipeWise'
+    ) ON CONFLICT (email) DO NOTHING;
 -- PASO 2: Crear tablas sin foreign keys Y verificar/agregar columnas faltantes
 -- Tabla leads
 CREATE TABLE IF NOT EXISTS leads (
@@ -214,15 +222,7 @@ SET NOT NULL;
 RAISE NOTICE 'Added user_id column to integrations table';
 END IF;
 END $$;
--- PASO 3: Crear un usuario por defecto si no existe ninguno
-INSERT INTO users (id, email, full_name, company)
-VALUES (
-        gen_random_uuid(),
-        'admin@pipewise.com',
-        'Admin User',
-        'PipeWise'
-    ) ON CONFLICT (email) DO NOTHING;
--- PASO 4: Agregar foreign keys (ahora que todas las columnas existen)
+-- PASO 3: Agregar foreign keys (ahora que todas las columnas existen)
 DO $$ BEGIN -- Verificar que la columna user_id existe en leads antes de crear FK
 IF EXISTS (
     SELECT 1
@@ -359,7 +359,14 @@ ADD CONSTRAINT chk_leads_status CHECK (
     );
 RAISE NOTICE 'Added check constraint chk_leads_status';
 END IF;
-IF NOT EXISTS (
+-- Check constraint para leads.priority
+IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'leads'
+        AND column_name = 'priority'
+)
+AND NOT EXISTS (
     SELECT 1
     FROM pg_constraint
     WHERE conname = 'chk_leads_priority'
@@ -368,7 +375,19 @@ ALTER TABLE leads
 ADD CONSTRAINT chk_leads_priority CHECK (priority IN ('low', 'medium', 'high'));
 RAISE NOTICE 'Added check constraint chk_leads_priority';
 END IF;
--- Check constraints para contacts
+END $$;
+-- Check constraint para contacts.type
+DO $$ BEGIN -- 1. Crear la columna si llegara a faltar
+IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'contacts'
+        AND column_name = 'type'
+) THEN
+ALTER TABLE contacts
+ADD COLUMN type TEXT NOT NULL DEFAULT 'call';
+END IF;
+-- 2. Crear la restricción únicamente si aún no existe
 IF NOT EXISTS (
     SELECT 1
     FROM pg_constraint
@@ -378,8 +397,9 @@ ALTER TABLE contacts
 ADD CONSTRAINT chk_contacts_type CHECK (type IN ('call', 'email', 'meeting', 'note'));
 RAISE NOTICE 'Added check constraint chk_contacts_type';
 END IF;
+END $$;
 -- Check constraints para tasks
-IF NOT EXISTS (
+DO $$ BEGIN IF NOT EXISTS (
     SELECT 1
     FROM pg_constraint
     WHERE conname = 'chk_tasks_status'
@@ -404,8 +424,9 @@ ALTER TABLE tasks
 ADD CONSTRAINT chk_tasks_priority CHECK (priority IN ('low', 'medium', 'high'));
 RAISE NOTICE 'Added check constraint chk_tasks_priority';
 END IF;
+END $$;
 -- Check constraints para integrations
-IF NOT EXISTS (
+DO $$ BEGIN IF NOT EXISTS (
     SELECT 1
     FROM pg_constraint
     WHERE conname = 'chk_integrations_type'
@@ -521,6 +542,35 @@ DROP TRIGGER IF EXISTS create_default_pipeline_trigger ON users;
 CREATE TRIGGER create_default_pipeline_trigger
 AFTER
 INSERT ON users FOR EACH ROW EXECUTE FUNCTION create_default_pipeline_for_user();
+-- =================================================================
+-- Trigger para sincronizar usuarios de Supabase Auth a public.users
+-- =================================================================
+-- 1. Crear la función que se ejecutará en el trigger
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO public.users (id, email, full_name, company, phone)
+VALUES (
+        NEW.id,
+        NEW.email,
+        COALESCE(
+            NEW.raw_user_meta_data->>'full_name',
+            split_part(NEW.email, '@', 1)
+        ),
+        NEW.raw_user_meta_data->>'company',
+        NEW.raw_user_meta_data->>'phone'
+    ) ON CONFLICT (id) DO NOTHING;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- 2. Crear el trigger que llama a la función cuando se crea un nuevo usuario en auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+AFTER
+INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+-- Forzamos la actualización de un usuario para probar si el trigger funciona, si es necesario
+-- UPDATE auth.users SET raw_user_meta_data = raw_user_meta_data || '{"test":"value"}'::jsonb WHERE id = 'some-user-id';
+-- =================================================================
+-- FIN
+-- =================================================================
 -- ====================================================
 -- VERIFICACIÓN FINAL
 -- ====================================================

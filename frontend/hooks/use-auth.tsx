@@ -16,21 +16,21 @@ import {
   login as authLogin,
   register as authRegister,
   logout as authLogout,
+  loginWithGoogle as authLoginWithGoogle,
   validateToken,
   tokenStorage,
   userStorage,
 } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (
-    credentials: LoginCredentials,
-    fromRegistration?: boolean
-  ) => Promise<AuthResponse>;
+  login: (credentials: LoginCredentials) => Promise<AuthResponse>;
   register: (userData: RegisterData) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -40,48 +40,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar si hay un usuario autenticado al cargar
+  // Listen for auth state changes
   useEffect(() => {
-    checkAuthStatus();
-  }, []);
+    // Immediately try to set the user from existing data
+    const storedUser = userStorage.getUser();
+    if (storedUser) {
+      setUser(storedUser);
+    }
 
-  const checkAuthStatus = async () => {
-    try {
-      // Primero verificar si hay datos en localStorage
-      const storedUser = userStorage.getUser();
-      const token = tokenStorage.getAccessToken();
-
-      if (storedUser && token) {
-        // Validar el token con el servidor
-        const validatedUser = await validateToken();
-        if (validatedUser) {
-          setUser(validatedUser);
-        } else {
-          // Token inválido, limpiar datos
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Auth event:", event);
+        if (event === "SIGNED_OUT") {
+          setUser(null);
           tokenStorage.clearTokens();
           userStorage.clearUser();
-          setUser(null);
+        } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          if (session?.user) {
+            // Let's use the user profile from our own DB via validateToken
+            const validatedUser = await validateToken();
+            setUser(validatedUser);
+            if (session.access_token && session.refresh_token) {
+              tokenStorage.setTokens(
+                session.access_token,
+                session.refresh_token
+              );
+            }
+          }
         }
-      } else {
-        setUser(null);
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    );
+
+    // Initial check to hide loader if no session
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const login = async (
-    credentials: LoginCredentials,
-    fromRegistration = false
+    credentials: LoginCredentials
   ): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
-      // Si viene del registro, el login ya se hizo en el backend.
-      // Aquí solo necesitamos obtener los datos y guardarlos.
-      // La llamada a authLogin se hace para obtener el token y datos del usuario.
       const response = await authLogin(credentials);
 
       if (!response.requires_2fa) {
@@ -93,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Login error:", error);
       throw error;
     } finally {
-      setIsLoading(false);
+      /* no-op: listener will flip loading state */
     }
   };
 
@@ -103,6 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authRegister(userData);
+      if (response.user) {
+        setUser(response.user);
+      }
       return response;
     } catch (error) {
       console.error("Register error:", error);
@@ -121,6 +131,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      await authLoginWithGoogle();
+      // Redirección manejada por Supabase; el listener onAuthStateChange
+      // actualizará isLoading cuando la sesión se confirme.
+    } catch (error) {
+      console.error("Google login error:", error);
+      throw error;
     }
   };
 
@@ -147,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
+    loginWithGoogle,
     refreshUser,
   };
 

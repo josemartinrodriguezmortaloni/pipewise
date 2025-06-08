@@ -36,14 +36,7 @@ export interface AuthResponse {
   requires_2fa?: boolean;
 }
 
-export interface RegisterResponse {
-  user_id: string;
-  email: string;
-  full_name: string;
-  role: string;
-  email_confirmed: boolean;
-  message: string;
-}
+export type RegisterResponse = AuthResponse;
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
@@ -142,8 +135,13 @@ export async function login(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Login failed");
+    const raw = await response.text();
+    try {
+      const errorJson = JSON.parse(raw);
+      throw new Error(errorJson.detail || "Login failed");
+    } catch {
+      throw new Error(raw || "Login failed");
+    }
   }
 
   const data: AuthResponse = await response.json();
@@ -152,6 +150,22 @@ export async function login(
     userStorage.setUser(data.user);
   }
   return data;
+}
+
+// Función de login con Google
+export async function loginWithGoogle(): Promise<void> {
+  const { supabase } = await import("@/lib/supabase");
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.error("Google sign-in error:", error);
+    throw new Error(error.message || "Failed to initiate Google sign-in");
+  }
 }
 
 // Función de registro
@@ -168,7 +182,13 @@ export async function register(
     const error = await response.json();
     throw new Error(error.detail || "Registration failed");
   }
-  return response.json();
+
+  const data: RegisterResponse = await response.json();
+  if (data.access_token && data.user) {
+    tokenStorage.setTokens(data.access_token, data.refresh_token);
+    userStorage.setUser(data.user);
+  }
+  return data;
 }
 
 // Función de logout

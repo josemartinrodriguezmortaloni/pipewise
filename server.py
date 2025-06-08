@@ -29,6 +29,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
 from dotenv import load_dotenv
+from postgrest.exceptions import APIError
 
 # Pydantic para validación
 from pydantic import BaseModel, EmailStr
@@ -307,18 +308,36 @@ class SupabaseAuth:
             raise ValueError("Email not confirmed")
 
         user_id = auth_response.user.id
-        profile_res = (
-            self.supabase_admin.table("users")
-            .select("*")
-            .eq("id", user_id)
-            .single()
-            .execute()
-        )
+        try:
+            profile_res = (
+                self.supabase_admin.table("users")
+                .select("*")
+                .eq("id", user_id)
+                .single()
+                .execute()
+            )
+            profile_data = profile_res.data
+        except APIError as api_err:
+            # PGRST116 = 0 filas (o más de 1) → crear perfil al vuelo
+            if getattr(api_err, "code", "") == "PGRST116":
+                logger.warning(
+                    "No profile row found for %s – inserting one on the fly", user_id
+                )
+                profile_data = {
+                    "id": user_id,
+                    "email": login_data.email,
+                    "full_name": auth_response.user.user_metadata.get("full_name")
+                    or login_data.email.split("@")[0],
+                    "company": auth_response.user.user_metadata.get("company"),
+                    "phone": auth_response.user.user_metadata.get("phone"),
+                    "has_2fa": False,
+                    "created_at": datetime.utcnow().isoformat(),
+                }
+                self.supabase_admin.table("users").insert(profile_data).execute()
+            else:
+                raise
 
-        if not profile_res.data:
-            raise ValueError("User profile not found in database.")
-
-        user_profile = profile_res.data
+        user_profile = profile_data
         now_iso = datetime.now().isoformat()
         created_at = user_profile.get("created_at")
 
@@ -379,20 +398,26 @@ class SupabaseAuth:
             if not user:
                 return None
 
-            # Usar cliente admin para obtener el perfil y evitar recursión RLS
-            if not self.supabase_admin:
-                logger.error(
-                    "El cliente Supabase admin no está disponible. Se requiere SUPABASE_SERVICE_ROLE_KEY."
+            # Preferir cliente admin para evitar RLS, pero hacer fallback si no existe
+            if self.supabase_admin:
+                profile_response = (
+                    self.supabase_admin.table("users")
+                    .select("*")
+                    .eq("id", user.id)
+                    .single()
+                    .execute()
                 )
-                raise ValueError("Admin client not configured")
-
-            profile_response = (
-                self.supabase_admin.table("users")
-                .select("*")
-                .eq("id", user.id)
-                .single()
-                .execute()
-            )
+            else:
+                logger.warning(
+                    "Supabase admin client not configured. Falling back to regular client; this may be limited by RLS policies."
+                )
+                profile_response = (
+                    self.supabase.table("users")
+                    .select("*")
+                    .eq("id", user.id)
+                    .single()
+                    .execute()
+                )
 
             if not profile_response.data:
                 logger.warning(f"No se encontró perfil para el usuario {user.id}")
@@ -560,16 +585,24 @@ async def fix_users_rls_policies():
         logger.info("Intentando corregir políticas RLS para la tabla users...")
 
         # Primero eliminamos las políticas problemáticas
-        supabase_admin.postgrest.rpc(
-            "exec_sql",
-            {
-                "query": """
-                DROP POLICY IF EXISTS "Users can view own profile" ON users;
-                DROP POLICY IF EXISTS "Users can update own profile" ON users;
-                DROP POLICY IF EXISTS "Users can insert own profile" ON users;
-            """
-            },
-        ).execute()
+        try:
+            supabase_admin.postgrest.rpc(
+                "exec_sql",
+                {
+                    "query": """
+                    DROP POLICY IF EXISTS \"Users can view own profile\" ON users;
+                    DROP POLICY IF EXISTS \"Users can update own profile\" ON users;
+                    DROP POLICY IF EXISTS \"Users can insert own profile\" ON users;
+                """
+                },
+            ).execute()
+        except Exception as rpc_err:
+            if "PGRST202" in str(rpc_err):
+                logger.warning(
+                    "exec_sql function not present; skipping RLS policy reset via RPC"
+                )
+            else:
+                raise
 
         # Creamos nuevas políticas que permiten a los usuarios acceder a sus propios datos
         # y al rol de servicio acceder a todos los datos
@@ -1348,6 +1381,13 @@ def main():
     port = int(os.getenv("PORT", "8001"))
     is_dev = os.getenv("ENV") == "development"
 
+    # Permitir recarga solo si BACKEND_RELOAD=true (por defecto desactivado para ver logs limpios)
+    enable_reload = is_dev and os.getenv("BACKEND_RELOAD", "false").lower() == "true"
+
+    # Silenciar spam de watchfiles cuando reload está activo
+    if enable_reload:
+        logging.getLogger("watchfiles.main").setLevel(logging.ERROR)
+
     logger.info(f"Server will start on {host}:{port}")
     if is_dev:
         logger.info("Running in development mode with auto-reload.")
@@ -1355,11 +1395,16 @@ def main():
     logger.info("Features: Supabase Auth, Google Authenticator, 2FA")
 
     # Para que el reload funcione correctamente, uvicorn necesita la ruta al 'app' como string.
+    reload_dirs = (
+        os.getenv("RELOAD_DIRS", "server,app").split(",") if enable_reload else None
+    )
+
     uvicorn.run(
         "server:app",
         host=host,
         port=port,
-        reload=is_dev,
+        reload=enable_reload,
+        reload_dirs=reload_dirs,
         log_level="info",
     )
 
