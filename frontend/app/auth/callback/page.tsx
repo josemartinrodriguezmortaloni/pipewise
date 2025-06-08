@@ -9,15 +9,10 @@ export default function AuthCallbackPage() {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    // The `useAuth` hook's onAuthStateChange listener will handle the session.
-    // We just need to wait for the authentication state to be resolved.
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.push("/dashboard");
-      } else {
-        // If auth fails for some reason, send back to login
-        router.push("/login");
-      }
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    } else if (!isLoading) {
+      router.replace("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
