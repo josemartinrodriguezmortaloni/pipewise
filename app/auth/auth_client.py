@@ -142,7 +142,7 @@ class AuthenticationClient:
 
             user = User(**result.data[0])
 
-            # Log del evento
+            # Log del evento de registro exitoso
             await self._log_auth_event(
                 user_id=str(user.id),
                 email=user.email,
@@ -151,13 +151,29 @@ class AuthenticationClient:
                 ip_address=ip_address,
             )
 
+            # Iniciar sesión automáticamente después del registro
+            access_token, refresh_token = await self._create_user_session(
+                user, remember_me=True, ip_address=ip_address
+            )
+
+            # Log del evento de login
+            await self._log_auth_event(
+                user_id=str(user.id),
+                email=user.email,
+                action="login",
+                success=True,
+                ip_address=ip_address,
+                details={"method": "after_registration"},
+            )
+
+            # Preparar perfil de usuario para la respuesta
+            user_profile = self._user_to_profile(user)
+
             return {
-                "user_id": str(user.id),
-                "email": user.email,
-                "full_name": user.full_name,
-                "role": user.role,
-                "email_confirmed": user.email_confirmed,
-                "message": "User registered successfully. Please check your email for confirmation.",
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": user_profile.model_dump(),
+                "message": "User registered and logged in successfully.",
             }
 
         except AuthApiError as e:

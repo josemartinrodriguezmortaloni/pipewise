@@ -25,7 +25,10 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginCredentials) => Promise<AuthResponse>;
+  login: (
+    credentials: LoginCredentials,
+    fromRegistration?: boolean
+  ) => Promise<AuthResponse>;
   register: (userData: RegisterData) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -71,10 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (
-    credentials: LoginCredentials
+    credentials: LoginCredentials,
+    fromRegistration = false
   ): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
+      // Si viene del registro, el login ya se hizo en el backend.
+      // Aquí solo necesitamos obtener los datos y guardarlos.
+      // La llamada a authLogin se hace para obtener el token y datos del usuario.
       const response = await authLogin(credentials);
 
       if (!response.requires_2fa) {

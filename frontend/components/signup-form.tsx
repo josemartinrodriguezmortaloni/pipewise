@@ -17,7 +17,7 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { register, isLoading } = useAuth();
+  const { register, login, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -80,10 +80,18 @@ export function SignupForm({
         role: formData.role,
       });
 
-      toast.success(
-        "¡Cuenta creada exitosamente! Por favor, revisa tu email para confirmar tu cuenta."
-      );
-      router.push("/login");
+      if (response.access_token && response.user) {
+        await login(
+          { email: formData.email, password: formData.password },
+          true
+        );
+
+        toast.success("¡Cuenta creada y sesión iniciada!");
+        router.push("/dashboard");
+      } else {
+        toast.info("Cuenta creada. Por favor, inicia sesión.");
+        router.push("/login");
+      }
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Error al crear la cuenta";

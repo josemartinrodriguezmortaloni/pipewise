@@ -216,6 +216,7 @@ class SupabaseAuth:
 
     def __init__(self):
         self.supabase = supabase
+        self.supabase_admin = supabase_admin
 
     async def register_user(
         self, user_data: UserRegisterRequest
@@ -252,8 +253,8 @@ class SupabaseAuth:
             }
 
             # Siempre usar el cliente administrativo para insertar en tabla users
-            if supabase_admin:
-                supabase_admin.table("users").insert(user_profile).execute()
+            if self.supabase_admin:
+                self.supabase_admin.table("users").insert(user_profile).execute()
                 logger.info(
                     f"User profile created with admin client: {user_data.email}"
                 )
@@ -283,86 +284,71 @@ class SupabaseAuth:
     ) -> UserLoginResponse:
         """
         Login con Supabase y 2FA opcional.
-
-        This function handles user login, including a bypass for email confirmation
-        in development environments, and constructs a user profile for the response,
-        ensuring all date objects are correctly serialized to strings.
         """
-        try:
-            client_ip = get_client_ip(request)
-            logger.info(f"Login attempt for {login_data.email} from {client_ip}")
-
-            # 1. Authenticate with Supabase
-            auth_response = self.supabase.auth.sign_in_with_password(
-                {"email": login_data.email, "password": login_data.password}
-            )
-            if not auth_response.user or not auth_response.session:
-                raise ValueError("Invalid credentials")
-
-            # 2. Handle email confirmation (with dev bypass)
-            if (
-                not auth_response.user.email_confirmed_at
-                and os.getenv("ENV") != "development"
-            ):
-                raise ValueError("Email not confirmed")
-
-            # 3. Retrieve user profile from the database using admin client
-            user_id = auth_response.user.id
-            profile_res = (
-                self.supabase.table("users")
-                .select("*")
-                .eq("id", user_id)
-                .single()
-                .execute()
-            )
-
-            if not profile_res.data:
-                raise ValueError("User profile not found in database.")
-
-            user_profile = profile_res.data
-
-            # 4. Construct a serializable user object for the response
-            now_iso = datetime.now().isoformat()
-            user_for_response = {
-                "id": str(user_profile.get("id")),
-                "email": user_profile.get("email"),
-                "full_name": user_profile.get("full_name"),
-                "company": user_profile.get("company"),
-                "phone": user_profile.get("phone"),
-                "has_2fa": user_profile.get("has_2fa", False),
-                "created_at": user_profile.get("created_at"),
-                "last_login": now_iso,
-            }
-
-            # 5. Update last_login in DB (best-effort)
-            try:
-                self.supabase.table("users").update({"last_login": now_iso}).eq(
-                    "id", user_id
-                ).execute()
-            except Exception as e:
-                logger.warning(f"Could not update last_login for {user_id}: {e}")
-
-            # 6. Return final response
-            return UserLoginResponse(
-                access_token=auth_response.session.access_token,
-                refresh_token=auth_response.session.refresh_token,
-                token_type="bearer",
-                expires_in=auth_response.session.expires_in,
-                user=user_for_response,
-            )
-
-        except ValueError as e:
-            logger.warning(f"Login failed for {login_data.email}: {e}")
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
-        except Exception as e:
+        if not self.supabase_admin:
             logger.error(
-                f"An unexpected login error occurred for {login_data.email}: {e}",
-                exc_info=True,
+                "Supabase admin client is not configured. SUPABASE_SERVICE_KEY is required."
             )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="An internal error occurred during login.",
-            )
+            raise ValueError("Server configuration error: Admin client not available.")
+
+        client_ip = get_client_ip(request)
+        logger.info(f"Login attempt for {login_data.email} from {client_ip}")
+
+        auth_response = self.supabase.auth.sign_in_with_password(
+            {"email": login_data.email, "password": login_data.password}
+        )
+        if not auth_response.user or not auth_response.session:
+            raise ValueError("Invalid credentials")
+
+        if (
+            not auth_response.user.email_confirmed_at
+            and os.getenv("ENV") != "development"
+        ):
+            raise ValueError("Email not confirmed")
+
+        user_id = auth_response.user.id
+        profile_res = (
+            self.supabase_admin.table("users")
+            .select("*")
+            .eq("id", user_id)
+            .single()
+            .execute()
+        )
+
+        if not profile_res.data:
+            raise ValueError("User profile not found in database.")
+
+        user_profile = profile_res.data
+        now_iso = datetime.now().isoformat()
+        created_at = user_profile.get("created_at")
+
+        user_for_response = {
+            "id": str(user_profile.get("id")),
+            "email": user_profile.get("email"),
+            "full_name": user_profile.get("full_name"),
+            "company": user_profile.get("company"),
+            "phone": user_profile.get("phone"),
+            "has_2fa": user_profile.get("has_2fa", False),
+            "created_at": created_at.isoformat()
+            if isinstance(created_at, datetime)
+            else str(created_at),
+            "last_login": now_iso,
+        }
+
+        try:
+            self.supabase_admin.table("users").update({"last_login": now_iso}).eq(
+                "id", user_id
+            ).execute()
+        except Exception as e:
+            logger.warning(f"Could not update last_login for {user_id}: {e}")
+
+        return UserLoginResponse(
+            access_token=auth_response.session.access_token,
+            refresh_token=auth_response.session.refresh_token,
+            token_type="bearer",
+            expires_in=auth_response.session.expires_in,
+            user=user_for_response,
+        )
 
     async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
         """Renovar token de acceso"""
@@ -394,14 +380,14 @@ class SupabaseAuth:
                 return None
 
             # Usar cliente admin para obtener el perfil y evitar recursión RLS
-            if not supabase_admin:
+            if not self.supabase_admin:
                 logger.error(
                     "El cliente Supabase admin no está disponible. Se requiere SUPABASE_SERVICE_ROLE_KEY."
                 )
                 raise ValueError("Admin client not configured")
 
             profile_response = (
-                supabase_admin.table("users")
+                self.supabase_admin.table("users")
                 .select("*")
                 .eq("id", user.id)
                 .single()
@@ -814,74 +800,9 @@ async def register_user(
 async def login_user(request: Request, login_data: UserLoginRequest):
     """
     Login con Supabase y 2FA opcional.
-
-    This function handles user login, including a bypass for email confirmation
-    in development environments, and constructs a user profile for the response,
-    ensuring all date objects are correctly serialized to strings.
     """
     try:
-        client_ip = get_client_ip(request)
-        logger.info(f"Login attempt for {login_data.email} from {client_ip}")
-
-        # 1. Authenticate with Supabase
-        auth_response = supabase.auth.sign_in_with_password(
-            {"email": login_data.email, "password": login_data.password}
-        )
-        if not auth_response.user or not auth_response.session:
-            raise ValueError("Invalid credentials")
-
-        # 2. Handle email confirmation (with dev bypass)
-        if (
-            not auth_response.user.email_confirmed_at
-            and os.getenv("ENV") != "development"
-        ):
-            raise ValueError("Email not confirmed")
-
-        # 3. Retrieve user profile from the database using admin client
-        user_id = auth_response.user.id
-        profile_res = (
-            supabase_admin.table("users")
-            .select("*")
-            .eq("id", user_id)
-            .single()
-            .execute()
-        )
-
-        if not profile_res.data:
-            raise ValueError("User profile not found in database.")
-
-        user_profile = profile_res.data
-
-        # 4. Construct a serializable user object for the response
-        now_iso = datetime.now().isoformat()
-        user_for_response = {
-            "id": str(user_profile.get("id")),
-            "email": user_profile.get("email"),
-            "full_name": user_profile.get("full_name"),
-            "company": user_profile.get("company"),
-            "phone": user_profile.get("phone"),
-            "has_2fa": user_profile.get("has_2fa", False),
-            "created_at": user_profile.get("created_at"),
-            "last_login": now_iso,
-        }
-
-        # 5. Update last_login in DB (best-effort)
-        try:
-            supabase_admin.table("users").update({"last_login": now_iso}).eq(
-                "id", user_id
-            ).execute()
-        except Exception as e:
-            logger.warning(f"Could not update last_login for {user_id}: {e}")
-
-        # 6. Return final response
-        return UserLoginResponse(
-            access_token=auth_response.session.access_token,
-            refresh_token=auth_response.session.refresh_token,
-            token_type="bearer",
-            expires_in=auth_response.session.expires_in,
-            user=user_for_response,
-        )
-
+        return await auth_system.login_user(request, login_data)
     except ValueError as e:
         logger.warning(f"Login failed for {login_data.email}: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
@@ -1435,7 +1356,7 @@ def main():
 
     # Para que el reload funcione correctamente, uvicorn necesita la ruta al 'app' como string.
     uvicorn.run(
-        "__main__:app",
+        "server:app",
         host=host,
         port=port,
         reload=is_dev,
