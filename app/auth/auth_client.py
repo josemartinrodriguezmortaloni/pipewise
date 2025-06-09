@@ -862,3 +862,147 @@ class AuthenticationClient:
 
         except Exception as e:
             logger.error(f"Update session activity error: {e}")
+
+    # ===================== SUPABASE OAUTH INTEGRATION =====================
+
+    async def sync_supabase_user(
+        self,
+        supabase_user: Dict[str, Any],
+        provider_token: str,
+        ip_address: str = None,
+        user_agent: str = None,
+    ) -> Dict[str, Any]:
+        """Sync Supabase OAuth user with our backend system"""
+        try:
+            # Verify the provider token with Supabase
+            try:
+                # Verify token by getting user data from Supabase
+                verify_response = self.client.auth.get_user(provider_token)
+                if not verify_response.user or verify_response.user.id != supabase_user.get("id"):
+                    raise ValueError("Invalid provider token")
+            except Exception as e:
+                logger.error(f"Token verification failed: {e}")
+                raise ValueError("Invalid or expired token")
+
+            user_id = supabase_user.get("id")
+            email = supabase_user.get("email")
+            
+            if not user_id or not email:
+                raise ValueError("Invalid user data from Supabase")
+
+            # Check if user already exists in our system
+            existing_user = await self.get_user_by_id(user_id)
+            
+            if existing_user:
+                # Update existing user's last login and activity
+                await self._update_last_login(user_id)
+                
+                # Create new session
+                access_token, refresh_token = await self._create_user_session(
+                    existing_user, remember_me=True, ip_address=ip_address, user_agent=user_agent
+                )
+                
+                # Log successful OAuth login
+                await self._log_auth_event(
+                    user_id=str(existing_user.id),
+                    email=existing_user.email,
+                    action="oauth_login",
+                    success=True,
+                    ip_address=ip_address,
+                    details={"provider": "google"}
+                )
+                
+                return {
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "token_type": "bearer",
+                    "expires_in": self.access_token_expire_minutes * 60,
+                    "user": self._user_to_profile(existing_user),
+                }
+            else:
+                # Create new user from OAuth data
+                user_metadata = supabase_user.get("user_metadata", {})
+                app_metadata = supabase_user.get("app_metadata", {})
+                
+                # Extract user info from OAuth provider
+                full_name = (
+                    user_metadata.get("full_name") or 
+                    user_metadata.get("name") or 
+                    f"{user_metadata.get('given_name', '')} {user_metadata.get('family_name', '')}".strip() or
+                    email.split("@")[0]
+                )
+                
+                # Determine auth provider
+                provider = "google"  # Default, could be extracted from app_metadata if needed
+                
+                # Create user record
+                user_dict = {
+                    "id": user_id,
+                    "email": email,
+                    "full_name": full_name,
+                    "company": user_metadata.get("company"),
+                    "phone": user_metadata.get("phone"),
+                    "role": UserRole.USER.value,  # Default role for OAuth users
+                    "auth_provider": AuthProvider.GOOGLE.value if provider == "google" else AuthProvider.EMAIL.value,
+                    "password_hash": None,  # OAuth users don't have passwords
+                    "is_active": True,
+                    "email_confirmed": True,  # OAuth emails are pre-verified
+                    "has_2fa": False,
+                    "created_at": self._get_current_timestamp().isoformat(),
+                    "updated_at": self._get_current_timestamp().isoformat(),
+                    "last_login": self._get_current_timestamp().isoformat(),
+                    "preferences": {"theme": "light", "language": "en", "timezone": "UTC"},
+                }
+
+                # Insert user into our database
+                result = self.client.table("users").insert(user_dict).execute()
+                
+                if not result.data:
+                    raise Exception("Failed to create user record")
+
+                new_user = User(**result.data[0])
+                
+                # Create session for new user
+                access_token, refresh_token = await self._create_user_session(
+                    new_user, remember_me=True, ip_address=ip_address, user_agent=user_agent
+                )
+                
+                # Log successful OAuth registration and login
+                await self._log_auth_event(
+                    user_id=str(new_user.id),
+                    email=new_user.email,
+                    action="oauth_register_login",
+                    success=True,
+                    ip_address=ip_address,
+                    details={"provider": provider}
+                )
+                
+                return {
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "token_type": "bearer",
+                    "expires_in": self.access_token_expire_minutes * 60,
+                    "user": self._user_to_profile(new_user),
+                    "message": "Account created and logged in successfully"
+                }
+                
+        except ValueError as e:
+            # Log failed OAuth attempt
+            await self._log_auth_event(
+                email=supabase_user.get("email"),
+                action="oauth_sync_attempt",
+                success=False,
+                ip_address=ip_address,
+                error_message=str(e)
+            )
+            raise
+        except Exception as e:
+            logger.error(f"Supabase user sync error: {e}")
+            await self._log_auth_event(
+                email=supabase_user.get("email"),
+                action="oauth_sync_attempt", 
+                success=False,
+                ip_address=ip_address,
+                error_message=str(e)
+            )
+            raise Exception("Failed to sync user authentication")

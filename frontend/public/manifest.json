@@ -1,0 +1,73 @@
+{
+  "name": "PipeWise - Modern B2B SaaS Platform",
+  "short_name": "PipeWise",
+  "description": "Modern B2B SaaS platform with OpenAI AgentSDK, multi-tenant architecture, and advanced lead management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "productivity", "crm"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View leads dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/favicon-16x16.png",
+          "sizes": "16x16"
+        }
+      ]
+    },
+    {
+      "name": "Leads",
+      "short_name": "Leads",
+      "description": "Manage leads",
+      "url": "/leads",
+      "icons": [
+        {
+          "src": "/favicon-16x16.png",
+          "sizes": "16x16"
+        }
+      ]
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "View scheduled meetings",
+      "url": "/calendar",
+      "icons": [
+        {
+          "src": "/favicon-16x16.png",
+          "sizes": "16x16"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -41,110 +41,64 @@ interface Integration {
   webhookUrl?: string;
 }
 
-const integrations: Integration[] = [
-  {
-    id: "calendly",
-    name: "Calendly",
-    description: "Automatically schedule meetings with qualified leads",
-    icon: IconCalendar,
-    status: "disconnected",
-    category: "calendar",
-    features: [
-      "Auto-schedule meetings",
-      "Send booking links",
-      "Sync availability",
-      "Meeting reminders",
-    ],
-    requiresApi: true,
-    apiKeyLabel: "Calendly API Token",
-    webhookUrl: "/api/webhooks/calendly",
-  },
-  {
-    id: "whatsapp",
-    name: "WhatsApp Business",
-    description: "Receive leads and send automated messages via WhatsApp",
-    icon: IconBrandWhatsapp,
-    status: "disconnected",
-    category: "messaging",
-    features: [
-      "Receive lead messages",
-      "Auto-respond to inquiries",
-      "Send follow-ups",
-      "Media sharing",
-    ],
-    requiresApi: true,
-    apiKeyLabel: "WhatsApp Business API Token",
-    webhookUrl: "/api/webhooks/whatsapp",
-  },
-  {
-    id: "instagram",
-    name: "Instagram",
-    description: "Connect with leads from Instagram DMs and comments",
-    icon: IconBrandInstagram,
-    status: "disconnected",
-    category: "social",
-    features: [
-      "Monitor DMs",
-      "Track comments",
-      "Auto-respond to mentions",
-      "Lead qualification",
-    ],
-    requiresApi: true,
-    apiKeyLabel: "Instagram Graph API Token",
-    webhookUrl: "/api/webhooks/instagram",
-  },
-  {
-    id: "twitter",
-    name: "X (Twitter)",
-    description: "Engage with potential leads from X/Twitter interactions",
-    icon: IconBrandTwitter,
-    status: "disconnected",
-    category: "social",
-    features: [
-      "Monitor mentions",
-      "Track DMs",
-      "Auto-engage with prospects",
-      "Lead identification",
-    ],
-    requiresApi: true,
-    apiKeyLabel: "X API Bearer Token",
-    webhookUrl: "/api/webhooks/twitter",
-  },
-  {
-    id: "email",
-    name: "Email Integration",
-    description: "Connect your email to capture and respond to leads",
-    icon: IconMail,
-    status: "disconnected",
-    category: "email",
-    features: [
-      "Email lead capture",
-      "Automated responses",
-      "Follow-up sequences",
-      "Email analytics",
-    ],
-    requiresApi: true,
-    apiKeyLabel: "SMTP Configuration",
-    webhookUrl: "/api/webhooks/email",
-  },
-];
+// Icon mapping for integrations from API
+const getIconForIntegration = (integrationId: string) => {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    calendly: IconCalendar,
+    whatsapp: IconBrandWhatsapp,
+    instagram: IconBrandInstagram,
+    twitter: IconBrandTwitter,
+    email: IconMail,
+  };
+  return iconMap[integrationId] || IconPlug;
+};
 
 export function IntegrationsSettings() {
   const [apiKeys, setApiKeys] = React.useState<Record<string, string>>({});
   const [loading, setLoading] = React.useState<Record<string, boolean>>({});
+  const [pageLoading, setPageLoading] = React.useState(true);
+  const [pageError, setPageError] = React.useState<string | null>(null);
+  const [integrations, setIntegrations] = React.useState<Integration[]>([]);
   const [connectedIntegrations, setConnectedIntegrations] = React.useState<
     Set<string>
   >(new Set());
 
-  // Load initial integration status
+  // Load integrations and their status from API
   React.useEffect(() => {
     const loadIntegrations = async () => {
       try {
-        const response = await fetch("/api/integrations/");
-        if (response.ok) {
-          const integrations = await response.json();
+        setPageLoading(true);
+        setPageError(null);
+
+        // Load available integrations
+        const [integrationsResponse, statusResponse] = await Promise.all([
+          fetch("/api/integrations/available"),
+          fetch("/api/integrations/")
+        ]);
+
+        let availableIntegrations: Integration[] = [];
+        
+        if (integrationsResponse.ok) {
+          const integrationsData = await integrationsResponse.json();
+          // Transform API response to match our interface
+          availableIntegrations = integrationsData.integrations?.map((integration: Omit<Integration, 'icon' | 'status'>) => ({
+            ...integration,
+            icon: getIconForIntegration(integration.id),
+            status: "disconnected" as const // Will be updated below
+          })) || [];
+        } else {
+          console.warn("Could not load available integrations, using fallback");
+          // Fallback to empty array - no integrations available
+          availableIntegrations = [];
+        }
+
+        setIntegrations(availableIntegrations);
+
+        // Load connected integrations status
+        if (statusResponse.ok) {
+          const connectedData = await statusResponse.json();
           const connected = new Set<string>();
-          integrations.forEach(
+          connectedData.integrations?.forEach(
             (integration: { id: string; status: string }) => {
               if (integration.status === "connected") {
                 connected.add(integration.id);
@@ -153,8 +107,13 @@ export function IntegrationsSettings() {
           );
           setConnectedIntegrations(connected);
         }
+
       } catch (error) {
         console.error("Error loading integrations:", error);
+        setPageError(error instanceof Error ? error.message : "Failed to load integrations");
+        setIntegrations([]); // No integrations on error
+      } finally {
+        setPageLoading(false);
       }
     };
 
@@ -356,6 +315,94 @@ export function IntegrationsSettings() {
         return "text-gray-600";
     }
   };
+
+  // Show loading state
+  if (pageLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <IconSettings className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Integrations
+            </h2>
+            <p className="text-muted-foreground">
+              Loading available integrations...
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (pageError) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-destructive/10">
+            <IconSettings className="h-6 w-6 text-destructive" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Integrations
+            </h2>
+            <p className="text-destructive">
+              Error loading integrations: {pageError}
+            </p>
+          </div>
+        </div>
+        <Card className="border-destructive">
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground mb-4">
+              No se pudo cargar la información de integraciones.
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline"
+            >
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show empty state if no integrations
+  if (integrations.length === 0) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <IconSettings className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Integrations
+            </h2>
+            <p className="text-muted-foreground">
+              Connect your favorite platforms to automate lead management
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <IconPlug className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No hay integraciones disponibles</h3>
+            <p className="text-muted-foreground mb-4">
+              No se encontraron integraciones configuradas en el sistema.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

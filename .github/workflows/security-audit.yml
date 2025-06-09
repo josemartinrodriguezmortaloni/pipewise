@@ -1,0 +1,121 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        pip install safety bandit semgrep pip-audit
+    
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-report.json
+      continue-on-error: true
+    
+    - name: Run Bandit security linter
+      run: |
+        bandit -r app -f json -o bandit-report.json
+      continue-on-error: true
+    
+    - name: Run pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json .
+      continue-on-error: true
+    
+    - name: Run Semgrep
+      run: |
+        semgrep --config=auto --json --output=semgrep-report.json app/
+      continue-on-error: true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-audit-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          pip-audit-report.json
+          semgrep-report.json
+    
+    - name: Parse and notify on high severity issues
+      run: |
+        python -c "
+        import json
+        import sys
+        
+        # Check Safety report
+        try:
+            with open('safety-report.json') as f:
+                safety_data = json.load(f)
+                if safety_data.get('vulnerabilities'):
+                    print('❌ Safety found vulnerabilities')
+                    sys.exit(1)
+        except:
+            pass
+        
+        # Check Bandit report  
+        try:
+            with open('bandit-report.json') as f:
+                bandit_data = json.load(f)
+                high_severity = [r for r in bandit_data.get('results', []) if r.get('issue_severity') == 'HIGH']
+                if high_severity:
+                    print(f'❌ Bandit found {len(high_severity)} high severity issues')
+                    sys.exit(1)
+        except:
+            pass
+        
+        print('✅ No high severity security issues found')
+        "
+
+  frontend-security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        pnpm install --frozen-lockfile
+    
+    - name: Run npm audit
+      run: |
+        cd frontend
+        pnpm audit --json > npm-audit-report.json || true
+    
+    - name: Upload npm audit report
+      uses: actions/upload-artifact@v3
+      with:
+        name: npm-audit-report
+        path: frontend/npm-audit-report.json

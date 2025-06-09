@@ -19790,3 +19790,824 @@ ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una cone
 2025-06-08 03:04:19,351 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
 2025-06-08 03:04:19,352 - server - INFO - Response: 401 in 0.0010s
 2025-06-08 03:04:19,352 - server - INFO - Response: 401 in 0.0010s
+2025-06-09 22:00:59,198 - __main__ - ERROR - SUPABASE_URL and SUPABASE_ANON_KEY are required
+2025-06-09 22:01:55,250 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-06-09 22:01:55,250 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-06-09 22:01:55,250 - __main__ - INFO - Running in development mode with auto-reload.
+2025-06-09 22:01:55,250 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-06-09 22:01:55,250 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-06-09 22:01:55,398 - server - INFO - Starting PipeWise CRM with Supabase...
+2025-06-09 22:01:56,657 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=count "HTTP/2 200 OK"
+2025-06-09 22:01:56,661 - server - INFO - Supabase connection established
+2025-06-09 22:01:56,661 - server - INFO - PipeWise CRM Server started successfully
+2025-06-09 23:15:22,679 - server - INFO - Request: HEAD /docs from 127.0.0.1
+2025-06-09 23:15:22,683 - server - INFO - Response: 200 in 0.0035s
+2025-06-09 23:15:26,521 - server - INFO - Request: HEAD /api/v1/auth/ from 127.0.0.1
+2025-06-09 23:15:26,523 - server - INFO - Response: 404 in 0.0012s
+2025-06-09 23:15:30,704 - server - INFO - Request: GET /docs from 127.0.0.1
+2025-06-09 23:15:30,704 - server - INFO - Response: 200 in 0.0004s
+2025-06-09 23:15:35,195 - server - INFO - Request: GET /openapi.json from 127.0.0.1
+2025-06-09 23:15:35,224 - server - INFO - Response: 200 in 0.0292s
+2025-06-09 23:19:27,131 - server - INFO - Request: POST /api/api/auth/login from 127.0.0.1
+2025-06-09 23:19:27,267 - server - INFO - Login attempt for test@example.com from 127.0.0.1
+2025-06-09 23:19:28,207 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/token?grant_type=password "HTTP/2 400 Bad Request"
+2025-06-09 23:19:28,207 - server - ERROR - An unexpected login error occurred for test@example.com: Invalid login credentials
+Traceback (most recent call last):
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/.venv/lib/python3.11/site-packages/gotrue/_sync/gotrue_base_api.py", line 120, in _request
+    response.raise_for_status()
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/.venv/lib/python3.11/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '400 Bad Request' for url 'https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/token?grant_type=password'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/server.py", line 904, in login_user
+    return await auth_system.login_user(request, login_data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/server.py", line 338, in login_user
+    auth_response = self.supabase.auth.sign_in_with_password(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/.venv/lib/python3.11/site-packages/gotrue/_sync/gotrue_client.py", line 270, in sign_in_with_password
+    response = self._request(
+               ^^^^^^^^^^^^^^
+  File "/home/m4s1t4/Documentos/proyectos/ia/pipewise/.venv/lib/python3.11/site-packages/gotrue/_sync/gotrue_base_api.py", line 125, in _request
+    raise handle_exception(e)
+gotrue.errors.AuthApiError: Invalid login credentials
+2025-06-09 23:19:28,212 - server - INFO - Response: 500 in 1.0818s
+2025-06-09 23:20:17,746 - server - INFO - Request: POST /api/api/auth/login from 127.0.0.1
+2025-06-09 23:20:17,746 - server - INFO - Login attempt for jmrodriguezm13@gmail.com from 127.0.0.1
+2025-06-09 23:20:18,546 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/token?grant_type=password "HTTP/2 200 OK"
+2025-06-09 23:20:19,192 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:20:19,458 - httpx - INFO - HTTP Request: PATCH https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:20:19,459 - server - INFO - Response: 200 in 1.7136s
+2025-06-09 23:20:54,401 - server - INFO - Request: OPTIONS /api/v1/auth/login from 127.0.0.1
+2025-06-09 23:20:54,401 - server - INFO - Response: 200 in 0.0003s
+2025-06-09 23:20:54,403 - server - INFO - Request: POST /api/v1/auth/login from 127.0.0.1
+2025-06-09 23:20:54,403 - server - INFO - Response: 404 in 0.0003s
+2025-06-09 23:21:35,501 - server - INFO - Request: POST /api/v1/auth/login from 127.0.0.1
+2025-06-09 23:21:35,501 - server - INFO - Response: 404 in 0.0005s
+2025-06-09 23:25:56,113 - server - INFO - Request: POST /api/v1/auth/login from 127.0.0.1
+2025-06-09 23:25:56,114 - server - INFO - Response: 404 in 0.0007s
+2025-06-09 23:26:17,719 - server - INFO - Request: OPTIONS /api/api/auth/login from 127.0.0.1
+2025-06-09 23:26:17,719 - server - INFO - Response: 200 in 0.0003s
+2025-06-09 23:26:17,720 - server - INFO - Request: POST /api/api/auth/login from 127.0.0.1
+2025-06-09 23:26:17,721 - server - INFO - Login attempt for jmrodriguezm13@gmail.com from 127.0.0.1
+2025-06-09 23:26:18,323 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/token?grant_type=password "HTTP/2 200 OK"
+2025-06-09 23:26:18,954 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:19,508 - httpx - INFO - HTTP Request: PATCH https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:19,509 - server - INFO - Response: 200 in 1.7881s
+2025-06-09 23:26:22,186 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-06-09 23:26:22,186 - server - INFO - Response: 200 in 0.0022s
+2025-06-09 23:26:22,189 - server - INFO - Request: OPTIONS /api/analytics/leads from 127.0.0.1
+2025-06-09 23:26:22,189 - server - INFO - Response: 200 in 0.0003s
+2025-06-09 23:26:22,190 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-06-09 23:26:22,190 - server - INFO - Response: 200 in 0.0003s
+2025-06-09 23:26:22,192 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:26:22,426 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:22,955 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:23,179 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A26%3A22.965585 "HTTP/2 200 OK"
+2025-06-09 23:26:23,180 - server - INFO - Response: 200 in 0.9880s
+2025-06-09 23:26:23,180 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:23,673 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:23,866 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:23,870 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:24,358 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:26:24,359 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:24,613 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:24,804 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:24,805 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:24,997 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:24,998 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:26:24,998 - server - INFO - Response: 200 in 1.8175s
+2025-06-09 23:26:25,190 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:25,408 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:25,611 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A26%3A25.408635 "HTTP/2 200 OK"
+2025-06-09 23:26:25,612 - server - INFO - Response: 200 in 1.2530s
+2025-06-09 23:26:25,612 - server - INFO - Response: 200 in 0.6146s
+2025-06-09 23:26:25,613 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:25,812 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:26,008 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:26,009 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:26,205 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:26:26,206 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:26,206 - server - INFO - Response: 200 in 0.5929s
+2025-06-09 23:26:26,407 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:26,597 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:26,598 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:26,796 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:26,797 - server - INFO - Response: 200 in 0.5906s
+2025-06-09 23:26:26,797 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:26,994 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:27,192 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:27,193 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:27,399 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:27,400 - server - INFO - Response: 200 in 0.6023s
+2025-06-09 23:26:28,205 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-06-09 23:26:28,406 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:28,601 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:28,602 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-06-09 23:26:28,603 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-06-09 23:26:28,881 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:29,078 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:29,078 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-06-09 23:26:29,078 - server - INFO - Response: 200 in 0.8740s
+2025-06-09 23:26:29,079 - server - INFO - Response: 200 in 0.4759s
+2025-06-09 23:26:29,084 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-06-09 23:26:29,284 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:29,495 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:29,496 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-06-09 23:26:29,496 - server - INFO - Response: 200 in 0.4127s
+2025-06-09 23:26:29,497 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-06-09 23:26:29,702 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:29,938 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:29,951 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-06-09 23:26:29,952 - server - INFO - Response: 200 in 0.4556s
+2025-06-09 23:26:31,107 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:31,310 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:31,508 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:31,509 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:31,711 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:31,712 - server - INFO - Response: 200 in 0.6043s
+2025-06-09 23:26:31,713 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:31,925 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:32,128 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:32,128 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:32,345 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:32,346 - server - INFO - Response: 200 in 0.6334s
+2025-06-09 23:26:33,583 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-06-09 23:26:33,583 - server - INFO - Response: 404 in 0.0006s
+2025-06-09 23:26:33,588 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-06-09 23:26:33,588 - server - INFO - Response: 404 in 0.0005s
+2025-06-09 23:26:35,988 - server - INFO - Request: GET /api/integrations/available from 127.0.0.1
+2025-06-09 23:26:35,989 - server - INFO - Response: 404 in 0.0007s
+2025-06-09 23:26:36,015 - server - INFO - Request: GET /api/integrations/available from 127.0.0.1
+2025-06-09 23:26:36,016 - server - INFO - Response: 404 in 0.0007s
+2025-06-09 23:26:36,025 - server - INFO - Request: GET /api/integrations from 127.0.0.1
+2025-06-09 23:26:36,025 - server - INFO - Response: 404 in 0.0005s
+2025-06-09 23:26:36,030 - server - INFO - Request: GET /api/integrations from 127.0.0.1
+2025-06-09 23:26:36,030 - server - INFO - Response: 404 in 0.0005s
+2025-06-09 23:26:39,805 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:40,081 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:40,438 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:40,439 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:40,643 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:26:40,644 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:40,644 - server - INFO - Response: 200 in 0.8388s
+2025-06-09 23:26:40,842 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:41,044 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:41,045 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:41,282 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:41,283 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:26:41,549 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:41,753 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:41,971 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A26%3A41.754410 "HTTP/2 200 OK"
+2025-06-09 23:26:41,971 - server - INFO - Response: 200 in 1.3276s
+2025-06-09 23:26:41,972 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:41,972 - server - INFO - Response: 200 in 0.6888s
+2025-06-09 23:26:42,167 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:42,367 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:42,368 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:42,585 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:26:42,585 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:42,586 - server - INFO - Response: 200 in 0.6139s
+2025-06-09 23:26:42,952 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:43,159 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:43,160 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:43,373 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:43,374 - server - INFO - Response: 200 in 0.7886s
+2025-06-09 23:26:44,120 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:44,313 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:44,520 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:44,520 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:44,735 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:44,735 - server - INFO - Response: 200 in 0.6157s
+2025-06-09 23:26:51,922 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:52,132 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:52,338 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:52,338 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:52,557 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:52,558 - server - INFO - Response: 200 in 0.6361s
+2025-06-09 23:26:56,231 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:56,429 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:56,650 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:56,651 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:26:56,874 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:26:56,875 - server - INFO - Response: 200 in 0.6443s
+2025-06-09 23:26:59,471 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:26:59,675 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:26:59,902 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:26:59,903 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:00,101 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:00,102 - server - INFO - Response: 200 in 0.6312s
+2025-06-09 23:27:00,103 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:00,292 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:00,498 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:00,499 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:00,694 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:00,695 - server - INFO - Response: 200 in 0.5921s
+2025-06-09 23:27:00,696 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-06-09 23:27:00,890 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:01,123 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:01,124 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-06-09 23:27:01,124 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-06-09 23:27:01,347 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:01,560 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:01,561 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-06-09 23:27:01,561 - server - INFO - Response: 200 in 0.8647s
+2025-06-09 23:27:01,561 - server - INFO - Response: 200 in 0.4375s
+2025-06-09 23:27:01,565 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-06-09 23:27:01,764 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:01,973 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:01,974 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-06-09 23:27:01,975 - server - INFO - Response: 200 in 0.4096s
+2025-06-09 23:27:01,975 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-06-09 23:27:02,176 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:02,375 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:02,376 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-06-09 23:27:02,376 - server - INFO - Response: 200 in 0.4012s
+2025-06-09 23:27:02,376 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-06-09 23:27:02,377 - server - INFO - Response: 404 in 0.0004s
+2025-06-09 23:27:02,380 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-06-09 23:27:02,380 - server - INFO - Response: 404 in 0.0003s
+2025-06-09 23:27:03,902 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:04,096 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:04,294 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:04,295 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:04,488 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:04,489 - server - INFO - Response: 200 in 0.5870s
+2025-06-09 23:27:04,490 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:04,681 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:04,882 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:04,882 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:05,086 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:05,087 - server - INFO - Response: 200 in 0.5967s
+2025-06-09 23:27:06,428 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:06,624 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:06,825 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:06,825 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:07,029 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:27:07,030 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:27:07,031 - server - INFO - Response: 200 in 0.6031s
+2025-06-09 23:27:07,227 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:07,426 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:07,636 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A27%3A07.427419 "HTTP/2 200 OK"
+2025-06-09 23:27:07,636 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:07,835 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:08,049 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:08,050 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:08,278 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:08,279 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:27:08,279 - server - INFO - Response: 200 in 1.2487s
+2025-06-09 23:27:08,494 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:08,697 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:08,907 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A27%3A08.697790 "HTTP/2 200 OK"
+2025-06-09 23:27:08,908 - server - INFO - Response: 200 in 1.2714s
+2025-06-09 23:27:08,908 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:08,909 - server - INFO - Response: 200 in 0.6301s
+2025-06-09 23:27:09,104 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:09,303 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:09,304 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:09,531 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:27:09,532 - server - INFO - Request: GET /api/integrations/available from 127.0.0.1
+2025-06-09 23:27:09,532 - server - INFO - Request: GET /api/integrations from 127.0.0.1
+2025-06-09 23:27:09,532 - server - INFO - Response: 200 in 0.6241s
+2025-06-09 23:27:09,533 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:09,533 - server - INFO - Response: 404 in 0.0014s
+2025-06-09 23:27:09,728 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:09,969 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:09,970 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:10,173 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:10,174 - server - INFO - Response: 404 in 0.6423s
+2025-06-09 23:27:10,175 - server - INFO - Response: 200 in 0.6420s
+2025-06-09 23:27:10,179 - server - INFO - Request: GET /api/integrations/available from 127.0.0.1
+2025-06-09 23:27:10,180 - server - INFO - Response: 404 in 0.0005s
+2025-06-09 23:27:10,181 - server - INFO - Request: GET /api/integrations from 127.0.0.1
+2025-06-09 23:27:10,181 - server - INFO - Response: 404 in 0.0003s
+2025-06-09 23:27:13,284 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:13,543 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:13,749 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:13,750 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:13,950 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:27:13,951 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:27:13,951 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:13,951 - server - INFO - Response: 200 in 0.6668s
+2025-06-09 23:27:14,155 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:14,368 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:14,575 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A27%3A14.368800 "HTTP/2 200 OK"
+2025-06-09 23:27:14,780 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:14,976 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:14,978 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:15,184 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:15,185 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-06-09 23:27:15,378 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:15,578 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:15,781 - httpx - INFO - HTTP Request: HEAD https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-03-11T23%3A27%3A15.579123 "HTTP/2 200 OK"
+2025-06-09 23:27:15,782 - server - INFO - Response: 200 in 1.8311s
+2025-06-09 23:27:15,782 - server - INFO - Response: 200 in 1.8310s
+2025-06-09 23:27:15,782 - server - INFO - Response: 200 in 0.5973s
+2025-06-09 23:27:15,783 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:15,988 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:16,207 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:16,207 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:16,412 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:27:16,415 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:16,624 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:16,923 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:16,924 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:17,146 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:17,147 - server - INFO - Response: 200 in 1.3643s
+2025-06-09 23:27:17,147 - server - INFO - Response: 200 in 0.7327s
+2025-06-09 23:27:18,177 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:18,375 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:18,591 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:18,592 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:18,829 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:18,830 - server - INFO - Response: 200 in 0.6528s
+2025-06-09 23:27:25,403 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:25,620 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:25,864 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:25,864 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:26,128 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:26,129 - server - INFO - Response: 200 in 0.7260s
+2025-06-09 23:27:30,336 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:30,533 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:30,764 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:30,764 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:30,970 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:30,971 - server - INFO - Response: 200 in 0.6348s
+2025-06-09 23:27:34,636 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:34,846 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:35,045 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:35,045 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:35,297 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:35,297 - server - INFO - Response: 200 in 0.6618s
+2025-06-09 23:27:39,215 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:39,408 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:39,623 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:39,624 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:39,823 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:39,824 - server - INFO - Response: 200 in 0.6088s
+2025-06-09 23:27:44,074 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:44,341 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:44,600 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:44,600 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:44,829 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:27:44,830 - server - INFO - Response: 200 in 0.7551s
+2025-06-09 23:27:44,830 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:45,023 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:45,229 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:45,230 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:45,440 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:45,441 - server - INFO - Response: 200 in 0.6113s
+2025-06-09 23:27:48,383 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:48,576 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:48,801 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:48,802 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:49,000 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:49,000 - server - INFO - Response: 200 in 0.6179s
+2025-06-09 23:27:53,244 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:27:53,448 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:27:53,667 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:27:53,667 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:27:53,873 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:27:53,874 - server - INFO - Response: 200 in 0.6295s
+2025-06-09 23:28:00,405 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:00,615 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:00,849 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:00,851 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:01,251 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:01,252 - server - INFO - Response: 200 in 0.8476s
+2025-06-09 23:28:05,272 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:05,475 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:05,675 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:05,675 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:05,878 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:05,879 - server - INFO - Response: 200 in 0.6072s
+2025-06-09 23:28:09,569 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:09,773 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:09,979 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:09,980 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:10,177 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:10,177 - server - INFO - Response: 200 in 0.6087s
+2025-06-09 23:28:14,432 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:14,635 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:14,843 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:14,844 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:15,050 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:28:15,050 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:15,258 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:15,465 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:15,466 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:15,672 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:15,673 - server - INFO - Response: 200 in 1.2409s
+2025-06-09 23:28:15,673 - server - INFO - Response: 200 in 0.6228s
+2025-06-09 23:28:18,739 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:18,928 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:19,134 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:19,135 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:19,335 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:19,336 - server - INFO - Response: 200 in 0.5972s
+2025-06-09 23:28:23,320 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:23,614 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:23,821 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:23,821 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:24,036 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:24,037 - server - INFO - Response: 200 in 0.7166s
+2025-06-09 23:28:27,902 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:28,101 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:28,298 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:28,299 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:28,509 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:28,510 - server - INFO - Response: 200 in 0.6084s
+2025-06-09 23:28:35,402 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:35,601 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:35,808 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:35,808 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:36,004 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:36,004 - server - INFO - Response: 200 in 0.6025s
+2025-06-09 23:28:39,989 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:40,177 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:40,385 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:40,386 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:40,623 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:40,624 - server - INFO - Response: 200 in 0.6351s
+2025-06-09 23:28:44,567 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:44,769 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:44,986 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:44,988 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:45,210 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:28:45,211 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:45,211 - server - INFO - Response: 200 in 0.6434s
+2025-06-09 23:28:45,416 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:45,631 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:45,631 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:45,853 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:45,854 - server - INFO - Response: 200 in 0.6431s
+2025-06-09 23:28:49,161 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:49,361 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:49,556 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:49,556 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:49,779 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:49,779 - server - INFO - Response: 200 in 0.6177s
+2025-06-09 23:28:53,737 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:53,929 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:54,208 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:54,208 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:54,412 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:54,413 - server - INFO - Response: 200 in 0.6759s
+2025-06-09 23:28:58,323 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:28:58,521 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:28:58,716 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:28:58,717 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:28:59,012 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:28:59,013 - server - INFO - Response: 200 in 0.6897s
+2025-06-09 23:29:02,908 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:03,117 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:03,318 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:03,319 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:03,518 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:03,518 - server - INFO - Response: 200 in 0.6102s
+2025-06-09 23:29:10,426 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:10,629 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:10,852 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:10,854 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:11,058 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:11,058 - server - INFO - Response: 200 in 0.6321s
+2025-06-09 23:29:15,007 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:15,206 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:15,411 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:15,412 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:15,611 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:29:15,612 - server - INFO - Response: 200 in 0.6044s
+2025-06-09 23:29:15,612 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:15,808 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:16,015 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:16,016 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:16,260 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:16,261 - server - INFO - Response: 200 in 0.6487s
+2025-06-09 23:29:19,601 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:19,805 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:20,008 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:20,009 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:20,225 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:20,225 - server - INFO - Response: 200 in 0.6248s
+2025-06-09 23:29:24,177 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:24,378 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:24,581 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:24,582 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:24,779 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:24,780 - server - INFO - Response: 200 in 0.6027s
+2025-06-09 23:29:28,768 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:28,981 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:29,185 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:29,185 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:29,432 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:29,433 - server - INFO - Response: 200 in 0.6654s
+2025-06-09 23:29:33,344 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:33,542 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:33,740 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:33,741 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:33,952 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:33,952 - server - INFO - Response: 200 in 0.6083s
+2025-06-09 23:29:38,224 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:38,419 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:38,664 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:38,665 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:38,869 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:38,869 - server - INFO - Response: 200 in 0.6455s
+2025-06-09 23:29:45,445 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:45,445 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:45,815 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:46,028 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:46,029 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:46,222 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:29:46,443 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:46,644 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:46,645 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:46,857 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:46,857 - server - INFO - Response: 200 in 1.4125s
+2025-06-09 23:29:46,858 - server - INFO - Response: 200 in 1.4124s
+2025-06-09 23:29:50,035 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:50,256 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:50,463 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:50,464 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:50,666 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:50,667 - server - INFO - Response: 200 in 0.6315s
+2025-06-09 23:29:54,609 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:54,803 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:55,025 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:55,026 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:55,225 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:55,225 - server - INFO - Response: 200 in 0.6159s
+2025-06-09 23:29:59,201 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:29:59,403 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:29:59,610 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:29:59,610 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:29:59,848 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:29:59,848 - server - INFO - Response: 200 in 0.6471s
+2025-06-09 23:30:03,773 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:03,972 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:04,173 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:04,174 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:04,369 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:04,369 - server - INFO - Response: 200 in 0.5962s
+2025-06-09 23:30:08,361 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:08,552 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:08,753 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:08,754 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:08,969 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:08,969 - server - INFO - Response: 200 in 0.6087s
+2025-06-09 23:30:12,947 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:13,142 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:13,347 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:13,348 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:13,568 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:30:13,569 - server - INFO - Response: 200 in 0.6222s
+2025-06-09 23:30:13,569 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:13,758 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:13,978 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:13,979 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:14,242 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:14,243 - server - INFO - Response: 200 in 0.6739s
+2025-06-09 23:30:20,462 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:20,658 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:20,860 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:20,861 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:21,058 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:21,059 - server - INFO - Response: 200 in 0.5967s
+2025-06-09 23:30:25,040 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:25,246 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:25,449 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:25,449 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:25,661 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:25,662 - server - INFO - Response: 200 in 0.6223s
+2025-06-09 23:30:29,627 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:29,816 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:30,024 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:30,025 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:30,247 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:30,248 - server - INFO - Response: 200 in 0.6207s
+2025-06-09 23:30:34,214 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:34,417 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:34,637 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:34,638 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:34,848 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:34,848 - server - INFO - Response: 200 in 0.6348s
+2025-06-09 23:30:38,792 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:38,996 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:39,215 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:39,216 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:39,432 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:39,432 - server - INFO - Response: 200 in 0.6403s
+2025-06-09 23:30:43,378 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:43,588 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:43,817 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:43,818 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:44,040 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:30:44,041 - server - INFO - Response: 200 in 0.6634s
+2025-06-09 23:30:44,042 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:44,252 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:44,467 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:44,468 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:44,692 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:44,693 - server - INFO - Response: 200 in 0.6512s
+2025-06-09 23:30:47,953 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:48,148 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:48,345 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:48,346 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:48,554 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:48,555 - server - INFO - Response: 200 in 0.6022s
+2025-06-09 23:30:55,479 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:30:55,692 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:30:55,917 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:30:55,918 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:30:56,123 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:30:56,123 - server - INFO - Response: 200 in 0.6445s
+2025-06-09 23:31:00,059 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:00,257 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:00,462 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:00,462 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:00,676 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:00,677 - server - INFO - Response: 200 in 0.6174s
+2025-06-09 23:31:04,642 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:04,847 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:05,046 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:05,047 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:05,294 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:05,294 - server - INFO - Response: 200 in 0.6526s
+2025-06-09 23:31:09,228 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:09,460 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:09,682 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:09,683 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:09,909 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:09,909 - server - INFO - Response: 200 in 0.6812s
+2025-06-09 23:31:14,088 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:14,283 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:14,522 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:14,523 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:14,722 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:31:14,722 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:14,723 - server - INFO - Response: 200 in 0.6348s
+2025-06-09 23:31:14,922 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:15,132 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:15,133 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:15,345 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:15,346 - server - INFO - Response: 200 in 0.6234s
+2025-06-09 23:31:18,398 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:18,621 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:18,825 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:18,825 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:19,026 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:19,026 - server - INFO - Response: 200 in 0.6283s
+2025-06-09 23:31:22,973 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:23,175 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:23,383 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:23,384 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:23,591 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:23,591 - server - INFO - Response: 200 in 0.6182s
+2025-06-09 23:31:30,474 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:31,135 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:31,349 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:31,349 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:31,547 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:31,548 - server - INFO - Response: 200 in 1.0740s
+2025-06-09 23:31:35,068 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:35,327 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:35,522 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:35,523 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:35,742 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:35,742 - server - INFO - Response: 200 in 0.6742s
+2025-06-09 23:31:39,651 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:39,862 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:40,071 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:40,071 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:40,276 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:40,277 - server - INFO - Response: 200 in 0.6262s
+2025-06-09 23:31:44,229 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:44,437 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:44,651 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:44,653 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:44,876 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:31:44,877 - server - INFO - Response: 200 in 0.6477s
+2025-06-09 23:31:44,877 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:45,069 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:45,273 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:45,273 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:45,480 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:45,481 - server - INFO - Response: 200 in 0.6042s
+2025-06-09 23:31:48,810 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:49,006 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:49,242 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:49,242 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:49,447 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:49,447 - server - INFO - Response: 200 in 0.6375s
+2025-06-09 23:31:53,394 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:53,584 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:53,786 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:53,786 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:53,990 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:53,990 - server - INFO - Response: 200 in 0.5969s
+2025-06-09 23:31:57,976 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:31:58,180 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:31:58,380 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:31:58,380 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:31:58,584 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:31:58,584 - server - INFO - Response: 200 in 0.6078s
+2025-06-09 23:32:02,557 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:05,710 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:05,912 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:05,912 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:06,112 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:06,113 - server - INFO - Response: 200 in 3.5555s
+2025-06-09 23:32:10,093 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:10,307 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:10,526 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:10,528 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:10,770 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:10,771 - server - INFO - Response: 200 in 0.6777s
+2025-06-09 23:32:14,678 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:14,887 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:15,108 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:15,109 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:15,316 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:32:15,317 - server - INFO - Response: 200 in 0.6395s
+2025-06-09 23:32:15,317 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:15,509 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:15,718 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:15,719 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:15,917 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:15,917 - server - INFO - Response: 200 in 0.6000s
+2025-06-09 23:32:19,260 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:19,503 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:19,735 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:19,735 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:19,931 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:19,932 - server - INFO - Response: 200 in 0.6719s
+2025-06-09 23:32:23,841 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:24,044 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:24,241 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:24,241 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:24,452 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:24,453 - server - INFO - Response: 200 in 0.6115s
+2025-06-09 23:32:28,420 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:28,634 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:28,844 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:28,845 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:29,063 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:29,064 - server - INFO - Response: 200 in 0.6445s
+2025-06-09 23:32:33,005 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:33,288 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:33,521 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:33,522 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:33,730 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:33,730 - server - INFO - Response: 200 in 0.7255s
+2025-06-09 23:32:37,591 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:37,806 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:40,942 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:40,942 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:41,141 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:41,142 - server - INFO - Response: 200 in 3.5508s
+2025-06-09 23:32:45,107 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:45,318 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:45,543 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:45,544 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:45,762 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=1000 "HTTP/2 200 OK"
+2025-06-09 23:32:45,763 - server - INFO - Response: 200 in 0.6561s
+2025-06-09 23:32:45,763 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:45,960 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:46,194 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:46,195 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:46,429 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:46,430 - server - INFO - Response: 200 in 0.6669s
+2025-06-09 23:32:49,684 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:49,888 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:50,088 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:50,089 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:50,302 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:50,303 - server - INFO - Response: 200 in 0.6191s
+2025-06-09 23:32:54,270 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:54,481 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:54,686 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:54,687 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:54,892 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:54,892 - server - INFO - Response: 200 in 0.6223s
+2025-06-09 23:32:58,853 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:32:59,086 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:32:59,326 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:32:59,326 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:32:59,527 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:32:59,528 - server - INFO - Response: 200 in 0.6748s
+2025-06-09 23:33:03,439 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:33:03,664 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:33:03,864 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:33:03,865 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:33:04,072 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:33:04,073 - server - INFO - Response: 200 in 0.6340s
+2025-06-09 23:33:08,023 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-06-09 23:33:08,241 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-06-09 23:33:08,442 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-06-09 23:33:08,443 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-06-09 23:33:08,660 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&offset=0&limit=50 "HTTP/2 200 OK"
+2025-06-09 23:33:08,665 - server - INFO - Response: 200 in 0.6424s

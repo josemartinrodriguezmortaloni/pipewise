@@ -548,6 +548,51 @@ async def send_password_reset_email(email: str):
         logger.error(f"Send password reset email error: {e}")
 
 
+# ===================== SUPABASE INTEGRATION =====================
+
+from pydantic import BaseModel
+from typing import Dict, Any
+
+class SupabaseAuthSync(BaseModel):
+    """Request model for Supabase auth sync"""
+    user: Dict[str, Any]
+    provider_token: str
+
+
+@router.post("/supabase-sync", response_model=UserLoginResponse)
+async def sync_supabase_auth(
+    request: Request,
+    auth_data: SupabaseAuthSync,
+    background_tasks: BackgroundTasks,
+):
+    """
+    Sync Supabase authentication with our backend
+    Used for OAuth (Google, etc.) and email/password auth
+    """
+    try:
+        client_ip = get_client_ip(request)
+        user_agent = get_user_agent(request)
+        
+        # Verify and sync Supabase user with our backend
+        result = await auth_client.sync_supabase_user(
+            supabase_user=auth_data.user,
+            provider_token=auth_data.provider_token,
+            ip_address=client_ip,
+            user_agent=user_agent
+        )
+        
+        return UserLoginResponse(**result)
+        
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except Exception as e:
+        logger.error(f"Supabase sync error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication sync failed"
+        )
+
+
 # ===================== HEALTH CHECK =====================
 
 

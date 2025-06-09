@@ -134,7 +134,7 @@ export async function authenticatedFetch(
 export async function login(
   credentials: LoginCredentials
 ): Promise<AuthResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/api/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
@@ -178,7 +178,7 @@ export async function loginWithGoogle(): Promise<void> {
 export async function register(
   userData: RegisterData
 ): Promise<RegisterResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/api/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
@@ -202,7 +202,7 @@ export async function logout(): Promise<void> {
   try {
     const token = tokenStorage.getAccessToken();
     if (token) {
-      await authenticatedFetch("/api/auth/logout", { method: "POST" });
+      await authenticatedFetch("/api/api/auth/logout", { method: "POST" });
     }
   } catch (error) {
     console.error("Logout error:", error);
@@ -218,7 +218,7 @@ export async function refreshToken(): Promise<boolean> {
   if (!refresh) return false;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+    const response = await fetch(`${API_BASE_URL}/api/api/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refresh }),
@@ -238,7 +238,7 @@ export async function refreshToken(): Promise<boolean> {
 // Función para validar token actual
 export async function validateToken(): Promise<User | null> {
   try {
-    const response = await authenticatedFetch("/api/auth/validate");
+    const response = await authenticatedFetch("/api/api/auth/validate");
     if (!response.ok) return null;
 
     const data = await response.json();
@@ -256,7 +256,7 @@ export async function validateToken(): Promise<User | null> {
 // Función para obtener el perfil del usuario
 export async function getUserProfile(): Promise<User | null> {
   try {
-    const response = await authenticatedFetch("/api/auth/profile");
+    const response = await authenticatedFetch("/api/api/auth/profile");
     if (!response.ok) return null;
 
     const userData = await response.json();
