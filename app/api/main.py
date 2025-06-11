@@ -337,6 +337,16 @@ from app.api.integrations import router as integrations_router
 
 app.include_router(integrations_router)
 
+# Incluir router de configuración de agentes
+from app.api.agent_config import router as agent_config_router
+
+app.include_router(agent_config_router)
+
+# Incluir router de calendario
+from app.api.calendar import router as calendar_router
+
+app.include_router(calendar_router)
+
 
 # ===================== RUTAS DE SALUD Y ESTADO =====================
 

@@ -65,6 +65,8 @@ class Tenant(Base):
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
     leads = relationship("Lead", back_populates="tenant", cascade="all, delete-orphan")
     integrations = relationship("Integration", back_populates="tenant", cascade="all, delete-orphan")
+    agent_prompts = relationship("AgentPrompt", back_populates="tenant", cascade="all, delete-orphan")
+    agent_configurations = relationship("AgentConfiguration", back_populates="tenant", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Tenant(id={self.id}, name={self.name}, domain={self.domain})>"

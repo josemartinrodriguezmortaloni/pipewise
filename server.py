@@ -1542,7 +1542,16 @@ async def get_contact_messages(
     return {"messages": []}
 
 
-app.include_router(integrations_router)
+# Incluir nuestro módulo completo de integrations
+try:
+    from app.api.integrations import router as full_integrations_router
+    app.include_router(full_integrations_router)
+    logger.info("✅ Full integrations module loaded successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not load full integrations module: {e}")
+    # Fallback to basic integrations
+    app.include_router(integrations_router)
+
 app.include_router(contacts_router)
 
 # ===================== RUTAS PARA DESARROLLO =====================

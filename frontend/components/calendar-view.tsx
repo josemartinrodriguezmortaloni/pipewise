@@ -47,7 +47,10 @@ export function CalendarView() {
     {},
     {
       onSuccess: onMeetingsSuccess,
-      onError: () => setMeetings([]),
+      onError: () => {
+        setMeetings([]);
+        // Error is already shown by useApi hook via toast, no need to duplicate
+      },
     }
   );
 
@@ -157,35 +160,6 @@ export function CalendarView() {
     "December",
   ];
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Calendar</CardTitle>
-          <CardDescription>Loading meetings...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Calendar</CardTitle>
-          <CardDescription>
-            <span className="text-red-500">{error.message}</span>
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {/* Calendar Header */}
@@ -197,8 +171,12 @@ export function CalendarView() {
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </CardTitle>
               <CardDescription>
-                {meetings.length} meeting{meetings.length !== 1 ? "s" : ""}{" "}
-                scheduled this month
+                {loading 
+                  ? "Loading meetings..." 
+                  : error 
+                    ? "Error loading meetings - Calendar view available"
+                    : `${meetings.length} meeting${meetings.length !== 1 ? "s" : ""} scheduled this month`
+                }
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -216,9 +194,9 @@ export function CalendarView() {
         </CardHeader>
       </Card>
 
-      {/* Calendar Grid */}
+      {/* Calendar Grid - Always show the calendar */}
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 relative">
           {/* Day Headers */}
           <div className="grid grid-cols-7 border-b">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -231,48 +209,59 @@ export function CalendarView() {
             ))}
           </div>
 
-          {/* Calendar Days */}
-          {!loading && meetings.length === 0 ? (
-            <div className="flex h-[600px] items-center justify-center">
-              <div className="text-center">
-                <Calendar className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">No Meetings Found</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+          {/* Calendar Days Grid - Always visible */}
+          <div className="grid grid-cols-7 h-[600px]">
+            {calendarDays.map(
+              ({ date, meetings: dayMeetings, isCurrentMonth, isToday }) => (
+                <div
+                  key={date.toString()}
+                  className={`p-2 border-r border-b relative ${
+                    !isCurrentMonth ? "bg-muted/50" : ""
+                  } ${isToday ? "bg-primary/10" : ""}`}
+                >
+                  <span
+                    className={`text-sm font-medium ${
+                      !isCurrentMonth ? "text-muted-foreground" : ""
+                    } ${isToday ? "text-primary" : ""}`}
+                  >
+                    {date.getDate()}
+                  </span>
+                  
+                  {/* Loading indicator for the current day */}
+                  {loading && isToday && (
+                    <div className="absolute top-1 right-1">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
+                    </div>
+                  )}
+                  
+                  {/* Meetings for this day */}
+                  <div className="mt-1 space-y-1">
+                    {dayMeetings.map((meeting) => (
+                      <Badge
+                        key={meeting.id}
+                        variant="secondary"
+                        className="w-full text-left font-normal text-xs truncate"
+                        title={`${meeting.title} - ${new Date(meeting.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                      >
+                        {meeting.title}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* No meetings message - shown as overlay when no meetings and not loading */}
+          {!loading && !error && meetings.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
+              <div className="text-center p-6 bg-background border rounded-lg shadow-lg max-w-sm">
+                <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Meetings Found</h3>
+                <p className="text-sm text-muted-foreground">
                   There are no meetings scheduled for this month.
                 </p>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-7 h-[600px]">
-              {calendarDays.map(
-                ({ date, meetings, isCurrentMonth, isToday }) => (
-                  <div
-                    key={date.toString()}
-                    className={`p-2 border-r border-b ${
-                      !isCurrentMonth ? "bg-muted/50" : ""
-                    } ${isToday ? "bg-primary/10" : ""}`}
-                  >
-                    <span
-                      className={`text-sm ${
-                        !isCurrentMonth ? "text-muted-foreground" : ""
-                      }`}
-                    >
-                      {date.getDate()}
-                    </span>
-                    <div className="mt-1 space-y-1">
-                      {meetings.map((meeting) => (
-                        <Badge
-                          key={meeting.id}
-                          variant="secondary"
-                          className="w-full text-left font-normal"
-                        >
-                          {meeting.title}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )
-              )}
             </div>
           )}
         </CardContent>

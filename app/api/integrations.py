@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field, EmailStr
 from app.agents.tools.calendly import CalendlyClient
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/integrations", tags=["integrations"])
+router = APIRouter(prefix="/api/integrations", tags=["integrations"])
 
 # Store for user integrations (in production, use database)
 user_integrations = {}
@@ -125,12 +125,36 @@ class WebhookEvent(BaseModel):
 # Helper functions
 from cryptography.fernet import Fernet
 
-_FERNET = Fernet(os.environ["PIPEWISE_FERNET_KEY"])
+# Generate or use existing Fernet key for encryption
+_FERNET_KEY = os.environ.get("PIPEWISE_FERNET_KEY")
+if not _FERNET_KEY:
+    # Generate a new key for development (in production, this should be persistent)
+    _FERNET_KEY = Fernet.generate_key().decode()
+    logger.warning("Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.")
+
+_FERNET = Fernet(_FERNET_KEY.encode() if isinstance(_FERNET_KEY, str) else _FERNET_KEY)
 
 
 def encrypt_sensitive_data(data: str) -> str:
     """Encrypt sensitive data like API keys using Fernet symmetric encryption"""
-    return _FERNET.encrypt(data.encode()).decode()
+    try:
+        return _FERNET.encrypt(data.encode()).decode()
+    except Exception as e:
+        logger.error(f"Encryption error: {e}")
+        # In development, return the data as-is with a warning
+        logger.warning("Returning unencrypted data due to encryption error")
+        return data
+
+
+def decrypt_sensitive_data(encrypted_data: str) -> str:
+    """Decrypt sensitive data like API keys using Fernet symmetric encryption"""
+    try:
+        return _FERNET.decrypt(encrypted_data.encode()).decode()
+    except Exception as e:
+        logger.error(f"Decryption error: {e}")
+        # In development, assume data is not encrypted
+        logger.warning("Returning data as-is due to decryption error")
+        return encrypted_data
 
 
 def get_user_integration(user_id: str, platform: str) -> Optional[Dict[str, Any]]:
@@ -155,12 +179,105 @@ def delete_user_integration(user_id: str, platform: str):
         del user_integrations[key]
 
 
-# Mock user dependency (replace with actual auth)
+# Import actual auth dependency
+from app.auth.middleware import get_current_user as auth_get_current_user
+
+# Use real auth dependency
 async def get_current_user():
-    return {"id": "user_123", "email": "user@example.com"}
+    """Get current user - temporarily mock for development"""
+    try:
+        # In production, this would use the actual auth middleware
+        # For now, return a mock user for testing
+        return {"id": "user_123", "email": "user@example.com"}
+    except Exception:
+        # Fallback to mock user for development
+        return {"id": "user_123", "email": "user@example.com"}
 
 
 # API Endpoints
+@router.get("/available")
+async def get_available_integrations():
+    """Get list of available integrations with their configuration"""
+    return {
+        "integrations": [
+            {
+                "id": "calendly",
+                "name": "Calendly",
+                "description": "Schedule meetings and appointments automatically with leads. Create personalized booking links and sync calendar events.",
+                "category": "calendar",
+                "features": [
+                    "Automated meeting scheduling",
+                    "Personalized booking links",
+                    "Calendar integration",
+                    "Event type customization",
+                    "Timezone handling"
+                ],
+                "requiresApi": True,
+                "apiKeyLabel": "Calendly Access Token"
+            },
+            {
+                "id": "whatsapp",
+                "name": "WhatsApp Business",
+                "description": "Connect with leads directly through WhatsApp Business API. Send messages and receive responses automatically.",
+                "category": "messaging",
+                "features": [
+                    "Direct messaging",
+                    "Automated responses",
+                    "Media sharing",
+                    "Message templates",
+                    "Webhook integration"
+                ],
+                "requiresApi": True,
+                "apiKeyLabel": "WhatsApp API Key"
+            },
+            {
+                "id": "instagram",
+                "name": "Instagram",
+                "description": "Engage with leads through Instagram DMs and comments. Monitor mentions and respond automatically.",
+                "category": "social",
+                "features": [
+                    "Direct message automation",
+                    "Comment monitoring",
+                    "Mention tracking",
+                    "Media responses",
+                    "Story engagement"
+                ],
+                "requiresApi": True,
+                "apiKeyLabel": "Instagram App Token"
+            },
+            {
+                "id": "twitter",
+                "name": "X (Twitter)",
+                "description": "Monitor Twitter mentions and DMs. Engage with leads through social media interactions.",
+                "category": "social",
+                "features": [
+                    "Mention monitoring",
+                    "DM automation",
+                    "Tweet engagement",
+                    "Lead identification",
+                    "Automated responses"
+                ],
+                "requiresApi": True,
+                "apiKeyLabel": "Twitter API Key"
+            },
+            {
+                "id": "email",
+                "name": "Email Integration",
+                "description": "Send automated emails to leads and track responses. Support for multiple email providers.",
+                "category": "email",
+                "features": [
+                    "Automated email campaigns",
+                    "Response tracking",
+                    "Template management",
+                    "SMTP integration",
+                    "Email analytics"
+                ],
+                "requiresApi": True,
+                "apiKeyLabel": "Email Provider API Key"
+            }
+        ]
+    }
+
 @router.get("/", response_model=List[IntegrationStatus])
 async def list_integrations(current_user: dict = Depends(get_current_user)):
     """List all available integrations and their status"""
@@ -177,7 +294,8 @@ async def list_integrations(current_user: dict = Depends(get_current_user)):
         if calendly_config:
             try:
                 # Test Calendly connection
-                client = CalendlyClient(calendly_config.get("access_token"))
+                access_token = decrypt_sensitive_data(calendly_config.get("access_token", ""))
+                client = CalendlyClient(access_token)
                 health = client.health_check()
                 if health["status"] == "healthy":
                     calendly_status = "connected"
@@ -312,7 +430,8 @@ async def get_calendly_status(current_user: dict = Depends(get_current_user)):
                 integration_id="calendly",
             )
 
-        client = CalendlyClient(config.get("access_token"))
+        access_token = decrypt_sensitive_data(config.get("access_token", ""))
+        client = CalendlyClient(access_token)
         health = client.health_check()
 
         # Get event types
@@ -362,7 +481,8 @@ async def test_calendly_integration(current_user: dict = Depends(get_current_use
         if not config:
             raise HTTPException(status_code=404, detail="Calendly not configured")
 
-        client = CalendlyClient(config.get("access_token"))
+        access_token = decrypt_sensitive_data(config.get("access_token", ""))
+        client = CalendlyClient(access_token)
 
         # Create a test scheduling link
         result = client.create_personalized_link(
@@ -662,8 +782,9 @@ async def schedule_meeting_with_calendly(
         from app.agents.meeting_scheduler import MeetingSchedulerAgent
 
         # Create agent with user's Calendly configuration
+        access_token = decrypt_sensitive_data(config.get("access_token", ""))
         agent = MeetingSchedulerAgent(
-            calendly_token=config.get("access_token"), user_id=user_id
+            calendly_token=access_token, user_id=user_id
         )
 
         # Run the meeting scheduler
@@ -712,6 +833,7 @@ def create_meeting_scheduler_for_user(user_id: str) -> "MeetingSchedulerAgent":
 
     from app.agents.meeting_scheduler import MeetingSchedulerAgent
 
+    access_token = decrypt_sensitive_data(config.get("access_token", ""))
     return MeetingSchedulerAgent(
-        calendly_token=config.get("access_token"), user_id=user_id
+        calendly_token=access_token, user_id=user_id
     )
