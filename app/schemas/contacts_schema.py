@@ -1,119 +1,326 @@
-from pydantic import BaseModel, Field, EmailStr
+"""
+Contact and outreach message schemas for PipeWise CRM.
+Defines the data models for contact management and outreach messaging.
+"""
+
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from uuid import UUID
+from enum import Enum
 
 
-class ContactBase(BaseModel):
-    """Schema base para contactos"""
+class ContactPlatform(str, Enum):
+    """Available contact platforms."""
 
-    name: str = Field(..., description="Nombre del contacto")
-    email: Optional[EmailStr] = Field(None, description="Email del contacto")
-    phone: Optional[str] = Field(None, description="Teléfono del contacto")
-    platform: PlatformType = Field(
-        ...,
-        description="Plataforma donde se contactó (whatsapp, instagram, twitter, email)",
-    )
-    platform_id: str = Field(..., description="ID del contacto en la plataforma")
-    username: Optional[str] = Field(None, description="Username en la plataforma")
-    profile_url: Optional[str] = Field(None, description="URL del perfil")
+    EMAIL = "email"
+    PHONE = "phone"
+    WHATSAPP = "whatsapp"
+    LINKEDIN = "linkedin"
+    TWITTER = "twitter"
+    INSTAGRAM = "instagram"
 
 
-class ContactCreate(ContactBase):
-    """Schema para crear un nuevo contacto"""
+class ContactStatus(str, Enum):
+    """Contact status values."""
 
-    lead_id: Optional[UUID] = Field(None, description="ID del lead asociado")
-    metadata: Optional[Dict[str, Any]] = Field(
-        default_factory=dict, description="Metadatos adicionales"
-    )
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    BLOCKED = "blocked"
+    UNSUBSCRIBED = "unsubscribed"
+
+
+class OutreachStatus(str, Enum):
+    """Outreach message status values."""
+
+    PENDING = "pending"
+    SENT = "sent"
+    DELIVERED = "delivered"
+    READ = "read"
+    REPLIED = "replied"
+    FAILED = "failed"
+
+
+class ContactCreate(BaseModel):
+    """Schema for creating a new contact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1, max_length=200)
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(None, max_length=20)
+
+    # Platform-specific data
+    platform: ContactPlatform
+    platform_id: str = Field(..., min_length=1, max_length=100)
+    platform_username: Optional[str] = Field(None, max_length=100)
+
+    # Contact information
+    company: Optional[str] = Field(None, max_length=200)
+    position: Optional[str] = Field(None, max_length=100)
+    location: Optional[str] = Field(None, max_length=100)
+
+    # Status and preferences
+    status: ContactStatus = ContactStatus.ACTIVE
+    preferences: Optional[Dict[str, Any]] = None
+
+    # Metadata
+    tags: Optional[List[str]] = None
+    notes: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+    # User association
+    user_id: Optional[str] = None
 
 
 class ContactUpdate(BaseModel):
-    """Schema para actualizar un contacto"""
+    """Schema for updating an existing contact."""
 
-    name: Optional[str] = None
+    model_config = ConfigDict(extra="forbid")
+
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
     email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    username: Optional[str] = None
-    profile_url: Optional[str] = None
-    lead_id: Optional[UUID] = None
+    phone: Optional[str] = Field(None, max_length=20)
+
+    platform_username: Optional[str] = Field(None, max_length=100)
+
+    company: Optional[str] = Field(None, max_length=200)
+    position: Optional[str] = Field(None, max_length=100)
+    location: Optional[str] = Field(None, max_length=100)
+
+    status: Optional[ContactStatus] = None
+    preferences: Optional[Dict[str, Any]] = None
+
+    tags: Optional[List[str]] = None
+    notes: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
-class ContactResponse(ContactBase):
-    """Schema de respuesta para contactos"""
+class ContactResponse(BaseModel):
+    """Schema for contact response data."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    lead_id: Optional[UUID]
+    name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+    platform: ContactPlatform
+    platform_id: str
+    platform_username: Optional[str] = None
+
+    company: Optional[str] = None
+    position: Optional[str] = None
+    location: Optional[str] = None
+
+    status: ContactStatus
+    preferences: Optional[Dict[str, Any]] = None
+
+    tags: Optional[List[str]] = None
+    notes: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+    user_id: Optional[str] = None
+
     created_at: datetime
-    updated_at: datetime
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-    class Config:
-        from_attributes = True
+    updated_at: Optional[datetime] = None
+    last_contacted: Optional[datetime] = None
 
 
-class OutreachMessageBase(BaseModel):
-    """Schema base para mensajes de outreach"""
+class OutreachMessageCreate(BaseModel):
+    """Schema for creating an outreach message."""
 
-    contact_id: UUID = Field(..., description="ID del contacto")
-    platform: str = Field(..., description="Plataforma usada")
-    message_type: MessageType = Field(
-        ..., description="Tipo de mensaje (text, template, interactive)"
-    )
-    subject: Optional[str] = Field(None, description="Asunto (para emails)")
-    content: str = Field(..., description="Contenido del mensaje")
-    template_name: Optional[str] = Field(None, description="Nombre del template usado")
+    model_config = ConfigDict(extra="forbid")
+
+    contact_id: UUID
+    message_text: str = Field(..., min_length=1, max_length=10000)
+    subject: Optional[str] = Field(None, max_length=200)
+
+    # Message type and priority
+    message_type: str = Field(default="outreach", max_length=50)
+    priority: str = Field(default="normal", max_length=20)
+
+    # Scheduling
+    scheduled_for: Optional[datetime] = None
+
+    # Template and personalization
+    template_id: Optional[str] = None
+    personalization_data: Optional[Dict[str, Any]] = None
+
+    # Metadata
+    campaign_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+    # User association
+    user_id: Optional[str] = None
 
 
-class OutreachMessageCreate(OutreachMessageBase):
-    """Schema para crear un mensaje de outreach"""
+class OutreachMessageUpdate(BaseModel):
+    """Schema for updating an outreach message."""
 
-    metadata: Optional[Dict[str, Any]] = Field(
-        default_factory=dict, description="Metadatos del mensaje"
-    )
+    model_config = ConfigDict(extra="forbid")
+
+    message_text: Optional[str] = Field(None, min_length=1, max_length=10000)
+    subject: Optional[str] = Field(None, max_length=200)
+
+    status: Optional[OutreachStatus] = None
+    priority: Optional[str] = Field(None, max_length=20)
+
+    scheduled_for: Optional[datetime] = None
+    sent_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    read_at: Optional[datetime] = None
+    replied_at: Optional[datetime] = None
+
+    error_message: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
-class OutreachMessageResponse(OutreachMessageBase):
-    """Schema de respuesta para mensajes de outreach"""
+class OutreachMessageResponse(BaseModel):
+    """Schema for outreach message response data."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    message_id: Optional[str] = Field(
-        None, description="ID del mensaje en la plataforma"
-    )
-    status: str = Field(default="sent", description="Estado del mensaje")
-    sent_at: datetime
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    contact_id: UUID
+    message_text: str
+    subject: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    status: OutreachStatus
+    message_type: str
+    priority: str
 
-from pydantic import BaseModel, Field, EmailStr, field_validator
- 
- class ContactStatsResponse(BaseModel):
-     """Schema para estadísticas de contactos"""
+    scheduled_for: Optional[datetime] = None
+    sent_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    read_at: Optional[datetime] = None
+    replied_at: Optional[datetime] = None
 
-     total_contacts: int
-     contacts_by_platform: Dict[str, int]
-     messages_sent: int
-     meetings_scheduled: int
-    conversion_rate: float = Field(..., ge=0.0, le=1.0, description="Conversion rate between 0 and 1")
-     last_contact_date: Optional[datetime]
+    template_id: Optional[str] = None
+    personalization_data: Optional[Dict[str, Any]] = None
 
+    campaign_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
-class ContactWithMessages(ContactResponse):
-    """Schema de contacto con sus mensajes"""
+    error_message: Optional[str] = None
+    user_id: Optional[str] = None
 
-    messages: List[OutreachMessageResponse] = Field(default_factory=list)
-    last_message_at: Optional[datetime] = None
-    meeting_scheduled: bool = False
-    meeting_url: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
 
-class ContactWithMessages(ContactResponse):
-    """Schema de contacto con sus mensajes"""
+class ContactListResponse(BaseModel):
+    """Schema for paginated contact list response."""
 
-    messages: List[OutreachMessageResponse] = Field(default_factory=list)
-    last_message_at: Optional[datetime] = None
-    meeting_scheduled: bool = False
-    meeting_url: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+    contacts: List[ContactResponse]
+    total: int
+    page: int
+    per_page: int
+    has_next: bool
+    has_prev: bool
+
+
+class ContactStatsResponse(BaseModel):
+    """Schema for contact statistics response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    total_contacts: int
+    active_contacts: int
+    blocked_contacts: int
+    unsubscribed_contacts: int
+
+    # Platform breakdown
+    platform_stats: Dict[str, int]
+
+    # Recent activity
+    contacts_added_today: int
+    contacts_added_this_week: int
+    contacts_added_this_month: int
+
+    # Outreach stats
+    messages_sent_today: int
+    messages_sent_this_week: int
+    messages_sent_this_month: int
+
+    # Response rates
+    total_messages_sent: int
+    total_responses_received: int
+    response_rate: float
+
+    # Last activity
+    last_contact_added: Optional[datetime] = None
+    last_message_sent: Optional[datetime] = None
+
+
+class OutreachCampaignCreate(BaseModel):
+    """Schema for creating an outreach campaign."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=1000)
+
+    # Campaign settings
+    platform: ContactPlatform
+    message_template: str = Field(..., min_length=1, max_length=10000)
+    subject_template: Optional[str] = Field(None, max_length=200)
+
+    # Targeting
+    target_tags: Optional[List[str]] = None
+    target_metadata: Optional[Dict[str, Any]] = None
+
+    # Scheduling
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
+    # Settings
+    max_messages_per_day: int = Field(default=50, ge=1, le=1000)
+    time_between_messages_minutes: int = Field(default=30, ge=1, le=1440)
+
+    # Status
+    is_active: bool = True
+
+    # Metadata
+    metadata: Optional[Dict[str, Any]] = None
+    user_id: Optional[str] = None
+
+
+class OutreachCampaignResponse(BaseModel):
+    """Schema for outreach campaign response data."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    description: Optional[str] = None
+
+    platform: ContactPlatform
+    message_template: str
+    subject_template: Optional[str] = None
+
+    target_tags: Optional[List[str]] = None
+    target_metadata: Optional[Dict[str, Any]] = None
+
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
+    max_messages_per_day: int
+    time_between_messages_minutes: int
+
+    is_active: bool
+
+    # Campaign stats
+    total_contacts: int
+    messages_sent: int
+    messages_pending: int
+    responses_received: int
+
+    metadata: Optional[Dict[str, Any]] = None
+    user_id: Optional[str] = None
+
+    created_at: datetime
+    updated_at: Optional[datetime] = None

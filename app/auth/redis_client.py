@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RedisAuthClient:
     """Cliente Redis para manejo de sesiones temporales y cache de autenticación"""
 
-    def __init__(self, redis_url: str = None):
+    def __init__(self, redis_url: str):
         self.redis_url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379/0")
         self.enabled = True
 

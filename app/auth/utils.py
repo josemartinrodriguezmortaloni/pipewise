@@ -75,7 +75,7 @@ def is_valid_email_domain(email: str, allowed_domains: Optional[list] = None) ->
     return domain in [d.lower() for d in allowed_domains]
 
 
-def get_rate_limit_key(request: Request, identifier: str = None) -> str:
+def get_rate_limit_key(request: Request, identifier: str) -> str:
     """Generar clave para rate limiting"""
     if identifier:
         return f"rate_limit:{identifier}"

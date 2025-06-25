@@ -3,7 +3,6 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Union, Any
 from uuid import UUID, uuid4
-import json
 
 from supabase import create_client, Client
 from postgrest.exceptions import APIError
@@ -29,7 +28,9 @@ logger = logging.getLogger(__name__)
 class SupabaseCRMClient:
     """Cliente completo para operaciones CRM con Supabase"""
 
-    def __init__(self, supabase_url: str = None, supabase_key: str = None):
+    def __init__(
+        self, supabase_url: Optional[str] = None, supabase_key: Optional[str] = None
+    ):
         self.supabase_url = supabase_url or os.getenv("SUPABASE_URL")
         self.supabase_key = supabase_key or os.getenv("SUPABASE_ANON_KEY")
 
@@ -82,6 +83,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("create_lead", e)
+            raise  # This ensures the function always returns or raises
 
     def get_lead(self, lead_id: Union[str, UUID]) -> Optional[Lead]:
         """Obtener un lead por ID"""
@@ -96,6 +98,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_lead", e)
+            return None
 
     def get_lead_by_email(self, email: str) -> Optional[Lead]:
         """Obtener un lead por email"""
@@ -108,6 +111,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_lead_by_email", e)
+            return None
 
     def update_lead(self, lead_id: Union[str, UUID], updates: LeadUpdate) -> Lead:
         """Actualizar un lead"""
@@ -132,6 +136,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("update_lead", e)
+            raise  # This ensures the function always returns or raises
 
     def delete_lead(self, lead_id: Union[str, UUID]) -> bool:
         """Eliminar un lead"""
@@ -143,14 +148,15 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("delete_lead", e)
+            return False
 
     def list_leads(
         self,
-        status: str = None,
-        qualified: bool = None,
-        contacted: bool = None,
-        meeting_scheduled: bool = None,
-        user_id: str = None,
+        status: Optional[str] = None,
+        qualified: Optional[bool] = None,
+        contacted: Optional[bool] = None,
+        meeting_scheduled: Optional[bool] = None,
+        user_id: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
     ) -> List[Lead]:
@@ -179,6 +185,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("list_leads", e)
+            return []
 
     # ===================== OPERACIONES CONVERSATIONS =====================
 
@@ -202,6 +209,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("create_conversation", e)
+            raise  # This ensures the function always returns or raises
 
     def get_conversation(
         self, conversation_id: Union[str, UUID]
@@ -221,9 +229,13 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_conversation", e)
+            return None
 
     def list_conversations(
-        self, lead_id: Union[str, UUID] = None, status: str = None, limit: int = 50
+        self,
+        lead_id: Optional[Union[str, UUID]] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
     ) -> List[Conversation]:
         """Listar conversaciones con filtros"""
         try:
@@ -240,6 +252,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("list_conversations", e)
+            return []
 
     def update_conversation(
         self, conversation_id: Union[str, UUID], updates: ConversationUpdate
@@ -268,6 +281,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("update_conversation", e)
+            raise  # This ensures the function always returns or raises
 
     # ===================== OPERACIONES MESSAGES =====================
 
@@ -289,6 +303,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("create_message", e)
+            raise  # This ensures the function always returns or raises
 
     def get_messages(
         self, conversation_id: Union[str, UUID], limit: int = 100
@@ -308,6 +323,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_messages", e)
+            return []
 
     def get_messages_with_filters(self, **kwargs) -> List[Message]:
         """Método alternativo para obtener mensajes con argumentos keyword"""
@@ -330,7 +346,7 @@ class SupabaseCRMClient:
         return self.list_leads(contacted=True, meeting_scheduled=False)
 
     def get_active_conversations(
-        self, lead_id: Union[str, UUID] = None
+        self, lead_id: Optional[Union[str, UUID]] = None
     ) -> List[Conversation]:
         """Obtener conversaciones activas"""
         return self.list_conversations(lead_id=lead_id, status="active")
@@ -341,7 +357,7 @@ class SupabaseCRMClient:
         return self.update_lead(lead_id, updates)
 
     def mark_lead_as_contacted(
-        self, lead_id: Union[str, UUID], contact_method: str = None
+        self, lead_id: Union[str, UUID], contact_method: Optional[str] = None
     ) -> Lead:
         """Marcar un lead como contactado"""
         metadata = {
@@ -352,7 +368,10 @@ class SupabaseCRMClient:
         return self.update_lead(lead_id, updates)
 
     def schedule_meeting_for_lead(
-        self, lead_id: Union[str, UUID], meeting_url: str, meeting_type: str = None
+        self,
+        lead_id: Union[str, UUID],
+        meeting_url: str,
+        meeting_type: Optional[str] = None,
     ) -> Lead:
         """Marcar un lead con reunión agendada"""
         metadata = {
@@ -366,7 +385,7 @@ class SupabaseCRMClient:
         return self.update_lead(lead_id, updates)
 
     def close_conversation(
-        self, conversation_id: Union[str, UUID], summary: str = None
+        self, conversation_id: Union[str, UUID], summary: Optional[str] = None
     ) -> Conversation:
         """Cerrar una conversación"""
         updates = ConversationUpdate(status="closed", summary=summary)
@@ -424,6 +443,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("create_contact", e)
+            raise  # This ensures the function always returns or raises
 
     def get_contact(self, contact_id: Union[str, UUID]) -> Optional[Dict[str, Any]]:
         """Obtener un contacto por ID"""
@@ -441,6 +461,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_contact", e)
+            return None
 
     def get_contact_by_platform(
         self, platform: str, platform_id: str
@@ -461,11 +482,12 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_contact_by_platform", e)
+            return None
 
     def list_contacts(
         self,
-        platform: str = None,
-        user_id: str = None,
+        platform: Optional[str] = None,
+        user_id: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
     ) -> List[Dict[str, Any]]:
@@ -488,6 +510,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("list_contacts", e)
+            return []
 
     def update_contact(
         self, contact_id: Union[str, UUID], updates: ContactUpdate
@@ -513,6 +536,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("update_contact", e)
+            raise  # This ensures the function always returns or raises
 
     def create_outreach_message(
         self, message_data: OutreachMessageCreate
@@ -535,6 +559,7 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("create_outreach_message", e)
+            raise  # This ensures the function always returns or raises
 
     def get_contact_messages(
         self, contact_id: Union[str, UUID]
@@ -553,8 +578,9 @@ class SupabaseCRMClient:
 
         except Exception as e:
             self._handle_error("get_contact_messages", e)
+            return []
 
-    def get_contact_stats(self, user_id: str = None) -> Dict[str, Any]:
+    def get_contact_stats(self, user_id: Optional[str] = None) -> Dict[str, Any]:
         """Obtener estadísticas de contactos"""
         try:
             # Usar función SQL para obtener estadísticas agregadas
@@ -579,6 +605,25 @@ class SupabaseCRMClient:
                 if contact.get("meeting_scheduled", False):
                     meetings_scheduled += 1
 
+            # Fix the max function call to filter None values and ensure type safety
+            last_message_dates = [
+                c.get("last_message_at")
+                for c in contacts
+                if c.get("last_message_at") is not None
+            ]
+
+            # Type safe max operation - cast to str to ensure comparability
+            last_contact_date = None
+            if last_message_dates:
+                try:
+                    # Filter and convert to strings if needed for comparison
+                    valid_dates = [
+                        str(date) for date in last_message_dates if date is not None
+                    ]
+                    last_contact_date = max(valid_dates) if valid_dates else None
+                except (TypeError, ValueError):
+                    last_contact_date = None
+
             return {
                 "total_contacts": len(contacts),
                 "contacts_by_platform": platform_counts,
@@ -587,18 +632,12 @@ class SupabaseCRMClient:
                 "conversion_rate": (meetings_scheduled / len(contacts) * 100)
                 if contacts
                 else 0,
-                "last_contact_date": max(
-                    [
-                        c.get("last_message_at")
-                        for c in contacts
-                        if c.get("last_message_at")
-                    ],
-                    default=None,
-                ),
+                "last_contact_date": last_contact_date,
             }
 
         except Exception as e:
             self._handle_error("get_contact_stats", e)
+            return {}
 
     # ===================== UTILIDADES =====================
 
@@ -740,13 +779,16 @@ class SupabaseCRMClient:
         return self.mark_lead_as_qualified(lead_id)
 
     async def async_mark_lead_as_contacted(
-        self, lead_id: Union[str, UUID], contact_method: str = None
+        self, lead_id: Union[str, UUID], contact_method: Optional[str] = None
     ) -> Lead:
         """Versión async de mark_lead_as_contacted para function calling"""
         return self.mark_lead_as_contacted(lead_id, contact_method)
 
     async def async_schedule_meeting_for_lead(
-        self, lead_id: Union[str, UUID], meeting_url: str, meeting_type: str = None
+        self,
+        lead_id: Union[str, UUID],
+        meeting_url: str,
+        meeting_type: Optional[str] = None,
     ) -> Lead:
         """Versión async de schedule_meeting_for_lead para function calling"""
         return self.schedule_meeting_for_lead(lead_id, meeting_url, meeting_type)

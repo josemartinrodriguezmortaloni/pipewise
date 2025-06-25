@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Dict, Any
 from uuid import UUID
 
 
@@ -7,11 +7,14 @@ class LeadCreate(BaseModel):
     name: str
     email: EmailStr
     company: str
-    phone: str | None = None
-    message: str | None = None
-    source: str | None = None
-    utm_params: dict | None = None
-    metadata: dict | None = None
+    phone: Optional[str] = None
+    message: Optional[str] = None
+    source: Optional[str] = None
+    utm_params: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+    class Config:
+        extra = "forbid"
 
 
 class LeadUpdate(BaseModel):
@@ -25,5 +28,8 @@ class LeadUpdate(BaseModel):
     meeting_scheduled: Optional[bool] = None
     status: Optional[str] = None
     owner_id: Optional[UUID] = None
-    utm_params: Optional[dict] = None
-    metadata: Optional[dict] = None
+    utm_params: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+    class Config:
+        extra = "forbid"

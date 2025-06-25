@@ -113,10 +113,52 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
     @apply bg-background text-foreground;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  main {
+    @apply w-full h-full;
+  }
+}
+
+@layer components {
+  /* Estilo minimalista para cards */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg;
+  }
+
+  /* Botones con estilo limpio */
+  .btn-outline {
+    @apply border border-gray-300 bg-white hover:bg-gray-50 text-gray-700;
+  }
+
+  /* Inputs con estilo limpio */
+  input[type="search"] {
+    @apply border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  /* Tables limpias */
+  .table th {
+    @apply text-left font-medium text-gray-900 border-b border-gray-200 px-4 py-3;
+  }
+
+  .table td {
+    @apply text-gray-700 border-b border-gray-100 px-4 py-3;
+  }
+
+  /* Sidebar limpio */
+  [data-slot="sidebar-menu-button"] {
+    @apply rounded-md hover:bg-gray-100;
+  }
+
+  [data-slot="sidebar-menu-button"][data-active="true"] {
+    @apply bg-gray-100 text-gray-900;
   }
 }

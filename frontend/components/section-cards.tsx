@@ -4,15 +4,16 @@ import * as React from "react";
 import {
   IconTrendingDown,
   IconTrendingUp,
-  IconRobot,
+  IconUsers,
   IconCheck,
   IconCalendar,
+  IconTarget,
 } from "@tabler/icons-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardAction,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -38,17 +39,15 @@ export function SectionCards() {
     return rate >= 50 ? IconTrendingUp : IconTrendingDown;
   };
 
-  const getTrendVariant = (rate: number) => {
-    return rate >= 50 ? "default" : "secondary";
-  };
-
   if (error) {
     return (
-      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-        <Card className="@container/card col-span-full">
+      <div className="grid grid-cols-1 gap-3 px-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="col-span-full">
           <CardHeader>
-            <CardDescription>Error Loading Statistics</CardDescription>
-            <CardTitle className="text-destructive">{error}</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Error Loading Statistics
+            </CardTitle>
+            <CardDescription>{error}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -56,131 +55,73 @@ export function SectionCards() {
   }
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 px-6 md:grid-cols-2 lg:grid-cols-4">
       {/* Total Leads Generated */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Leads Generated</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : totalLeads.toLocaleString()}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Total Leads Generated
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconRobot />
-              Automated
-            </Badge>
-          </CardAction>
+          <IconUsers className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            AI-powered lead generation <IconRobot className="size-4" />
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {isLoading ? "..." : totalLeads.toLocaleString()}
           </div>
-          <div className="text-muted-foreground">
-            Leads captured by automation
-          </div>
-        </CardFooter>
+          <p className="text-xs text-muted-foreground">
+            AI-powered lead generation
+          </p>
+        </CardContent>
       </Card>
 
       {/* Leads Contacted */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Leads Contacted</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : contactedLeads.toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant={getTrendVariant(contactRate)}>
-              {React.createElement(getTrendIcon(contactRate))}
-              {contactRate}%
-            </Badge>
-          </CardAction>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Leads Contacted</CardTitle>
+          <IconCheck className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            {contactRate >= 50 ? "Strong engagement rate" : "Improving reach"}
-            {React.createElement(getTrendIcon(contactRate), {
-              className: "size-4",
-            })}
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {isLoading ? "..." : contactedLeads.toLocaleString()}
           </div>
-          <div className="text-muted-foreground">
-            Automated outreach messages sent
-          </div>
-        </CardFooter>
+          <p className="text-xs text-muted-foreground">
+            {contactRate >= 50 ? "Strong engagement" : "Improving reach"}
+          </p>
+        </CardContent>
       </Card>
 
       {/* Qualified Leads */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Qualified Leads</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : qualifiedLeads.toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant={getTrendVariant(qualificationRate)}>
-              <IconCheck />
-              {qualificationRate}%
-            </Badge>
-          </CardAction>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Qualified Leads</CardTitle>
+          <IconTarget className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            AI qualification accuracy <IconCheck className="size-4" />
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {isLoading ? "..." : qualifiedLeads.toLocaleString()}
           </div>
-          <div className="text-muted-foreground">
-            Leads passed initial screening
-          </div>
-        </CardFooter>
+          <p className="text-xs text-muted-foreground">
+            AI qualification accuracy
+          </p>
+        </CardContent>
       </Card>
 
       {/* Meetings Scheduled */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Meetings Scheduled</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Meetings Scheduled
+          </CardTitle>
+          <IconCalendar className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
             {isLoading ? "..." : meetingsScheduled.toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant={getTrendVariant(meetingRate)}>
-              <IconCalendar />
-              {meetingRate}%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Automated scheduling success <IconCalendar className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Ready for sales conversations
-          </div>
-        </CardFooter>
-      </Card>
-
-      {/* Contact Success Rate */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Success Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {isLoading ? "..." : `${contactRate}%`}
-          </CardTitle>
-          <CardAction>
-            <Badge variant={getTrendVariant(contactRate)}>
-              {React.createElement(getTrendIcon(contactRate))}
-              {contactRate >= 50 ? "Excellent" : "Growing"}
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Overall automation performance
-            {React.createElement(getTrendIcon(contactRate), {
-              className: "size-4",
-            })}
-          </div>
-          <div className="text-muted-foreground">
-            Lead engagement effectiveness
-          </div>
-        </CardFooter>
+          <p className="text-xs text-muted-foreground">
+            Ready for conversations
+          </p>
+        </CardContent>
       </Card>
     </div>
   );

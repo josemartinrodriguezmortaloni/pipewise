@@ -6,8 +6,7 @@ Sistema completo de CRM con autenticación real y Google Authenticator
 
 import os
 import logging
-import json
-import asyncio
+
 import base64
 import io
 from contextlib import asynccontextmanager
@@ -26,7 +25,8 @@ from fastapi import (
     APIRouter,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
 from dotenv import load_dotenv
 from postgrest.exceptions import APIError
@@ -44,11 +44,25 @@ import qrcode
 # Cargar variables de entorno
 load_dotenv()
 
-# Configurar logging
+# Configurar logging con soporte para Unicode en Windows
+# Configure logging handlers with UTF-8 encoding for Windows compatibility
+file_handler = logging.FileHandler("pipewise.log", encoding="utf-8")
+stream_handler = logging.StreamHandler()
+
+# Set UTF-8 encoding for the stream handler if on Windows
+import sys
+
+if sys.platform == "win32":
+    import locale
+
+    stream_handler.setStream(
+        open(sys.stdout.fileno(), mode="w", encoding="utf-8", buffering=1)
+    )
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("pipewise.log"), logging.StreamHandler()],
+    handlers=[file_handler, stream_handler],
 )
 logger = logging.getLogger(__name__)
 
@@ -66,7 +80,7 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 # Cliente Supabase administrativo (para operaciones que requieren bypass de RLS)
-supabase_admin: Client = None
+supabase_admin: Client
 if SUPABASE_SERVICE_KEY:
     supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 else:
@@ -433,10 +447,11 @@ class SupabaseAuth:
         try:
             # Obtener usuario de Supabase Auth
             auth_response = self.supabase.auth.get_user(access_token)
-            user = auth_response.user
 
-            if not user:
+            if not auth_response or not auth_response.user:
                 return None
+
+            user = auth_response.user
 
             # Preferir cliente admin para evitar RLS, pero hacer fallback si no existe
             if self.supabase_admin:
@@ -464,15 +479,19 @@ class SupabaseAuth:
                     "No profile row found for %s during token validation – inserting one",
                     user.id,
                 )
+                # Safe access to user.email with fallback
+                user_email = user.email or "unknown@email.com"
                 basic_profile = {
                     "id": user.id,
-                    "email": user.email,
+                    "email": user_email,
                     "full_name": user.user_metadata.get("full_name")
-                    or user.email.split("@")[0],
+                    or user_email.split("@")[0],
                     "company": user.user_metadata.get("company"),
                     "phone": user.user_metadata.get("phone"),
                     "has_2fa": False,
-                    "created_at": user.created_at.isoformat(),
+                    "created_at": user.created_at.isoformat()
+                    if user.created_at
+                    else datetime.now().isoformat(),
                     "last_login": None,
                 }
                 try:
@@ -531,7 +550,7 @@ class SupabaseAuth:
 
             img = qr.make_image(fill_color="black", back_color="white")
             img_buffer = io.BytesIO()
-            img.save(img_buffer, format="PNG")
+            img.save(img_buffer, "PNG")
             img_str = base64.b64encode(img_buffer.getvalue()).decode()
 
             # Generar códigos de backup
@@ -615,8 +634,6 @@ class SupabaseAuth:
 auth_system = SupabaseAuth()
 
 # ===================== DEPENDENCIAS =====================
-
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 security = HTTPBearer(auto_error=False)
 
@@ -733,10 +750,10 @@ async def lifespan(app: FastAPI):
 
         # Verifica la conexión con Supabase
         if supabase_admin:
-            result = supabase_admin.table("users").select("count").execute()
+            supabase_admin.table("users").select("count").execute()
             logger.info("Supabase connection established")
         else:
-            result = supabase.table("users").select("count").execute()
+            supabase.table("users").select("count").execute()
             logger.info("Supabase connection established")
     except Exception as e:
         logger.error(f"Supabase connection failed: {e}")
@@ -1086,26 +1103,33 @@ async def get_leads(
         # Use admin client if available, otherwise fallback to regular client
         client = supabase_admin if supabase_admin else supabase
 
-        query = client.table("leads").select("*", count="exact").eq("user_id", user_id)
+        query = client.table("leads").select("*").eq("user_id", user_id)
 
         if status_filter:
             query = query.eq("status", status_filter)
-        if search:
-            query = query.text_search("fts", search, config="spanish")
+        # Search functionality disabled due to API limitations
+        # if search:
+        #     query = query.text_search("fts", search)
 
-        if sort_by:
-            query = query.order(sort_by, desc=sort_order == "desc")
+        # Ordering disabled due to API limitations
+        # if sort_by:
+        #     query = query.order(sort_by, desc=sort_order == "desc")
 
-        offset = (page - 1) * per_page
-        query = query.range(offset, offset + per_page - 1)
-
+        # Get all data and handle pagination manually
         result = query.execute()
 
-        total_items = result.count
+        # Calculate total and pagination
+        all_leads = result.data or []
+        total_items = len(all_leads)
+
+        # Apply pagination manually
+        offset = (page - 1) * per_page
+        paginated_leads = all_leads[offset : offset + per_page]
+
         total_pages = (total_items + per_page - 1) // per_page
 
         return {
-            "items": result.data,
+            "items": paginated_leads,
             "total": total_items,
             "page": page,
             "per_page": per_page,
@@ -1318,15 +1342,16 @@ async def get_lead_analytics(
         # Use admin client if available for better performance, otherwise fallback
         client = supabase_admin if supabase_admin else supabase
 
-        # Get total count of leads
-        count_response = (
+        # Get all leads and count manually
+        all_leads_response = (
             client.table("leads")
-            .select("*", count="exact", head=True)
+            .select("*")
             .eq("user_id", user_id)
             .gte("created_at", start_date_str)
             .execute()
         )
-        total_leads = count_response.count or 0
+        all_leads_data = all_leads_response.data or []
+        total_leads = len(all_leads_data)
 
         if total_leads == 0:
             return LeadAnalytics(
@@ -1371,11 +1396,11 @@ async def get_lead_analytics(
 
         for lead in leads:
             # Count by status
-            status = lead.get("status", "unknown")
-            leads_by_status[status] = leads_by_status.get(status, 0) + 1
+            status_val = lead.get("status", "unknown")
+            leads_by_status[status_val] = leads_by_status.get(status_val, 0) + 1
 
             # Count closed leads for conversion rate
-            if status == "closed":
+            if status_val == "closed":
                 closed_count += 1
 
             # Count by source
@@ -1545,10 +1570,11 @@ async def get_contact_messages(
 # Incluir nuestro módulo completo de integrations
 try:
     from app.api.integrations import router as full_integrations_router
+
     app.include_router(full_integrations_router)
-    logger.info("✅ Full integrations module loaded successfully")
+    logger.info("Full integrations module loaded successfully")
 except ImportError as e:
-    logger.warning(f"⚠️ Could not load full integrations module: {e}")
+    logger.warning(f"Could not load full integrations module: {e}")
     # Fallback to basic integrations
     app.include_router(integrations_router)
 
@@ -1575,7 +1601,7 @@ async def confirm_email_dev(email: str):
 
         # Buscar usuario por email
         user_response = supabase_admin.auth.admin.list_users()
-        users = [u for u in user_response.users if u.email == email]
+        users = [u for u in user_response if u.email == email]
 
         if not users:
             raise HTTPException(

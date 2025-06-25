@@ -3,25 +3,16 @@
 import Link from "next/link";
 import * as React from "react";
 import {
-  // IconCamera,
-  // IconChartBar,
   IconCalendar,
   IconDashboard,
-  // IconDatabase,
-  // IconFileAi,
-  // IconFileDescription,
-  // IconFileWord,
-  // IconFolder,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
-  // IconReport,
   IconSearch,
   IconSettings,
-  // IconUsers,
+  IconCircle,
+  IconMail,
 } from "@tabler/icons-react";
 
-// import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -56,7 +47,7 @@ const data = {
     {
       title: "Contacted",
       url: "/contacted",
-      icon: IconListDetails,
+      icon: IconMail,
     },
     {
       title: "Calendar",
@@ -89,23 +80,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   if (!user) {
     return (
-      <Sidebar collapsible="offcanvas" {...props}>
-        <SidebarHeader>
+      <Sidebar
+        collapsible="offcanvas"
+        className="border-r border-gray-200 bg-white"
+        {...props}
+      >
+        <SidebarHeader className="border-b border-gray-100 bg-white">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                className="data-[slot=sidebar-menu-button]:!p-1.5"
+                className="data-[slot=sidebar-menu-button]:!p-4 hover:bg-gray-50"
               >
-                <Link href="/">
-                  <IconInnerShadowTop className="!size-5" />
-                  <span className="text-base font-semibold">Acme Inc.</span>
+                <Link href="/" className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white">
+                    <IconCircle className="h-4 w-4 text-gray-900" />
+                  </div>
+                  <span className="text-lg font-medium text-gray-900">
+                    PipeWise
+                  </span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-2 py-4 bg-white">
           <NavMain items={data.navMain} />
         </SidebarContent>
       </Sidebar>
@@ -113,27 +112,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+    <Sidebar
+      collapsible="offcanvas"
+      className="border-r border-gray-200 bg-white"
+      {...props}
+    >
+      <SidebarHeader className="border-b border-gray-100 bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-4 hover:bg-gray-50"
             >
-              <Link href="/">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              <Link href="/" className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white">
+                  <IconCircle className="h-4 w-4 text-gray-900" />
+                </div>
+                <span className="text-lg font-medium text-gray-900">
+                  PipeWise
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-2 py-4 bg-white">
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-gray-100 bg-white">
         <NavUser
           user={{
             name: user.full_name,

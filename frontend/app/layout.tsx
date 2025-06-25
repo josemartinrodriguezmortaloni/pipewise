@@ -13,7 +13,7 @@ const geistSans = Geist({
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono", 
+  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
   preload: false, // Only preload primary font
@@ -25,7 +25,8 @@ export const metadata: Metadata = {
     default: "PipeWise - Modern B2B SaaS Platform",
     template: "%s | PipeWise",
   },
-  description: "Modern B2B SaaS platform with OpenAI AgentSDK, multi-tenant architecture, and advanced lead management",
+  description:
+    "Modern B2B SaaS platform with OpenAI AgentSDK, multi-tenant architecture, and advanced lead management",
   keywords: ["CRM", "SaaS", "B2B", "Lead Management", "AI", "Multi-tenant"],
   authors: [{ name: "PipeWise Team" }],
   creator: "PipeWise",
@@ -47,12 +48,14 @@ export const metadata: Metadata = {
     url: "https://pipewise.com",
     siteName: "PipeWise",
     title: "PipeWise - Modern B2B SaaS Platform",
-    description: "Modern B2B SaaS platform with OpenAI AgentSDK and multi-tenant architecture",
+    description:
+      "Modern B2B SaaS platform with OpenAI AgentSDK and multi-tenant architecture",
   },
   twitter: {
     card: "summary_large_image",
     title: "PipeWise - Modern B2B SaaS Platform",
-    description: "Modern B2B SaaS platform with OpenAI AgentSDK and multi-tenant architecture",
+    description:
+      "Modern B2B SaaS platform with OpenAI AgentSDK and multi-tenant architecture",
   },
   manifest: "/manifest.json",
   icons: {
@@ -81,8 +84,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html 
-      lang="en" 
+    <html
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning={true}
     >
@@ -90,10 +93,14 @@ export default function RootLayout({
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//api.pipewise.com" />
-        
+
         {/* Preconnect for critical resources */}
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
         {/* Critical resource hints */}
         <link rel="modulepreload" href="/_next/static/chunks/app/layout.js" />
       </head>
@@ -102,19 +109,17 @@ export default function RootLayout({
         <div id="root" className="min-h-screen">
           <AuthProvider>
             {/* Main content area */}
-            <main className="relative">
-              {children}
-            </main>
-            
+            <main className="relative">{children}</main>
+
             {/* Global toast notifications */}
-            <Toaster 
+            <Toaster
               position="top-right"
               toastOptions={{
                 duration: 4000,
                 style: {
-                  background: 'hsl(var(--background))',
-                  color: 'hsl(var(--foreground))',
-                  border: '1px solid hsl(var(--border))',
+                  background: "hsl(var(--background))",
+                  color: "hsl(var(--foreground))",
+                  border: "1px solid hsl(var(--border))",
                 },
               }}
             />
@@ -123,9 +128,9 @@ export default function RootLayout({
 
         {/* Portal container for modals */}
         <div id="portal-root" />
-        
+
         {/* Skip to main content for accessibility */}
-        <a 
+        <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
         >

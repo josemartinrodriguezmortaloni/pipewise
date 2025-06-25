@@ -21,10 +21,17 @@ if TYPE_CHECKING:
     from app.agents.meeting_scheduler import MeetingSchedulerAgent
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, Field, EmailStr
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, and_
 
 from app.agents.tools.calendly import CalendlyClient
+from app.agents.tools.pipedream_mcp import PipedreamMCPClient
+
+# Database imports
+# Note: This project uses Supabase instead of traditional ORM
+# The database operations are handled directly through Supabase client
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/integrations", tags=["integrations"])
@@ -130,7 +137,9 @@ _FERNET_KEY = os.environ.get("PIPEWISE_FERNET_KEY")
 if not _FERNET_KEY:
     # Generate a new key for development (in production, this should be persistent)
     _FERNET_KEY = Fernet.generate_key().decode()
-    logger.warning("Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.")
+    logger.warning(
+        "Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable."
+    )
 
 _FERNET = Fernet(_FERNET_KEY.encode() if isinstance(_FERNET_KEY, str) else _FERNET_KEY)
 
@@ -182,6 +191,7 @@ def delete_user_integration(user_id: str, platform: str):
 # Import actual auth dependency
 from app.auth.middleware import get_current_user as auth_get_current_user
 
+
 # Use real auth dependency
 async def get_current_user():
     """Get current user - temporarily mock for development"""
@@ -210,10 +220,10 @@ async def get_available_integrations():
                     "Personalized booking links",
                     "Calendar integration",
                     "Event type customization",
-                    "Timezone handling"
+                    "Timezone handling",
                 ],
                 "requiresApi": True,
-                "apiKeyLabel": "Calendly Access Token"
+                "apiKeyLabel": "Calendly Access Token",
             },
             {
                 "id": "whatsapp",
@@ -225,10 +235,10 @@ async def get_available_integrations():
                     "Automated responses",
                     "Media sharing",
                     "Message templates",
-                    "Webhook integration"
+                    "Webhook integration",
                 ],
                 "requiresApi": True,
-                "apiKeyLabel": "WhatsApp API Key"
+                "apiKeyLabel": "WhatsApp API Key",
             },
             {
                 "id": "instagram",
@@ -240,10 +250,10 @@ async def get_available_integrations():
                     "Comment monitoring",
                     "Mention tracking",
                     "Media responses",
-                    "Story engagement"
+                    "Story engagement",
                 ],
                 "requiresApi": True,
-                "apiKeyLabel": "Instagram App Token"
+                "apiKeyLabel": "Instagram App Token",
             },
             {
                 "id": "twitter",
@@ -255,10 +265,10 @@ async def get_available_integrations():
                     "DM automation",
                     "Tweet engagement",
                     "Lead identification",
-                    "Automated responses"
+                    "Automated responses",
                 ],
                 "requiresApi": True,
-                "apiKeyLabel": "Twitter API Key"
+                "apiKeyLabel": "Twitter API Key",
             },
             {
                 "id": "email",
@@ -270,13 +280,14 @@ async def get_available_integrations():
                     "Response tracking",
                     "Template management",
                     "SMTP integration",
-                    "Email analytics"
+                    "Email analytics",
                 ],
                 "requiresApi": True,
-                "apiKeyLabel": "Email Provider API Key"
-            }
+                "apiKeyLabel": "Email Provider API Key",
+            },
         ]
     }
+
 
 @router.get("/", response_model=List[IntegrationStatus])
 async def list_integrations(current_user: dict = Depends(get_current_user)):
@@ -294,7 +305,9 @@ async def list_integrations(current_user: dict = Depends(get_current_user)):
         if calendly_config:
             try:
                 # Test Calendly connection
-                access_token = decrypt_sensitive_data(calendly_config.get("access_token", ""))
+                access_token = decrypt_sensitive_data(
+                    calendly_config.get("access_token", "")
+                )
                 client = CalendlyClient(access_token)
                 health = client.health_check()
                 if health["status"] == "healthy":
@@ -783,9 +796,7 @@ async def schedule_meeting_with_calendly(
 
         # Create agent with user's Calendly configuration
         access_token = decrypt_sensitive_data(config.get("access_token", ""))
-        agent = MeetingSchedulerAgent(
-            calendly_token=access_token, user_id=user_id
-        )
+        agent = MeetingSchedulerAgent(calendly_token=access_token, user_id=user_id)
 
         # Run the meeting scheduler
         result = await agent.run(lead_data)
@@ -834,6 +845,124 @@ def create_meeting_scheduler_for_user(user_id: str) -> "MeetingSchedulerAgent":
     from app.agents.meeting_scheduler import MeetingSchedulerAgent
 
     access_token = decrypt_sensitive_data(config.get("access_token", ""))
-    return MeetingSchedulerAgent(
-        calendly_token=access_token, user_id=user_id
-    )
+    return MeetingSchedulerAgent(calendly_token=access_token, user_id=user_id)
+
+
+@router.post("/mcp/{integration_id}/enable")
+async def enable_mcp_integration(
+    integration_id: str, request: Request, current_user=Depends(get_current_user)
+):
+    """
+    Enable MCP integration with one-click setup.
+
+    This endpoint enables Pipedream MCP integrations without requiring API keys.
+    """
+    try:
+        # Validate integration_id
+        valid_mcp_integrations = {
+            "calendly_v2",
+            "pipedrive",
+            "salesforce_rest_api",
+            "zoho_crm",
+            "sendgrid",
+            "google_calendar",
+        }
+
+        if integration_id not in valid_mcp_integrations:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid MCP integration ID: {integration_id}"
+            )
+
+        # Get request body
+        body = await request.json()
+        enabled = body.get("enabled", True)
+        tools_count = body.get("tools_count", 0)
+
+        if not enabled:
+            raise HTTPException(
+                status_code=400,
+                detail="Use the disable endpoint to disable integrations",
+            )
+
+        # Save to in-memory storage
+        user_id = current_user.get("id", "user_123")
+        integration_config = {
+            "id": integration_id,
+            "name": integration_id,
+            "enabled": True,
+            "type": "mcp",
+            "tools_count": tools_count,
+            "integration_type": "mcp",
+            "pipedream_app_slug": integration_id,
+            "enabled_at": datetime.utcnow().isoformat(),
+            "platform": "mcp",
+        }
+
+        save_user_integration(user_id, integration_id, integration_config)
+
+        logger.info(f"MCP integration {integration_id} enabled for user {user_id}")
+
+        return {
+            "success": True,
+            "message": f"MCP integration {integration_id} enabled successfully",
+            "integration": integration_config,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error enabling MCP integration {integration_id}: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to enable MCP integration: {str(e)}"
+        )
+
+
+@router.post("/mcp/{integration_id}/disable")
+async def disable_mcp_integration(
+    integration_id: str, request: Request, current_user=Depends(get_current_user)
+):
+    """
+    Disable MCP integration.
+    """
+    try:
+        # Get request body
+        body = await request.json()
+        enabled = body.get("enabled", False)
+
+        if enabled:
+            raise HTTPException(
+                status_code=400, detail="Use the enable endpoint to enable integrations"
+            )
+
+        user_id = current_user.get("id", "user_123")
+
+        # Check if integration exists
+        existing_config = get_user_integration(user_id, integration_id)
+        if not existing_config:
+            raise HTTPException(
+                status_code=404, detail=f"MCP integration {integration_id} not found"
+            )
+
+        # Delete the integration
+        delete_user_integration(user_id, integration_id)
+
+        logger.info(f"MCP integration {integration_id} disabled for user {user_id}")
+
+        return {
+            "success": True,
+            "message": f"MCP integration {integration_id} disabled successfully",
+            "integration": {
+                "id": integration_id,
+                "name": integration_id,
+                "type": "mcp",
+                "enabled": False,
+            },
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error disabling MCP integration {integration_id}: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to disable MCP integration: {str(e)}"
+        )

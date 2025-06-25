@@ -1,41 +1,21 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconBrandInstagram,
-  IconBrandTwitter,
-  IconBrandWhatsapp,
-  IconCalendar,
-  IconCheck,
-  IconMail,
-  IconPlug,
-  IconSettings,
-  IconShield,
-  IconDatabase,
-  IconBuildingStore,
-  IconBrandGoogle,
-  IconLoader,
-  IconExternalLink,
-  IconArrowRight,
-  IconRobot,
-  IconSparkles,
-} from "@tabler/icons-react";
-
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import {
+  IconPlug,
+  IconCheck,
+  IconSettings,
+  IconCalendar,
+  IconBuilding,
+  IconDatabase,
+  IconMail,
+} from "@tabler/icons-react";
 
 interface Integration {
   id: string;
@@ -43,212 +23,105 @@ interface Integration {
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   status: "connected" | "disconnected" | "error";
-  category: "calendar" | "social" | "messaging" | "email" | "crm" | "mcp";
+  category: "calendar" | "crm" | "email";
   features: string[];
-  requiresApi: boolean;
-  apiKeyLabel?: string;
-  webhookUrl?: string;
-  toolsCount?: number;
-  isOneClick?: boolean;
-  isPopular?: boolean;
   isPremium?: boolean;
 }
 
-// Modern integrations with MCP support
-const mcpIntegrations: Integration[] = [
+// Business tool integrations
+const businessIntegrations: Integration[] = [
+  {
+    id: "google_calendar",
+    name: "Google Calendar",
+    description: "Schedule meetings and manage calendar events seamlessly",
+    icon: IconCalendar,
+    status: "disconnected",
+    category: "calendar",
+    features: [
+      "Meeting scheduling",
+      "Calendar sync",
+      "Availability checks",
+      "Automated invites",
+    ],
+  },
   {
     id: "calendly_v2",
     name: "Calendly",
-    description:
-      "Schedule meetings and manage calendar availability automatically through AI agents",
+    description: "Professional meeting scheduling and booking system",
     icon: IconCalendar,
     status: "disconnected",
-    category: "mcp",
+    category: "calendar",
     features: [
-      "Automated meeting scheduling",
-      "Calendar availability checks",
-      "Meeting link generation",
+      "Automated booking",
+      "Custom scheduling",
+      "Meeting links",
       "Timezone handling",
-      "Event type management",
-      "Booking confirmations",
-      "Reschedule requests",
     ],
-    requiresApi: false,
-    toolsCount: 7,
-    isOneClick: true,
-    isPopular: true,
-    isPremium: false,
   },
   {
     id: "pipedrive",
     name: "Pipedrive",
-    description:
-      "Complete CRM integration for lead management, deal tracking, and sales pipeline automation",
+    description: "Complete CRM solution for lead and deal management",
     icon: IconDatabase,
     status: "disconnected",
-    category: "mcp",
+    category: "crm",
     features: [
-      "Lead creation and updates",
-      "Deal pipeline management",
-      "Contact synchronization",
-      "Activity tracking",
-      "Custom field mapping",
+      "Lead management",
+      "Pipeline tracking",
+      "Contact sync",
       "Sales reporting",
-      "Automation workflows",
     ],
-    requiresApi: false,
-    toolsCount: 37,
-    isOneClick: true,
-    isPopular: true,
-    isPremium: false,
   },
   {
     id: "salesforce_rest_api",
     name: "Salesforce",
-    description:
-      "Enterprise CRM integration with advanced lead scoring and opportunity management",
-    icon: IconBuildingStore,
+    description: "Enterprise CRM platform with advanced lead scoring",
+    icon: IconBuilding,
     status: "disconnected",
-    category: "mcp",
+    category: "crm",
     features: [
-      "Enterprise lead management",
-      "Opportunity tracking",
+      "Enterprise CRM",
+      "Lead scoring",
       "Account management",
-      "Custom objects support",
-      "Advanced reporting",
-      "Workflow automation",
-      "Territory management",
+      "Advanced analytics",
     ],
-    requiresApi: false,
-    toolsCount: 30,
-    isOneClick: true,
-    isPopular: false,
     isPremium: true,
   },
   {
     id: "zoho_crm",
     name: "Zoho CRM",
-    description:
-      "Comprehensive CRM solution for small to medium businesses with AI-powered insights",
+    description: "Comprehensive CRM solution for growing businesses",
     icon: IconDatabase,
     status: "disconnected",
-    category: "mcp",
+    category: "crm",
     features: [
-      "Lead capture automation",
       "Contact management",
       "Deal tracking",
-      "Email campaigns",
-      "Sales analytics",
-      "Mobile access",
-      "Integration workflows",
+      "Lead automation",
+      "Sales pipeline",
     ],
-    requiresApi: false,
-    toolsCount: 11,
-    isOneClick: true,
-    isPopular: false,
-    isPremium: false,
   },
   {
     id: "sendgrid",
     name: "SendGrid",
-    description:
-      "Professional email automation and delivery with advanced analytics and templates",
+    description: "Professional email automation and delivery platform",
     icon: IconMail,
     status: "disconnected",
-    category: "mcp",
+    category: "email",
     features: [
-      "Automated email sequences",
+      "Email automation",
       "Template management",
-      "Delivery optimization",
-      "Analytics & tracking",
-      "A/B testing",
-      "Bounce handling",
-      "Suppression lists",
+      "Delivery tracking",
+      "Analytics dashboard",
     ],
-    requiresApi: false,
-    toolsCount: 20,
-    isOneClick: true,
-    isPopular: true,
-    isPremium: false,
-  },
-  {
-    id: "google_calendar",
-    name: "Google Calendar",
-    description:
-      "Calendar management and meeting coordination with Google Workspace integration",
-    icon: IconBrandGoogle,
-    status: "disconnected",
-    category: "mcp",
-    features: [
-      "Calendar synchronization",
-      "Event creation",
-      "Availability checking",
-      "Meeting invitations",
-      "Recurring events",
-      "Timezone support",
-      "Mobile notifications",
-    ],
-    requiresApi: false,
-    toolsCount: 10,
-    isOneClick: true,
-    isPopular: true,
-    isPremium: false,
-  },
-];
-
-// Legacy integrations that require API keys
-const legacyIntegrations: Integration[] = [
-  {
-    id: "whatsapp",
-    name: "WhatsApp Business",
-    description: "Connect with leads through WhatsApp messaging",
-    icon: IconBrandWhatsapp,
-    status: "disconnected",
-    category: "messaging",
-    features: ["Direct messaging", "Media sharing", "Business profiles"],
-    requiresApi: true,
-    apiKeyLabel: "WhatsApp Business API Token",
-    isOneClick: false,
-    isPopular: true,
-    isPremium: false,
-  },
-  {
-    id: "instagram",
-    name: "Instagram",
-    description: "Capture leads from Instagram DMs and comments",
-    icon: IconBrandInstagram,
-    status: "disconnected",
-    category: "social",
-    features: ["DM automation", "Comment tracking", "Story interactions"],
-    requiresApi: true,
-    apiKeyLabel: "Instagram Access Token",
-    isOneClick: false,
-    isPopular: true,
-    isPremium: false,
-  },
-  {
-    id: "twitter",
-    name: "Twitter/X",
-    description: "Engage with prospects on Twitter and X platform",
-    icon: IconBrandTwitter,
-    status: "disconnected",
-    category: "social",
-    features: ["Tweet monitoring", "DM automation", "Mention tracking"],
-    requiresApi: true,
-    apiKeyLabel: "Twitter API Bearer Token",
-    isOneClick: false,
-    isPopular: false,
-    isPremium: false,
   },
 ];
 
 export function IntegrationsSettings() {
-  const [apiKeys, setApiKeys] = React.useState<Record<string, string>>({});
   const [loading, setLoading] = React.useState<Record<string, boolean>>({});
   const [connectedIntegrations, setConnectedIntegrations] = React.useState<
     Set<string>
   >(new Set());
-  const [activeTab, setActiveTab] = React.useState("mcp");
 
   // Load connected integrations status
   React.useEffect(() => {
@@ -276,18 +149,10 @@ export function IntegrationsSettings() {
     loadConnectedIntegrations();
   }, []);
 
-  const handleApiKeyChange = (integrationId: string, value: string) => {
-    setApiKeys((prev) => ({
-      ...prev,
-      [integrationId]: value,
-    }));
-  };
-
-  const handleOneClickConnect = async (integration: Integration) => {
+  const handleConnect = async (integration: Integration) => {
     setLoading((prev) => ({ ...prev, [integration.id]: true }));
 
     try {
-      // For MCP integrations, we just need to enable them
       const endpoint = `/api/integrations/mcp/${integration.id}/enable`;
 
       const response = await fetch(endpoint, {
@@ -297,8 +162,7 @@ export function IntegrationsSettings() {
         },
         body: JSON.stringify({
           enabled: true,
-          integration_type: "mcp",
-          tools_count: integration.toolsCount,
+          integration_type: "business_tool",
         }),
       });
 
@@ -321,113 +185,7 @@ export function IntegrationsSettings() {
       const result = await response.json();
 
       if (result.success) {
-        // Mark as connected
         setConnectedIntegrations((prev) => new Set([...prev, integration.id]));
-        console.log(`${integration.name} connected successfully:`, result);
-      } else {
-        throw new Error(
-          result.message || `Failed to connect ${integration.name}`
-        );
-      }
-    } catch (error) {
-      console.error(`Error connecting ${integration.name}:`, error);
-      let errorMessage = "Unknown error";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      alert(`Failed to connect ${integration.name}: ${errorMessage}`);
-    } finally {
-      setLoading((prev) => ({ ...prev, [integration.id]: false }));
-    }
-  };
-
-  const handleConnect = async (integration: Integration) => {
-    if (integration.isOneClick) {
-      return handleOneClickConnect(integration);
-    }
-
-    setLoading((prev) => ({ ...prev, [integration.id]: true }));
-
-    try {
-      const apiKey = apiKeys[integration.id];
-      if (!apiKey) {
-        alert("Please enter your API key first");
-        setLoading((prev) => ({ ...prev, [integration.id]: false }));
-        return;
-      }
-
-      // Prepare request based on integration type
-      const endpoint = `/api/integrations/${integration.id}/connect`;
-      let payload: Record<string, string | boolean> = {};
-
-      if (integration.id === "calendly") {
-        payload = {
-          name: integration.name,
-          enabled: true,
-          access_token: apiKey,
-          default_event_type: "Sales Call",
-          timezone: "UTC",
-        };
-      } else if (integration.id === "whatsapp") {
-        payload = {
-          name: "WhatsApp Business",
-          enabled: true,
-          api_key: apiKey,
-        };
-      } else {
-        // Generic payload for other integrations
-        payload = {
-          name: integration.name,
-          enabled: true,
-          api_key: apiKey,
-        };
-      }
-
-      // Make actual API call to backend
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        let errorMessage = `Failed to connect ${integration.name}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.detail) {
-            if (Array.isArray(errorData.detail)) {
-              errorMessage = errorData.detail
-                .map(
-                  (err: { loc?: string[]; msg: string }) =>
-                    `${err.loc?.join(".")} - ${err.msg}`
-                )
-                .join(", ");
-            } else if (typeof errorData.detail === "string") {
-              errorMessage = errorData.detail;
-            } else {
-              errorMessage = JSON.stringify(errorData.detail);
-            }
-          }
-        } catch {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Mark as connected
-        setConnectedIntegrations((prev) => new Set([...prev, integration.id]));
-
-        // Clear the API key input for security
-        setApiKeys((prev) => ({
-          ...prev,
-          [integration.id]: "",
-        }));
-
         console.log(`${integration.name} connected successfully:`, result);
       } else {
         throw new Error(
@@ -450,512 +208,302 @@ export function IntegrationsSettings() {
     setLoading((prev) => ({ ...prev, [integration.id]: true }));
 
     try {
-      const endpoint = integration.isOneClick
-        ? `/api/integrations/mcp/${integration.id}/disable`
-        : `/api/integrations/${integration.id}`;
-
-      const method = integration.isOneClick ? "POST" : "DELETE";
+      const endpoint = `/api/integrations/mcp/${integration.id}/disable`;
 
       const response = await fetch(endpoint, {
-        method,
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: integration.isOneClick
-          ? JSON.stringify({ enabled: false })
-          : undefined,
+        body: JSON.stringify({
+          enabled: false,
+        }),
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to disconnect ${integration.name}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.detail) {
-            errorMessage =
-              typeof errorData.detail === "string"
-                ? errorData.detail
-                : JSON.stringify(errorData.detail);
-          }
-        } catch {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
+        throw new Error(`Failed to disconnect ${integration.name}`);
       }
 
-      const result = await response.json();
+      setConnectedIntegrations((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(integration.id);
+        return newSet;
+      });
 
-      if (result.success) {
-        // Mark as disconnected
-        setConnectedIntegrations((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(integration.id);
-          return newSet;
-        });
-
-        console.log(`${integration.name} disconnected successfully`);
-      } else {
-        throw new Error(
-          result.message || `Failed to disconnect ${integration.name}`
-        );
-      }
+      console.log(`${integration.name} disconnected successfully`);
     } catch (error) {
       console.error(`Error disconnecting ${integration.name}:`, error);
-      let errorMessage = "Unknown error";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      alert(`Failed to disconnect ${integration.name}: ${errorMessage}`);
+      alert(`Failed to disconnect ${integration.name}`);
     } finally {
       setLoading((prev) => ({ ...prev, [integration.id]: false }));
     }
   };
 
   const getCategoryColor = (category: Integration["category"]) => {
-    switch (category) {
-      case "calendar":
-        return "text-blue-600";
-      case "social":
-        return "text-purple-600";
-      case "messaging":
-        return "text-green-600";
-      case "email":
-        return "text-orange-600";
-      case "crm":
-        return "text-red-600";
-      case "mcp":
-        return "text-indigo-600";
-      default:
-        return "text-gray-600";
-    }
+    return "border-gray-200 bg-gray-50 text-gray-700";
   };
 
   const renderIntegrationCard = (integration: Integration) => {
-    const Icon = integration.icon;
     const isConnected = connectedIntegrations.has(integration.id);
     const isLoading = loading[integration.id];
 
     return (
       <Card
         key={integration.id}
-        className={`relative transition-all hover:shadow-lg ${
-          isConnected ? "ring-2 ring-green-500/20 bg-green-50/50" : ""
+        className={`border border-gray-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md ${
+          isConnected ? "ring-1 ring-gray-300 bg-gray-50" : ""
         }`}
       >
-        {integration.isPopular && (
-          <div className="absolute -top-2 -right-2 z-10">
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              Popular
-            </Badge>
-          </div>
-        )}
-
-        {integration.isPremium && (
-          <div className="absolute -top-2 -left-2 z-10">
-            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
-              <IconSparkles className="h-3 w-3 mr-1" />
-              Premium
-            </Badge>
-          </div>
-        )}
-
-        <CardHeader className="space-y-4">
+        <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-lg ${getCategoryColor(
-                  integration.category
-                )} bg-current/10`}
+                className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
+                  isConnected
+                    ? "border-gray-300 bg-gray-100"
+                    : "border-gray-200 bg-gray-50"
+                }`}
               >
-                <Icon
-                  className={`h-6 w-6 ${getCategoryColor(
-                    integration.category
-                  )}`}
+                <integration.icon
+                  className={`h-5 w-5 ${
+                    isConnected ? "text-gray-700" : "text-gray-500"
+                  }`}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">{integration.name}</CardTitle>
-                  {integration.isOneClick && (
-                    <Badge
-                      variant="outline"
-                      className="text-xs bg-blue-50 text-blue-700 border-blue-200"
-                    >
-                      <IconRobot className="h-3 w-3 mr-1" />
-                      MCP
+                  <CardTitle className="text-base text-gray-900">
+                    {integration.name}
+                  </CardTitle>
+                  {integration.isPremium && (
+                    <Badge className="text-xs border-gray-300 bg-gray-100 text-gray-800">
+                      Premium
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className="text-xs">
-                    {integration.category}
-                  </Badge>
-                  {integration.toolsCount && (
-                    <Badge variant="outline" className="text-xs">
-                      {integration.toolsCount} tools
-                    </Badge>
-                  )}
-                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${getCategoryColor(
+                    integration.category
+                  )}`}
+                >
+                  {integration.category}
+                </Badge>
               </div>
+            </div>
+            {isConnected && <IconCheck className="h-5 w-5 text-gray-600" />}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600">{integration.description}</p>
+
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Features
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {integration.features.slice(0, 3).map((feature, idx) => (
+                <Badge
+                  key={idx}
+                  variant="outline"
+                  className="text-xs border-gray-200 bg-white text-gray-600"
+                >
+                  {feature}
+                </Badge>
+              ))}
+              {integration.features.length > 3 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-gray-200 bg-white text-gray-600"
+                >
+                  +{integration.features.length - 3} more
+                </Badge>
+              )}
             </div>
           </div>
-          <CardDescription className="text-sm leading-relaxed">
-            {integration.description}
-          </CardDescription>
-        </CardHeader>
 
-        <CardContent className="space-y-4">
-          {/* Features List - Only show when not connected */}
-          {!isConnected && (
-            <div>
-              <Label className="text-sm font-medium">Key Features:</Label>
-              <ul className="mt-2 space-y-1">
-                {integration.features.slice(0, 4).map((feature, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    {feature}
-                  </li>
-                ))}
-                {integration.features.length > 4 && (
-                  <li className="text-sm text-muted-foreground">
-                    +{integration.features.length - 4} more features
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-
-          {/* API Key Input - Only show for legacy integrations when not connected */}
-          {integration.requiresApi &&
-            !isConnected &&
-            !integration.isOneClick && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor={`api-key-${integration.id}`}
-                  className="text-sm"
-                >
-                  {integration.apiKeyLabel}
-                </Label>
-                <Input
-                  id={`api-key-${integration.id}`}
-                  type="password"
-                  placeholder="Enter your API key or token"
-                  value={apiKeys[integration.id] || ""}
-                  onChange={(e) =>
-                    handleApiKeyChange(integration.id, e.target.value)
-                  }
-                />
-              </div>
-            )}
-
-          {/* Success message when connected */}
-          {isConnected && (
-            <div className="text-center py-4">
-              <div className="inline-flex items-center gap-2 text-green-600 font-medium">
-                <IconCheck className="h-5 w-5" />
-                Successfully Connected
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {integration.name} is now integrated with your AI agents
-              </p>
-            </div>
-          )}
-        </CardContent>
-
-        <CardFooter className="flex gap-2">
-          {isConnected ? (
-            <Button
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => handleDisconnect(integration)}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <IconLoader className="h-4 w-4 mr-2 animate-spin" />
-                  Disconnecting...
-                </>
-              ) : (
-                <>
-                  <IconCheck className="h-4 w-4 mr-2" />
-                  Connected
-                </>
-              )}
-            </Button>
-          ) : (
-            <>
+          <div className="pt-2">
+            {isConnected ? (
               <Button
-                className="flex-1"
-                onClick={() => handleConnect(integration)}
-                disabled={
-                  isLoading ||
-                  (integration.requiresApi &&
-                    !integration.isOneClick &&
-                    !apiKeys[integration.id])
-                }
+                variant="outline"
+                size="sm"
+                onClick={() => handleDisconnect(integration)}
+                disabled={isLoading}
+                className="w-full border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
               >
-                {isLoading ? (
-                  <>
-                    <IconLoader className="h-4 w-4 mr-2 animate-spin" />
-                    Connecting...
-                  </>
-                ) : integration.isOneClick ? (
-                  <>
-                    <IconRobot className="h-4 w-4 mr-2" />
-                    Connect Now
-                  </>
-                ) : (
-                  <>
-                    <IconPlug className="h-4 w-4 mr-2" />
-                    Connect
-                  </>
-                )}
+                {isLoading ? "Disconnecting..." : "Disconnect"}
               </Button>
-              {integration.isOneClick && (
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href="https://pipedream.com/docs/connect/mcp/openai/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <IconExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              )}
-            </>
-          )}
-        </CardFooter>
+            ) : (
+              <Button
+                onClick={() => handleConnect(integration)}
+                disabled={isLoading}
+                className="w-full bg-gray-900 text-white hover:bg-gray-800"
+                size="sm"
+              >
+                {isLoading ? "Connecting..." : "Connect"}
+              </Button>
+            )}
+          </div>
+        </CardContent>
       </Card>
     );
   };
 
-  const connectedMcp = mcpIntegrations.filter((i) =>
+  // Calculate metrics for connected integrations
+  const connectedCount = businessIntegrations.filter((i) =>
     connectedIntegrations.has(i.id)
   ).length;
-  const connectedLegacy = legacyIntegrations.filter((i) =>
-    connectedIntegrations.has(i.id)
+
+  const calendarConnected = businessIntegrations.filter(
+    (i) => i.category === "calendar" && connectedIntegrations.has(i.id)
   ).length;
-  const totalConnected = connectedMcp + connectedLegacy;
+
+  const crmConnected = businessIntegrations.filter(
+    (i) => i.category === "crm" && connectedIntegrations.has(i.id)
+  ).length;
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-          <IconSettings className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Integrations
-          </h2>
-          <p className="text-muted-foreground">
-            Connect your favorite platforms to automate lead management with AI
-            agents
-          </p>
-        </div>
-      </div>
-
-      {/* Stats Overview */}
+      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <IconRobot className="h-5 w-5 text-indigo-600" />
-              <span className="text-sm font-medium">MCP Integrations</span>
+              <IconPlug className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">
+                Connected Tools
+              </span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">{connectedMcp}</span>
-              <span className="text-muted-foreground text-sm ml-1">
-                / {mcpIntegrations.length} active
+              <span className="text-2xl font-semibold text-gray-900">
+                {connectedCount}
+              </span>
+              <span className="text-gray-500 text-sm ml-1">
+                / {businessIntegrations.length} available
               </span>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <IconPlug className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm font-medium">Legacy APIs</span>
+              <IconCalendar className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">
+                Calendar
+              </span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">{connectedLegacy}</span>
-              <span className="text-muted-foreground text-sm ml-1">
-                / {legacyIntegrations.length} active
+              <span className="text-2xl font-semibold text-gray-900">
+                {calendarConnected}
               </span>
+              <span className="text-gray-500 text-sm ml-1">connected</span>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <IconCheck className="h-5 w-5 text-green-600" />
-              <span className="text-sm font-medium">Total Connected</span>
+              <IconDatabase className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">CRM</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold">{totalConnected}</span>
-              <span className="text-muted-foreground text-sm ml-1">
-                integrations
+              <span className="text-2xl font-semibold text-gray-900">
+                {crmConnected}
               </span>
+              <span className="text-gray-500 text-sm ml-1">connected</span>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <IconShield className="h-5 w-5 text-blue-600" />
-              <span className="text-sm font-medium">Security</span>
+              <IconCheck className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">Status</span>
             </div>
             <div className="mt-2">
-              <span className="text-2xl font-bold text-green-600">Secure</span>
-              <span className="text-muted-foreground text-sm ml-1">
-                encrypted
+              <span className="text-2xl font-semibold text-gray-900">
+                Ready
               </span>
+              <span className="text-gray-500 text-sm ml-1">to connect</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Separator />
-
-      {/* Integrations Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="space-y-6"
-      >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="mcp" className="flex items-center gap-2">
-            <IconRobot className="h-4 w-4" />
-            MCP Integrations
-            <Badge className="ml-2">{mcpIntegrations.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="legacy" className="flex items-center gap-2">
-            <IconPlug className="h-4 w-4" />
-            API Integrations
-            <Badge variant="outline" className="ml-2">
-              {legacyIntegrations.length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="mcp" className="space-y-6">
-          <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
-                  <IconRobot className="h-6 w-6 text-indigo-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">
-                    MCP Integrations - One-Click Setup
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Connect powerful business tools instantly through the Model
-                    Context Protocol (MCP). These integrations provide your AI
-                    agents with{" "}
-                    {mcpIntegrations.reduce(
-                      (sum, i) => sum + (i.toolsCount || 0),
-                      0
-                    )}
-                    + tools across 6 major platforms.
-                  </p>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <IconCheck className="h-4 w-4 text-green-600" />
-                      <span>No API keys required</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <IconCheck className="h-4 w-4 text-green-600" />
-                      <span>Instant setup</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <IconCheck className="h-4 w-4 text-green-600" />
-                      <span>AI agent ready</span>
-                    </div>
+      {/* Business Tools Section */}
+      <div className="space-y-6">
+        <Card className="border border-gray-200 bg-white shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                <IconPlug className="h-6 w-6 text-gray-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2 text-gray-900">
+                  Business Tool Integrations
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Connect your essential business tools to streamline your lead
+                  qualification and management workflow. Sync data automatically
+                  and enhance productivity.
+                </p>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <IconCheck className="h-4 w-4 text-gray-600" />
+                    <span className="text-gray-600">Secure connections</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IconCheck className="h-4 w-4 text-gray-600" />
+                    <span className="text-gray-600">Real-time sync</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IconCheck className="h-4 w-4 text-gray-600" />
+                    <span className="text-gray-600">Easy setup</span>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {mcpIntegrations.map(renderIntegrationCard)}
-          </div>
-        </TabsContent>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {businessIntegrations.map(renderIntegrationCard)}
+        </div>
+      </div>
 
-        <TabsContent value="legacy" className="space-y-6">
-          <Card className="bg-amber-50 border-amber-200">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
-                  <IconPlug className="h-6 w-6 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">
-                    API Integrations - Manual Setup
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Connect social media and messaging platforms using your own
-                    API keys. These integrations require manual configuration
-                    and API credentials.
-                  </p>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <IconArrowRight className="h-4 w-4 text-amber-600" />
-                      <span>Requires API keys</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <IconArrowRight className="h-4 w-4 text-amber-600" />
-                      <span>Manual setup</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <IconArrowRight className="h-4 w-4 text-amber-600" />
-                      <span>Custom configuration</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {legacyIntegrations.map(renderIntegrationCard)}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Help Section */}
-      <Card className="bg-muted/50">
+      {/* Settings Section */}
+      <Card className="border border-gray-200 bg-gray-50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconShield className="h-5 w-5" />
-            Security & Privacy
+          <CardTitle className="flex items-center gap-2 text-gray-900">
+            <IconSettings className="h-5 w-5" />
+            Integration Settings
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            All integrations use secure authentication methods. MCP integrations
-            connect through Pipedream&apos;s secure infrastructure, while API
-            integrations store encrypted credentials.
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Configure how your business tools sync data and interact with your
+            lead qualification system. All connections are secured with
+            enterprise-grade encryption.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-sm font-medium">Auto-sync data</Label>
-                <p className="text-xs text-muted-foreground">
-                  Automatically sync lead data from connected platforms
+                <Label className="text-sm font-medium text-gray-700">
+                  Auto-sync data
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Automatically sync lead data from connected tools
                 </p>
               </div>
               <Checkbox defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-sm font-medium">
+                <Label className="text-sm font-medium text-gray-700">
                   Real-time notifications
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Get notified when AI agents use integrations
+                <p className="text-xs text-gray-500">
+                  Get notified when data syncs between tools
                 </p>
               </div>
               <Checkbox defaultChecked />

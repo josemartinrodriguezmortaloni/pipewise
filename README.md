@@ -42,10 +42,10 @@ This means:
 - No more leads left waiting for days
 - No more wasted marketing budget
 - No more lost deals to faster competitors
+
 - No more sales/marketing blame games
 
 ---
-
 ## Key Benefits
 
 - **Instant 24/7 Response:** Pipewise AI agents engage leads the moment they submit a form—no human delay, no missed opportunities.

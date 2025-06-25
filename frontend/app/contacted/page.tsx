@@ -237,7 +237,7 @@ function ContactedPageContent() {
   return (
     <div className="flex flex-col h-full">
       {/* Filters and Search */}
-      <div className="p-4 bg-background border-b sticky top-0 z-10">
+      <div className="p-6 pr-6 bg-background border-b sticky top-0 z-10">
         <div className="flex items-center gap-4 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -277,7 +277,7 @@ function ContactedPageContent() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto p-6 pr-6 pb-0">
         {stats && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
             <Card>
@@ -462,18 +462,11 @@ function ContactedPageContent() {
 
 export default function ContactedPage() {
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="m-0 rounded-none shadow-none">
         <div className="flex flex-1 flex-col h-screen overflow-hidden">
-          <header className="sticky top-0 z-40 flex h-[--header-height] shrink-0 items-center gap-2 bg-background/80 px-4 backdrop-blur lg:px-6">
+          <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 bg-background px-4">
             <SidebarTrigger />
           </header>
           <main className="flex-1 overflow-y-auto">

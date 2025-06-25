@@ -1,10 +1,10 @@
 // Settings Layout - Server Component with modern React 19 patterns
 import { Suspense } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { 
-  SidebarInset, 
+import {
+  SidebarInset,
   SidebarProvider,
-  SidebarTrigger 
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,40 +45,34 @@ export default function SettingsLayout({
 }) {
   return (
     <ProtectedRoute>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         {/* Sidebar with loading boundary */}
         <Suspense fallback={<div className="w-72 bg-muted" />}>
-          <AppSidebar variant="inset" />
+          <AppSidebar />
         </Suspense>
-        
-        <SidebarInset>
+
+        <SidebarInset className="m-0 rounded-none shadow-none">
           <div className="flex flex-1 flex-col">
             {/* Header with Suspense boundary */}
             <Suspense fallback={<HeaderSkeleton />}>
-              <header className="sticky top-0 z-40 flex h-[--header-height] shrink-0 items-center gap-2 bg-background/80 px-4 backdrop-blur lg:px-6">
+              <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 bg-background px-4">
                 <SidebarTrigger />
-                <nav aria-label="Settings navigation" className="flex items-center gap-2">
+                <nav
+                  aria-label="Settings navigation"
+                  className="flex items-center gap-2"
+                >
                   <span className="text-sm font-medium text-muted-foreground">
                     Settings
                   </span>
                 </nav>
               </header>
             </Suspense>
-            
-            {/* Main content area with container queries */}
-            <div className="@container/main flex flex-1 flex-col">
+
+            {/* Main content area without container queries */}
+            <div className="flex flex-1 flex-col">
               <main id="main-content" className="flex-1">
                 {/* Nested Suspense for settings content */}
-                <Suspense fallback={<SettingsSkeleton />}>
-                  {children}
-                </Suspense>
+                <Suspense fallback={<SettingsSkeleton />}>{children}</Suspense>
               </main>
             </div>
           </div>
