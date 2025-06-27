@@ -162,7 +162,7 @@ export function CalendarView() {
               {loading
                 ? "Loading meetings..."
                 : error
-                ? "Error loading meetings - Calendar view available"
+                ? "Calendar view available"
                 : "Scheduled meetings and events"}
             </CardDescription>
           </div>

@@ -832,3 +832,8 @@ def serialize_for_json(obj: Any) -> Any:
         return [serialize_for_json(v) for v in obj]
     else:
         return obj
+
+
+def get_supabase_client() -> SupabaseCRMClient:
+    """Get a Supabase CRM client instance."""
+    return SupabaseCRMClient()

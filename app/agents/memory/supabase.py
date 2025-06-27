@@ -16,6 +16,22 @@ from .base import MemoryStore, MemoryEntry
 logger = logging.getLogger(__name__)
 
 
+def serialize_for_json(obj: Any) -> Any:
+    """Safely serialize objects for JSON storage."""
+    if isinstance(obj, dict):
+        return {k: serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(item) for item in obj]
+    elif hasattr(obj, "__dict__"):
+        # For complex objects, convert to string representation
+        return str(obj)
+    elif isinstance(obj, (str, int, float, bool, type(None))):
+        return obj
+    else:
+        # Fallback to string representation for any other type
+        return str(obj)
+
+
 class SupabaseMemoryStore(MemoryStore):
     """
     Supabase implementation for persistent memory storage.
@@ -74,9 +90,9 @@ class SupabaseMemoryStore(MemoryStore):
                         "id": memory_id,
                         "agent_id": agent_id,
                         "workflow_id": workflow_id,
-                        "content": content,
+                        "content": serialize_for_json(content),
                         "tags": tags or [],
-                        "metadata": metadata or {},
+                        "metadata": serialize_for_json(metadata or {}),
                         "created_at": datetime.now().isoformat(),
                     }
                 )

@@ -1,346 +1,374 @@
 "use client";
 
-import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  IconPlug,
-  IconCheck,
-  IconSettings,
-  IconCalendar,
-  IconBuilding,
-  IconDatabase,
+  IconUser,
   IconMail,
+  IconCalendar,
+  IconBrandInstagram,
+  IconBrandTwitter,
+  IconSettings,
+  IconPlug,
+  IconUsers,
+  IconCheck,
 } from "@tabler/icons-react";
 
-interface Integration {
+interface UserAccountConfig {
   id: string;
   name: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
-  status: "connected" | "disconnected" | "error";
-  category: "calendar" | "crm" | "email";
-  features: string[];
-  isPremium?: boolean;
+  fields: {
+    name: string;
+    type: "text" | "email" | "textarea";
+    placeholder: string;
+    required: boolean;
+    description: string;
+  }[];
+  category: "calendar" | "crm" | "email" | "social";
+  connected: boolean;
 }
 
-// Business tool integrations
-const businessIntegrations: Integration[] = [
+const userAccountConfigs: UserAccountConfig[] = [
   {
-    id: "google_calendar",
-    name: "Google Calendar",
-    description: "Schedule meetings and manage calendar events seamlessly",
-    icon: IconCalendar,
-    status: "disconnected",
-    category: "calendar",
-    features: [
-      "Meeting scheduling",
-      "Calendar sync",
-      "Availability checks",
-      "Automated invites",
-    ],
-  },
-  {
-    id: "calendly_v2",
-    name: "Calendly",
-    description: "Professional meeting scheduling and booking system",
-    icon: IconCalendar,
-    status: "disconnected",
-    category: "calendar",
-    features: [
-      "Automated booking",
-      "Custom scheduling",
-      "Meeting links",
-      "Timezone handling",
-    ],
-  },
-  {
-    id: "pipedrive",
-    name: "Pipedrive",
-    description: "Complete CRM solution for lead and deal management",
-    icon: IconDatabase,
-    status: "disconnected",
-    category: "crm",
-    features: [
-      "Lead management",
-      "Pipeline tracking",
-      "Contact sync",
-      "Sales reporting",
-    ],
-  },
-  {
-    id: "salesforce_rest_api",
-    name: "Salesforce",
-    description: "Enterprise CRM platform with advanced lead scoring",
-    icon: IconBuilding,
-    status: "disconnected",
-    category: "crm",
-    features: [
-      "Enterprise CRM",
-      "Lead scoring",
-      "Account management",
-      "Advanced analytics",
-    ],
-    isPremium: true,
-  },
-  {
-    id: "zoho_crm",
-    name: "Zoho CRM",
-    description: "Comprehensive CRM solution for growing businesses",
-    icon: IconDatabase,
-    status: "disconnected",
-    category: "crm",
-    features: [
-      "Contact management",
-      "Deal tracking",
-      "Lead automation",
-      "Sales pipeline",
-    ],
-  },
-  {
-    id: "sendgrid",
-    name: "SendGrid",
-    description: "Professional email automation and delivery platform",
+    id: "google_account",
+    name: "Cuenta de Google",
+    description:
+      "Conecta tu cuenta de Google para gestión de calendario y email",
     icon: IconMail,
-    status: "disconnected",
-    category: "email",
-    features: [
-      "Email automation",
-      "Template management",
-      "Delivery tracking",
-      "Analytics dashboard",
+    category: "calendar",
+    connected: false,
+    fields: [
+      {
+        name: "email",
+        type: "email",
+        placeholder: "tu-email@gmail.com",
+        required: true,
+        description: "Tu dirección de email de Google principal",
+      },
+      {
+        name: "display_name",
+        type: "text",
+        placeholder: "Tu Nombre Completo",
+        required: true,
+        description: "Nombre que aparecerá en las comunicaciones",
+      },
+    ],
+  },
+  {
+    id: "calendly_account",
+    name: "Calendly",
+    description: "Configura tu cuenta de Calendly para programación automática",
+    icon: IconCalendar,
+    category: "calendar",
+    connected: false,
+    fields: [
+      {
+        name: "username",
+        type: "text",
+        placeholder: "tu-usuario-calendly",
+        required: true,
+        description: "Tu nombre de usuario en Calendly (sin @)",
+      },
+      {
+        name: "default_event_type",
+        type: "text",
+        placeholder: "15min-meeting",
+        required: false,
+        description: "Tipo de evento por defecto para reuniones",
+      },
+    ],
+  },
+  {
+    id: "twitter_account",
+    name: "Twitter/X",
+    description: "Configura tu perfil de Twitter para comunicación social",
+    icon: IconBrandTwitter,
+    category: "social",
+    connected: false,
+    fields: [
+      {
+        name: "username",
+        type: "text",
+        placeholder: "@tu_usuario",
+        required: true,
+        description: "Tu nombre de usuario en Twitter/X (incluye @)",
+      },
+      {
+        name: "display_name",
+        type: "text",
+        placeholder: "Tu Nombre en Twitter",
+        required: false,
+        description: "Nombre que aparece en tu perfil",
+      },
+    ],
+  },
+  {
+    id: "instagram_account",
+    name: "Instagram",
+    description: "Conecta tu cuenta de Instagram para alcance social",
+    icon: IconBrandInstagram,
+    category: "social",
+    connected: false,
+    fields: [
+      {
+        name: "username",
+        type: "text",
+        placeholder: "@tu_usuario",
+        required: true,
+        description: "Tu nombre de usuario en Instagram (incluye @)",
+      },
+      {
+        name: "business_account",
+        type: "text",
+        placeholder: "true/false",
+        required: false,
+        description: "¿Es una cuenta de negocio? (true/false)",
+      },
     ],
   },
 ];
 
 export function IntegrationsSettings() {
+  const [userAccounts, setUserAccounts] =
+    React.useState<UserAccountConfig[]>(userAccountConfigs);
+  const [accountForms, setAccountForms] = React.useState<
+    Record<string, Record<string, string>>
+  >({});
   const [loading, setLoading] = React.useState<Record<string, boolean>>({});
-  const [connectedIntegrations, setConnectedIntegrations] = React.useState<
-    Set<string>
-  >(new Set());
 
-  // Load connected integrations status
+  // Load saved configurations
   React.useEffect(() => {
-    const loadConnectedIntegrations = async () => {
+    const loadUserConfigurations = async () => {
       try {
-        const response = await fetch("/api/integrations/");
-
-        if (response.ok) {
-          const data = await response.json();
-          const connected = new Set<string>();
-          data.integrations?.forEach(
-            (integration: { id: string; status: string }) => {
-              if (integration.status === "connected") {
-                connected.add(integration.id);
-              }
-            }
-          );
-          setConnectedIntegrations(connected);
+        // Load user account configurations
+        const accountResponse = await fetch("/api/user/integrations/accounts");
+        if (accountResponse.ok) {
+          const accountData = await accountResponse.json();
+          // Update connected status and form data based on saved configurations
+          // Implementation would depend on backend API structure
         }
       } catch (error) {
-        console.error("Error loading integrations:", error);
+        console.error("Error loading user configurations:", error);
       }
     };
 
-    loadConnectedIntegrations();
+    loadUserConfigurations();
   }, []);
 
-  const handleConnect = async (integration: Integration) => {
-    setLoading((prev) => ({ ...prev, [integration.id]: true }));
+  const handleFieldChange = (
+    accountId: string,
+    fieldName: string,
+    value: string
+  ) => {
+    setAccountForms((prev) => ({
+      ...prev,
+      [accountId]: {
+        ...prev[accountId],
+        [fieldName]: value,
+      },
+    }));
+  };
+
+  const handleSaveAccount = async (account: UserAccountConfig) => {
+    setLoading((prev) => ({ ...prev, [account.id]: true }));
 
     try {
-      const endpoint = `/api/integrations/mcp/${integration.id}/enable`;
+      const formData = accountForms[account.id] || {};
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enabled: true,
-          integration_type: "business_tool",
-        }),
-      });
+      // Validate required fields
+      const missingFields = account.fields
+        .filter((field) => field.required && !formData[field.name])
+        .map((field) => field.name);
 
-      if (!response.ok) {
-        let errorMessage = `Failed to connect ${integration.name}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.detail) {
-            errorMessage =
-              typeof errorData.detail === "string"
-                ? errorData.detail
-                : JSON.stringify(errorData.detail);
-          }
-        } catch {
-          errorMessage = `${response.status} ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        setConnectedIntegrations((prev) => new Set([...prev, integration.id]));
-        console.log(`${integration.name} connected successfully:`, result);
-      } else {
-        throw new Error(
-          result.message || `Failed to connect ${integration.name}`
+      if (missingFields.length > 0) {
+        alert(
+          `Por favor completa los campos requeridos: ${missingFields.join(
+            ", "
+          )}`
         );
+        return;
       }
-    } catch (error) {
-      console.error(`Error connecting ${integration.name}:`, error);
-      let errorMessage = "Unknown error";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      alert(`Failed to connect ${integration.name}: ${errorMessage}`);
-    } finally {
-      setLoading((prev) => ({ ...prev, [integration.id]: false }));
-    }
-  };
 
-  const handleDisconnect = async (integration: Integration) => {
-    setLoading((prev) => ({ ...prev, [integration.id]: true }));
-
-    try {
-      const endpoint = `/api/integrations/mcp/${integration.id}/disable`;
-
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/user/integrations/accounts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          enabled: false,
+          account_id: account.id,
+          account_type: account.category,
+          configuration: formData,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to disconnect ${integration.name}`);
+        throw new Error(`Failed to save ${account.name} configuration`);
       }
 
-      setConnectedIntegrations((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(integration.id);
-        return newSet;
-      });
+      // Update UI to show as connected
+      setUserAccounts((prev) =>
+        prev.map((acc) =>
+          acc.id === account.id ? { ...acc, connected: true } : acc
+        )
+      );
 
-      console.log(`${integration.name} disconnected successfully`);
+      alert(`${account.name} configurado exitosamente`);
     } catch (error) {
-      console.error(`Error disconnecting ${integration.name}:`, error);
-      alert(`Failed to disconnect ${integration.name}`);
+      console.error(`Error saving ${account.name}:`, error);
+      alert(
+        `Error al configurar ${account.name}: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     } finally {
-      setLoading((prev) => ({ ...prev, [integration.id]: false }));
+      setLoading((prev) => ({ ...prev, [account.id]: false }));
     }
   };
 
-  const getCategoryColor = (category: Integration["category"]) => {
-    return "border-gray-200 bg-gray-50 text-gray-700";
+  const handleDisconnectAccount = async (account: UserAccountConfig) => {
+    setLoading((prev) => ({ ...prev, [account.id]: true }));
+
+    try {
+      const response = await fetch(
+        `/api/user/integrations/accounts/${account.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to disconnect ${account.name}`);
+      }
+
+      setUserAccounts((prev) =>
+        prev.map((acc) =>
+          acc.id === account.id ? { ...acc, connected: false } : acc
+        )
+      );
+
+      // Clear form data
+      setAccountForms((prev) => ({
+        ...prev,
+        [account.id]: {},
+      }));
+
+      alert(`${account.name} desconectado exitosamente`);
+    } catch (error) {
+      console.error(`Error disconnecting ${account.name}:`, error);
+      alert(`Error al desconectar ${account.name}`);
+    } finally {
+      setLoading((prev) => ({ ...prev, [account.id]: false }));
+    }
   };
 
-  const renderIntegrationCard = (integration: Integration) => {
-    const isConnected = connectedIntegrations.has(integration.id);
-    const isLoading = loading[integration.id];
+  const renderAccountCard = (account: UserAccountConfig) => {
+    const formData = accountForms[account.id] || {};
+    const isLoading = loading[account.id] || false;
 
     return (
-      <Card
-        key={integration.id}
-        className={`border border-gray-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md ${
-          isConnected ? "ring-1 ring-gray-300 bg-gray-50" : ""
-        }`}
-      >
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
-                  isConnected
-                    ? "border-gray-300 bg-gray-100"
-                    : "border-gray-200 bg-gray-50"
-                }`}
-              >
-                <integration.icon
-                  className={`h-5 w-5 ${
-                    isConnected ? "text-gray-700" : "text-gray-500"
-                  }`}
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base text-gray-900">
-                    {integration.name}
-                  </CardTitle>
-                  {integration.isPremium && (
-                    <Badge className="text-xs border-gray-300 bg-gray-100 text-gray-800">
-                      Premium
-                    </Badge>
-                  )}
-                </div>
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${getCategoryColor(
-                    integration.category
-                  )}`}
-                >
-                  {integration.category}
-                </Badge>
-              </div>
+      <Card key={account.id} className="border border-gray-200 bg-white">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+              <account.icon className="h-5 w-5 text-gray-600" />
             </div>
-            {isConnected && <IconCheck className="h-5 w-5 text-gray-600" />}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">{integration.description}</p>
+            <div className="flex-1">
+              <h4 className="font-medium text-gray-900 mb-1">{account.name}</h4>
+              <p className="text-sm text-gray-600 mb-4">
+                {account.description}
+              </p>
 
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Features
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {integration.features.slice(0, 3).map((feature, idx) => (
-                <Badge
-                  key={idx}
-                  variant="outline"
-                  className="text-xs border-gray-200 bg-white text-gray-600"
-                >
-                  {feature}
-                </Badge>
-              ))}
-              {integration.features.length > 3 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs border-gray-200 bg-white text-gray-600"
-                >
-                  +{integration.features.length - 3} more
-                </Badge>
+              {!account.connected ? (
+                <div className="space-y-3">
+                  {account.fields.map((field) => (
+                    <div key={field.name}>
+                      <Label className="text-sm font-medium text-gray-700">
+                        {field.name}
+                        {field.required && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </Label>
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          placeholder={field.placeholder}
+                          value={formData[field.name] || ""}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              account.id,
+                              field.name,
+                              e.target.value
+                            )
+                          }
+                          className="text-sm"
+                          disabled={isLoading}
+                        />
+                      ) : (
+                        <Input
+                          type={field.type}
+                          placeholder={field.placeholder}
+                          value={formData[field.name] || ""}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              account.id,
+                              field.name,
+                              e.target.value
+                            )
+                          }
+                          className="text-sm"
+                          disabled={isLoading}
+                        />
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        {field.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm text-green-700 font-medium">
+                      Conectado
+                    </span>
+                  </div>
+                  {Object.entries(formData).map(([key, value]) => (
+                    <div key={key} className="text-sm text-gray-600">
+                      <span className="font-medium capitalize">{key}: </span>
+                      <span>{value}</span>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
 
-          <div className="pt-2">
-            {isConnected ? (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            {!account.connected ? (
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDisconnect(integration)}
+                onClick={() => handleSaveAccount(account)}
                 disabled={isLoading}
-                className="w-full border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                className="bg-blue-600 text-white hover:bg-blue-700"
+                size="sm"
               >
-                {isLoading ? "Disconnecting..." : "Disconnect"}
+                {isLoading ? "Configurando..." : "Configurar"}
               </Button>
             ) : (
               <Button
-                onClick={() => handleConnect(integration)}
+                onClick={() => handleDisconnectAccount(account)}
                 disabled={isLoading}
-                className="w-full bg-gray-900 text-white hover:bg-gray-800"
+                variant="outline"
+                className="border-red-200 text-red-700 hover:bg-red-50"
                 size="sm"
               >
-                {isLoading ? "Connecting..." : "Connect"}
+                {isLoading ? "Desconectando..." : "Desconectar"}
               </Button>
             )}
           </div>
@@ -349,29 +377,24 @@ export function IntegrationsSettings() {
     );
   };
 
-  // Calculate metrics for connected integrations
-  const connectedCount = businessIntegrations.filter((i) =>
-    connectedIntegrations.has(i.id)
+  const connectedCount = userAccounts.filter((acc) => acc.connected).length;
+  const socialConnected = userAccounts.filter(
+    (acc) => acc.category === "social" && acc.connected
   ).length;
-
-  const calendarConnected = businessIntegrations.filter(
-    (i) => i.category === "calendar" && connectedIntegrations.has(i.id)
-  ).length;
-
-  const crmConnected = businessIntegrations.filter(
-    (i) => i.category === "crm" && connectedIntegrations.has(i.id)
+  const calendarConnected = userAccounts.filter(
+    (acc) => acc.category === "calendar" && acc.connected
   ).length;
 
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
               <IconPlug className="h-5 w-5 text-gray-600" />
               <span className="text-sm font-medium text-gray-700">
-                Connected Tools
+                Cuentas Configuradas
               </span>
             </div>
             <div className="mt-2">
@@ -379,86 +402,76 @@ export function IntegrationsSettings() {
                 {connectedCount}
               </span>
               <span className="text-gray-500 text-sm ml-1">
-                / {businessIntegrations.length} available
+                / {userAccounts.length} disponibles
               </span>
             </div>
           </CardContent>
         </Card>
+
         <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
               <IconCalendar className="h-5 w-5 text-gray-600" />
               <span className="text-sm font-medium text-gray-700">
-                Calendar
+                Calendario
               </span>
             </div>
             <div className="mt-2">
               <span className="text-2xl font-semibold text-gray-900">
                 {calendarConnected}
               </span>
-              <span className="text-gray-500 text-sm ml-1">connected</span>
+              <span className="text-gray-500 text-sm ml-1">conectadas</span>
             </div>
           </CardContent>
         </Card>
+
         <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <IconDatabase className="h-5 w-5 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">CRM</span>
+              <IconUsers className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">
+                Redes Sociales
+              </span>
             </div>
             <div className="mt-2">
               <span className="text-2xl font-semibold text-gray-900">
-                {crmConnected}
+                {socialConnected}
               </span>
-              <span className="text-gray-500 text-sm ml-1">connected</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-gray-200 bg-white shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2">
-              <IconCheck className="h-5 w-5 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Status</span>
-            </div>
-            <div className="mt-2">
-              <span className="text-2xl font-semibold text-gray-900">
-                Ready
-              </span>
-              <span className="text-gray-500 text-sm ml-1">to connect</span>
+              <span className="text-gray-500 text-sm ml-1">conectadas</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Business Tools Section */}
+      {/* User Account Configuration Section */}
       <div className="space-y-6">
         <Card className="border border-gray-200 bg-white shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
-                <IconPlug className="h-6 w-6 text-gray-600" />
+                <IconUser className="h-6 w-6 text-gray-600" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg mb-2 text-gray-900">
-                  Business Tool Integrations
+                  Configuración de Cuentas Personales
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Connect your essential business tools to streamline your lead
-                  qualification and management workflow. Sync data automatically
-                  and enhance productivity.
+                  Configura tus cuentas personales para que PipeWise pueda
+                  comunicarse con leads en tu nombre. Solo necesitamos
+                  información básica de identificación.
                 </p>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <IconCheck className="h-4 w-4 text-gray-600" />
-                    <span className="text-gray-600">Secure connections</span>
+                    <span className="text-gray-600">Configuración simple</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <IconCheck className="h-4 w-4 text-gray-600" />
-                    <span className="text-gray-600">Real-time sync</span>
+                    <span className="text-gray-600">Sin credenciales API</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <IconCheck className="h-4 w-4 text-gray-600" />
-                    <span className="text-gray-600">Easy setup</span>
+                    <span className="text-gray-600">Gestión automática</span>
                   </div>
                 </div>
               </div>
@@ -466,33 +479,33 @@ export function IntegrationsSettings() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {businessIntegrations.map(renderIntegrationCard)}
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+          {userAccounts.map(renderAccountCard)}
         </div>
       </div>
 
-      {/* Settings Section */}
+      {/* Automation Settings */}
       <Card className="border border-gray-200 bg-gray-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-gray-900">
             <IconSettings className="h-5 w-5" />
-            Integration Settings
+            Configuración de Automatización
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-gray-600 leading-relaxed">
-            Configure how your business tools sync data and interact with your
-            lead qualification system. All connections are secured with
-            enterprise-grade encryption.
+            Configura cómo el orchestrator debe manejar las comunicaciones
+            automáticas. El orchestrator utilizará el chat para comunicarse
+            contigo sobre objetivos y estrategias.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">
-                  Auto-sync data
+                  Comunicación automática
                 </Label>
                 <p className="text-xs text-gray-500">
-                  Automatically sync lead data from connected tools
+                  Permitir que el orchestrator inicie conversaciones
                 </p>
               </div>
               <Checkbox defaultChecked />
@@ -500,10 +513,32 @@ export function IntegrationsSettings() {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-700">
-                  Real-time notifications
+                  Respuestas inteligentes
                 </Label>
                 <p className="text-xs text-gray-500">
-                  Get notified when data syncs between tools
+                  Responder automáticamente a mensajes entrantes
+                </p>
+              </div>
+              <Checkbox defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium text-gray-700">
+                  Creación automática de leads
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Crear leads automáticamente desde conversaciones
+                </p>
+              </div>
+              <Checkbox defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium text-gray-700">
+                  Notificaciones de actividad
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Recibir notificaciones de comunicaciones importantes
                 </p>
               </div>
               <Checkbox defaultChecked />

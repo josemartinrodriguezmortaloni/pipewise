@@ -11,6 +11,7 @@ import {
   IconSettings,
   IconCircle,
   IconMail,
+  IconMessageCircle,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -38,6 +39,11 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: IconDashboard,
+    },
+    {
+      title: "Chat",
+      url: "/chat",
+      icon: IconMessageCircle,
     },
     {
       title: "Leads",

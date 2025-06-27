@@ -267,3 +267,85 @@ class MemoryManager:
         )
 
         return {"archived": archived_count, "cleared": cleared_count}
+
+
+class TestInMemoryStore(MemoryStore):
+    """
+    Simple in-memory implementation for testing purposes.
+
+    No TTL, no background tasks, just basic storage for tests.
+    """
+
+    def __init__(self) -> None:
+        """Initialize test memory store."""
+        self._memories: Dict[str, MemoryEntry] = {}
+        self._counter = 0
+
+    async def save(
+        self,
+        agent_id: str,
+        workflow_id: str,
+        content: Dict[str, Any],
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Save a memory entry."""
+        self._counter += 1
+        memory_id = f"test_memory_{self._counter}"
+
+        memory_entry = MemoryEntry(
+            id=memory_id,
+            agent_id=agent_id,
+            workflow_id=workflow_id,
+            content=content,
+            timestamp=datetime.now(),
+            tags=tags or [],
+            metadata=metadata or {},
+        )
+
+        self._memories[memory_id] = memory_entry
+        return memory_id
+
+    async def get(self, memory_id: str) -> Optional[MemoryEntry]:
+        """Retrieve a specific memory entry."""
+        return self._memories.get(memory_id)
+
+    async def get_by_agent(
+        self, agent_id: str, workflow_id: Optional[str] = None, limit: int = 100
+    ) -> List[MemoryEntry]:
+        """Get memories for a specific agent."""
+        memories = [
+            memory
+            for memory in self._memories.values()
+            if memory.agent_id == agent_id
+            and (workflow_id is None or memory.workflow_id == workflow_id)
+        ]
+        return memories[:limit]
+
+    async def get_by_workflow(self, workflow_id: str) -> List[MemoryEntry]:
+        """Get all memories for a workflow."""
+        return [
+            memory
+            for memory in self._memories.values()
+            if memory.workflow_id == workflow_id
+        ]
+
+    async def delete(self, memory_id: str) -> bool:
+        """Delete a memory entry."""
+        if memory_id in self._memories:
+            del self._memories[memory_id]
+            return True
+        return False
+
+    async def clear_workflow(self, workflow_id: str) -> int:
+        """Clear all memories for a workflow."""
+        to_delete = [
+            memory_id
+            for memory_id, memory in self._memories.items()
+            if memory.workflow_id == workflow_id
+        ]
+
+        for memory_id in to_delete:
+            del self._memories[memory_id]
+
+        return len(to_delete)

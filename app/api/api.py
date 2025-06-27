@@ -3,7 +3,7 @@ from typing import List, Optional
 import logging
 from datetime import datetime
 
-from app.agents.agent import Agents
+from app.agents.agents import ModernAgents as Agents
 from app.auth.middleware import get_current_user
 from app.models.user import User
 from app.supabase.supabase_client import SupabaseCRMClient
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Crear router para CRM
-router = APIRouter(prefix="/api", tags=["CRM"])
+router = APIRouter(prefix="/api/v1", tags=["CRM"])
 
 # Inicializar cliente de CRM
 crm_client = SupabaseCRMClient()
@@ -123,7 +123,7 @@ async def get_leads(
         )
 
 
-@router.post("/leads")
+@router.post("/leads", status_code=status.HTTP_201_CREATED)
 async def create_lead(lead_data: dict):
     """Crear nuevo lead - endpoint existente mantenido"""
     agents = Agents()

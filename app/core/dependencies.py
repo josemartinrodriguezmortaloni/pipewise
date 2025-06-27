@@ -210,9 +210,11 @@ def require_feature(feature: str):
 
 
 @lru_cache()
-def get_redis_client():
-    """Get Redis client for rate limiting - temporarily returns None"""
-    return None
+def get_supabase_auth_client():
+    """Get Supabase auth client"""
+    from app.auth.supabase_auth_client import SupabaseAuthClient
+
+    return SupabaseAuthClient()
 
 
 async def check_rate_limit(

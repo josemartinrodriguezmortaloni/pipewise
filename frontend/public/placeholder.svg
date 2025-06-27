@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800" fill="none">
+  <defs>
+    <!-- Clean gradient background -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Subtle overlay gradients -->
+    <linearGradient id="overlay1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.05" />
+    </linearGradient>
+    
+    <linearGradient id="overlay2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1d4ed8;stop-opacity:0.08" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0.03" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="600" height="800" fill="url(#bg)"/>
+  
+  <!-- Subtle overlays for depth -->
+  <rect width="600" height="400" fill="url(#overlay1)"/>
+  <rect y="400" width="600" height="400" fill="url(#overlay2)"/>
+  
+  <!-- Minimal geometric elements -->
+  <circle cx="520" cy="120" r="60" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle cx="80" cy="680" r="40" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  
+  <!-- Simple grid pattern (very subtle) -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="800" fill="url(#grid)"/>
+  
+  <!-- Centered content area suggestion -->
+  <rect x="150" y="200" width="300" height="400" rx="20" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+</svg> 

@@ -109,7 +109,7 @@ export function DataTable({
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <p className="text-red-500 mb-4">{error.message}</p>
+            <p className="text-red-500 mb-4">{error}</p>
             <Button variant="outline" onClick={() => refetch()}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Retry

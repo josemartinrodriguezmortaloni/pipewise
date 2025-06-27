@@ -1,6 +1,6 @@
 # app/schemas/auth_schema.py
-from pydantic import BaseModel, EmailStr, Field, validator
-from typing import Optional, Dict, Any
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 from enum import Enum
 
@@ -35,8 +35,9 @@ class UserRegisterRequest(BaseModel):
     phone: Optional[str] = Field(None, max_length=20)
     role: UserRole = UserRole.USER
 
-    @validator("password")
-    def validate_password(cls, v):
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         """Validar complejidad de contraseña"""
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")
@@ -182,8 +183,7 @@ class UserProfile(BaseModel):
     created_at: datetime
     last_login: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdateRequest(BaseModel):
@@ -200,8 +200,9 @@ class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=8, max_length=100)
 
-    @validator("new_password")
-    def validate_new_password(cls, v):
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
         """Validar complejidad de nueva contraseña"""
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")
@@ -229,8 +230,9 @@ class PasswordResetConfirm(BaseModel):
     token: str
     new_password: str = Field(..., min_length=8, max_length=100)
 
-    @validator("new_password")
-    def validate_password(cls, v):
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         """Validar nueva contraseña"""
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")

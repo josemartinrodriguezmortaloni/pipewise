@@ -9,10 +9,11 @@ All endpoints return mock data and will be reimplemented with Supabase client.
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, HTTPException
+from fastapi.responses import JSONResponse
 
 from app.core.dependencies import get_current_tenant, get_current_user
 from app.models.tenant import Tenant
