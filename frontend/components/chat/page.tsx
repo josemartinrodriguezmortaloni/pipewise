@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "ai/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PromptBox } from "@/components/ui/prompt-box";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import {
   ChatBubble,
   ChatBubbleAvatar,
@@ -15,8 +16,18 @@ import { TextShimmer } from "@/components/ui/text-shimmer";
 import { AgentPlan } from "@/components/ui/agent-plan";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Copy, RefreshCcw, User, Bot, AlertTriangle } from "lucide-react";
+import {
+  Copy,
+  RefreshCcw,
+  User,
+  Bot,
+  AlertTriangle,
+  StopCircle,
+} from "lucide-react";
+import { SendIcon, MicIcon, PlusIcon } from "@/components/ui/prompt-box-icons";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { PromptBox } from "@/components/ui/prompt-box";
 
 interface AgentWorkflowData {
   workflowId: string;
@@ -32,9 +43,8 @@ export default function ChatPageClient() {
     null
   );
   const [hasMessages, setHasMessages] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showPlan, setShowPlan] = useState(false);
-  const [workflow, setWorkflow] = useState<AgentWorkflowData | null>(null);
 
   const {
     messages,
@@ -43,22 +53,30 @@ export default function ChatPageClient() {
     handleSubmit,
     isLoading,
     error,
-    data,
+    stop,
+    reload,
     setInput,
+    setMessages,
   } = useChat({
     api: "/api/chat",
     initialMessages: [],
+    keepLastMessageOnError: true, // Recommended by AI SDK
     onResponse: (response) => {
       console.log("Chat response received:", response);
+      if (response.ok) {
+        setHasMessages(true);
+      }
     },
     onFinish: (message) => {
       console.log("Chat message finished:", message);
       setHasMessages(true);
+      setIsRetrying(false);
 
       // Check if message contains tool calls to show workflow
       if (
         message.content?.includes("agent") ||
-        message.content?.includes("workflow")
+        message.content?.includes("workflow") ||
+        message.content?.includes("tool")
       ) {
         setShowWorkflow(true);
         setWorkflowData({
@@ -71,6 +89,10 @@ export default function ChatPageClient() {
     },
     onError: (err) => {
       console.error("Chat error:", err);
+      setIsRetrying(false);
+      toast.error(
+        "Hubo un error al procesar tu mensaje. Por favor intenta de nuevo."
+      );
     },
   });
 
@@ -79,23 +101,78 @@ export default function ChatPageClient() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Custom submit handler for PromptBox
+  // Enhanced submit handler with better error handling
   const handlePromptSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submit triggered with input:", input);
+
     if (input.trim()) {
-      handleSubmit(e);
       setHasMessages(true);
+      setIsRetrying(false);
+
+      try {
+        handleSubmit(e);
+      } catch (error) {
+        console.error("Submit error:", error);
+        toast.error("Error al enviar el mensaje");
+      }
     }
   };
 
+  // Handle Enter key to submit
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (input.trim() && !isLoading) {
+        setHasMessages(true);
+        try {
+          handleSubmit(e as any);
+        } catch (error) {
+          console.error("Submit error:", error);
+          toast.error("Error al enviar el mensaje");
+        }
+      }
+    }
+  };
+
+  // Retry function for failed messages
+  const handleRetry = () => {
+    setIsRetrying(true);
+    try {
+      reload();
+    } catch (error) {
+      console.error("Retry error:", error);
+      setIsRetrying(false);
+      toast.error("Error al reintentar");
+    }
+  };
+
+  // Stop generation
+  const handleStop = () => {
+    stop();
+    toast.info("Generación detenida");
+  };
+
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.success("Copiado al portapapeles");
+      })
+      .catch(() => {
+        toast.error("Error al copiar");
+      });
   };
 
   const regenerateMessage = (messageIndex: number) => {
-    // Logic to regenerate a specific message
-    console.log("Regenerating message at index:", messageIndex);
+    // Remove last assistant message and retry
+    const newMessages = messages.slice(0, messageIndex);
+    setMessages(newMessages);
+    handleRetry();
   };
+
+  const isInputEmpty = !input.trim();
+  const showError = error && !isLoading && !isRetrying;
 
   return (
     <div className="flex h-screen bg-background">
@@ -146,7 +223,9 @@ export default function ChatPageClient() {
                     <PromptBox
                       value={input}
                       onChange={handleInputChange}
-                      placeholder="Message..."
+                      onKeyDown={handleKeyDown}
+                      placeholder="Escribe tu mensaje aquí..."
+                      disabled={isLoading}
                     />
                   </form>
                 </motion.div>
@@ -184,7 +263,7 @@ export default function ChatPageClient() {
                               message.role === "user" ? "sent" : "received"
                             }
                           >
-                            {message.content}
+                            {message.content || "..."}
                           </ChatBubbleMessage>
 
                           {/* Agent response actions */}
@@ -217,10 +296,19 @@ export default function ChatPageClient() {
                       <ChatBubbleAvatar fallback="AI" />
                       <div className="flex-1">
                         <ChatBubbleMessage isLoading />
-                        <div className="mt-2">
+                        <div className="mt-2 flex items-center gap-2">
                           <TextShimmer className="text-sm text-muted-foreground">
                             Procesando tu solicitud...
                           </TextShimmer>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleStop}
+                            className="h-6"
+                          >
+                            <StopCircle className="h-3 w-3 mr-1" />
+                            Detener
+                          </Button>
                         </div>
                       </div>
                     </ChatBubble>
@@ -233,14 +321,32 @@ export default function ChatPageClient() {
           )}
 
           {/* Error Display */}
-          {error && (
-            <div className="absolute bottom-20 left-4 right-4">
+          {showError && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute bottom-20 left-4 right-4"
+            >
               <Card className="p-4 border-destructive bg-destructive/10">
-                <p className="text-destructive text-sm">
-                  Error: {error.message}
-                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <p className="text-destructive text-sm">
+                      Error: {error.message}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    disabled={isRetrying}
+                    className="ml-2"
+                  >
+                    {isRetrying ? "Reintentando..." : "Reintentar"}
+                  </Button>
+                </div>
               </Card>
-            </div>
+            </motion.div>
           )}
         </div>
 
@@ -257,7 +363,9 @@ export default function ChatPageClient() {
                 <PromptBox
                   value={input}
                   onChange={handleInputChange}
-                  placeholder="Message..."
+                  onKeyDown={handleKeyDown}
+                  placeholder="Escribe tu mensaje aquí..."
+                  disabled={isLoading}
                 />
               </form>
             </div>
@@ -295,25 +403,6 @@ export default function ChatPageClient() {
 
             <div className="flex-1 overflow-hidden">
               <AgentPlan />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 w-auto max-w-lg"
-          >
-            <div className="bg-destructive/10 border border-destructive/30 text-destructive p-4 rounded-lg flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5" />
-              <div className="text-sm">
-                <p className="font-bold">An error occurred</p>
-                <p>{error.message}</p>
-              </div>
             </div>
           </motion.div>
         )}
