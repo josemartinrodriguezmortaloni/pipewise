@@ -5,14 +5,6 @@ const nextConfig: NextConfig = {
   experimental: {
     // Only include stable experimental features
     optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
   },
 
   // Turbopack is now stable in Next.js 15, but configuration is via CLI only
@@ -30,12 +22,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/api/:path*",
-        destination: "http://localhost:8001/api/api/:path*", // Backend auth routes
-      },
-      {
-        source: "/api/:path*",
-        destination: "http://localhost:8001/api/:path*", // Fallback for other API routes
+        source: "/api/v1/:path*",
+        destination: "http://localhost:8001/api/:path*", // Proxy to FastAPI backend
       },
     ];
   },
@@ -91,42 +79,6 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
   generateEtags: true,
 
-  // Modern webpack configuration
-  webpack: (config, { isServer, webpack }) => {
-    // Optimize bundle splitting
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-
-    // Optimize chunk splitting
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: "all",
-        cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendors",
-            priority: -10,
-            chunks: "all",
-          },
-        },
-      },
-    };
-
-    return config;
-  },
-
   // Enable compression
   compress: true,
 
@@ -140,6 +92,14 @@ const nextConfig: NextConfig = {
   eslint: {
     // Disable ESLint during builds temporarily
     ignoreDuringBuilds: true,
+  },
+
+  // Suppress the 'self is not defined' warnings during build
+  onDemandEntries: {
+    // Keep pages in memory for 60 seconds
+    maxInactiveAge: 60 * 1000,
+    // Number of pages that should be kept simultaneously
+    pagesBufferLength: 5,
   },
 };
 

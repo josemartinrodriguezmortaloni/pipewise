@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { tokenStorage } from "@/lib/auth";
+import { useAuth } from "./use-auth";
 
 interface UseApiOptions<T> {
   onSuccess?: (data: T) => void;
@@ -17,6 +18,7 @@ export function useApi<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { token, logout } = useAuth();
 
   const handlersRef = useRef(handlers);
 
@@ -26,8 +28,11 @@ export function useApi<T>(
 
   const execute = useCallback(
     async (dynamicEndpoint?: string, body?: any) => {
+      setLoading(true);
+      setError(null);
+
       const finalEndpoint = dynamicEndpoint || endpoint;
-      const token = tokenStorage.getAccessToken();
+      const apiUrl = `/api/v1${finalEndpoint}`;
 
       if (!token) {
         const err = new Error("No access token found. Please log in.");
@@ -37,16 +42,13 @@ export function useApi<T>(
         return;
       }
 
-      setLoading(true);
-      setError(null);
-
       try {
-        const response = await fetch(`/api${finalEndpoint}`, {
+        const response = await fetch(apiUrl, {
           ...options,
           headers: {
-            ...options.headers,
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            ...options.headers,
           },
           body: body ? JSON.stringify(body) : undefined,
         });
@@ -75,7 +77,7 @@ export function useApi<T>(
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [endpoint, JSON.stringify(options)]
+    [endpoint, JSON.stringify(options), token]
   );
 
   return { data, loading, error, execute };

@@ -466,8 +466,16 @@ export default function ContactedPage() {
       <AppSidebar />
       <SidebarInset className="m-0 rounded-none shadow-none">
         <div className="flex flex-1 flex-col h-screen overflow-hidden">
-          <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 bg-background px-4">
+          <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
             <SidebarTrigger />
+            <nav
+              aria-label="Contacted navigation"
+              className="flex items-center gap-2"
+            >
+              <span className="text-sm font-medium text-muted-foreground">
+                Contacted
+              </span>
+            </nav>
           </header>
           <main className="flex-1 overflow-y-auto">
             <ContactedPageContent />

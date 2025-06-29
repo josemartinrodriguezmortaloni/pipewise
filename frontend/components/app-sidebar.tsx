@@ -6,13 +6,15 @@ import {
   IconCalendar,
   IconDashboard,
   IconHelp,
-  IconListDetails,
   IconSearch,
   IconSettings,
   IconCircle,
   IconMail,
+  IconLayoutKanban,
   IconMessageCircle,
+  IconSend,
 } from "@tabler/icons-react";
+import { LayoutTemplate, MessageSquare, Send } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -48,12 +50,12 @@ const data = {
     {
       title: "Leads",
       url: "/leads",
-      icon: IconListDetails,
+      icon: IconLayoutKanban,
     },
     {
       title: "Contacted",
       url: "/contacted",
-      icon: IconMail,
+      icon: IconSend,
     },
     {
       title: "Calendar",

@@ -1,8 +1,9 @@
+import ChatPageClient from "@/components/chat/page";
+
+// Disable static generation for this page
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function ChatPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Chat</h1>
-      <p className="text-muted-foreground">Página de chat en desarrollo</p>
-    </div>
-  );
+  return <ChatPageClient />;
 }

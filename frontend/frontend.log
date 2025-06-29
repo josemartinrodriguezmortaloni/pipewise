@@ -1,5 +1,0 @@
-
-> frontend@0.1.0 dev
-> next dev -p 3000 --turbopack 3001
-
-Invalid project directory provided, no such directory: D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\frontend\3001
