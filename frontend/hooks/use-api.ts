@@ -18,7 +18,7 @@ export function useApi<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handlersRef = useRef(handlers);
 
@@ -33,6 +33,8 @@ export function useApi<T>(
 
       const finalEndpoint = dynamicEndpoint || endpoint;
       const apiUrl = `/api/v1${finalEndpoint}`;
+
+      const token = tokenStorage.getAccessToken();
 
       if (!token) {
         const err = new Error("No access token found. Please log in.");
@@ -77,7 +79,7 @@ export function useApi<T>(
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [endpoint, JSON.stringify(options), token]
+    [endpoint, JSON.stringify(options)]
   );
 
   return { data, loading, error, execute };

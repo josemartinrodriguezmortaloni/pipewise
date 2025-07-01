@@ -770,12 +770,9 @@ async def lifespan(app: FastAPI):
 # ===================== CREAR APLICACIÓN =====================
 
 app = FastAPI(
-    title="PipeWise CRM with Supabase",
-    description="Sistema completo de CRM con autenticación Supabase y Google Authenticator",
-    version="3.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    lifespan=lifespan,
+    title="PipeWise Main Server",
+    description="Main server hosting the CRM API and other services",
+    version="2.0.0",
 )
 
 # ===================== CONFIGURACIÓN DE CORS =====================
@@ -792,9 +789,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Total-Count", "X-Rate-Limit-Remaining"],
 )
 
 # ===================== MIDDLEWARE =====================
@@ -855,27 +851,8 @@ async def value_error_handler(request: Request, exc: ValueError):
 
 
 @app.get("/")
-async def root():
-    """Ruta principal"""
-    return {
-        "message": "PipeWise CRM API with Supabase",
-        "version": "3.0.0",
-        "status": "running",
-        "timestamp": datetime.now().isoformat(),
-        "docs": "/docs",
-        "features": ["Supabase Auth", "Google Authenticator", "2FA"],
-    }
-
-
-@app.get("/health")
-async def health_check():
-    """Verifica el estado del servidor y la conexión a Supabase."""
-    return {"status": "ok", "message": "PipeWise server is running"}
-
-
-@app.get("/api/test-reload")
-async def test_reload():
-    return {"message": "Server has been reloaded successfully!"}
+def read_root():
+    return {"message": "PipeWise server is running"}
 
 
 # ===================== RUTAS DE AUTENTICACIÓN =====================
@@ -1579,6 +1556,17 @@ except ImportError as e:
     app.include_router(integrations_router)
 
 app.include_router(contacts_router)
+
+# FIXED: Include user configuration router for integration account management
+try:
+    from app.api.user_config_router import router as user_config_router
+
+    app.include_router(
+        user_config_router, prefix="/api/user", tags=["User Configuration"]
+    )
+    logger.info("User configuration router loaded successfully")
+except ImportError as e:
+    logger.warning(f"Could not load user configuration router: {e}")
 
 # ===================== RUTAS PARA DESARROLLO =====================
 
