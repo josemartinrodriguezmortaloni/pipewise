@@ -1555,6 +1555,15 @@ except ImportError as e:
     # Fallback to basic integrations
     app.include_router(integrations_router)
 
+# FIXED: Include OAuth router for OAuth integrations
+try:
+    from app.api.oauth_router import router as oauth_router
+
+    app.include_router(oauth_router)
+    logger.info("OAuth router loaded successfully")
+except ImportError as e:
+    logger.warning(f"Could not load OAuth router: {e}")
+
 app.include_router(contacts_router)
 
 # FIXED: Include user configuration router for integration account management
@@ -1629,7 +1638,7 @@ def main():
 
     # Configuración del servidor
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("BACEND_PORT", "8001"))
+    port = int(os.getenv("BACKEND_PORT", "8001"))
     is_dev = os.getenv("ENV") == "development"
 
     # Permitir recarga solo si BACKEND_RELOAD=true (por defecto desactivado para ver logs limpios)

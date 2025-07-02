@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 // Hybrid approach: Supabase for Auth (Google OAuth), Backend API for data
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 if (!supabaseUrl) {
   throw new Error("NEXT_PUBLIC_SUPABASE_URL environment variable is required");
