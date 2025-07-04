@@ -42,6 +42,10 @@ class SupabaseCRMClient:
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
         logger.info("Supabase CRM Client initialized")
 
+    def table(self, table_name: str):
+        """Direct access to table operations for compatibility with oauth_handler"""
+        return self.client.table(table_name)
+
     def _get_current_timestamp(self) -> str:
         """Obtener timestamp actual en formato ISO"""
         return datetime.now(timezone.utc).isoformat()
@@ -837,3 +841,16 @@ def serialize_for_json(obj: Any) -> Any:
 def get_supabase_client() -> SupabaseCRMClient:
     """Get a Supabase CRM client instance."""
     return SupabaseCRMClient()
+
+
+def get_supabase_admin_client() -> SupabaseCRMClient:
+    """Get a Supabase CRM client instance with admin privileges (bypasses RLS)."""
+    # Use service role key instead of anon key for admin operations
+    supabase_url = os.getenv("SUPABASE_URL")
+    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+    if not service_role_key:
+        logger.warning("SUPABASE_SERVICE_ROLE_KEY not found, falling back to anon key")
+        service_role_key = os.getenv("SUPABASE_ANON_KEY")
+
+    return SupabaseCRMClient(supabase_url=supabase_url, supabase_key=service_role_key)

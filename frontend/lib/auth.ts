@@ -158,19 +158,35 @@ export async function login(
   return data;
 }
 
-// Función de login con Google
+// Función de login con Google - Implementación completa y mejorada
 export async function loginWithGoogle(): Promise<void> {
-  const { supabase } = await import("@/lib/supabase");
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
-  });
+  try {
+    const { supabase } = await import("@/lib/supabase");
 
-  if (error) {
-    console.error("Google sign-in error:", error);
-    throw new Error(error.message || "Failed to initiate Google sign-in");
+    // Configurar las opciones de OAuth
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    if (error) {
+      console.error("Google OAuth initiation error:", error);
+      throw new Error(error.message || "Failed to initiate Google sign-in");
+    }
+
+    console.log("Google OAuth initiated successfully");
+
+    // No necesitamos hacer nada más aquí ya que Supabase redirige automáticamente
+    // El resto del flujo se maneja en el onAuthStateChange listener
+  } catch (error) {
+    console.error("Google login error:", error);
+    throw error;
   }
 }
 

@@ -26,7 +26,18 @@ from app.agents.agents import (
     create_all_mcp_servers,
     create_twitter_mcp_server,
 )
-from app.agents.tools.twitter import TwitterMCPServer
+
+# from app.agents.tools.twitter import TwitterMCPServer  # TEMPORARILY DISABLED - Use MCP instead
+
+
+# Temporary mock TwitterMCPServer
+class TwitterMCPServer:
+    """Temporary mock for TwitterMCPServer"""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+
 from app.agents.memory import MemoryManager, InMemoryStore, SupabaseMemoryStore
 from app.supabase.supabase_client import SupabaseCRMClient
 

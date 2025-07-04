@@ -50,7 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth event:", event);
+        console.log("Auth event:", event, {
+          hasSession: !!session,
+          hasUser: !!session?.user,
+          provider: session?.user?.app_metadata?.provider,
+        });
+
         if (event === "SIGNED_OUT") {
           setUser(null);
           tokenStorage.clearTokens();
@@ -60,30 +65,102 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           event === "TOKEN_REFRESHED" ||
           event === "INITIAL_SESSION"
         ) {
-          if (session?.user) {
-            // guardar tokens primero para que validateToken los use
-            if (session.access_token && session.refresh_token)
-              tokenStorage.setTokens(
-                session.access_token,
-                session.refresh_token
-              );
-
-            let validatedUser = null;
+          if (session?.user && session.access_token) {
             try {
-              validatedUser = await validateToken();
-            } catch {
-              /* ignore */
-            }
+              // For OAuth providers (Google), sync with backend
+              const isOAuthProvider =
+                session.user.app_metadata?.provider !== "email";
 
-            if (validatedUser) {
-              setUser(validatedUser);
-            } else {
-              // fallback: construir perfil básico desde session
+              if (isOAuthProvider) {
+                console.log("OAuth login detected, syncing with backend...");
+
+                // Sync with backend using the supabase-sync endpoint
+                const { syncAuthWithBackend } = await import("@/lib/supabase");
+                const backendAuth = await syncAuthWithBackend(session);
+
+                if (backendAuth?.user) {
+                  setUser(backendAuth.user);
+                  console.log("✅ OAuth user synchronized with backend");
+                } else {
+                  console.warn(
+                    "⚠️ Backend sync failed, using fallback user profile"
+                  );
+                  // Fallback to basic user profile from Supabase
+                  setUser({
+                    id: session.user.id,
+                    email: session.user.email ?? "",
+                    full_name:
+                      (session.user.user_metadata?.full_name as string) ||
+                      (session.user.user_metadata?.name as string) ||
+                      session.user.email?.split("@")[0] ||
+                      "Usuario",
+                    company: session.user.user_metadata?.company as
+                      | string
+                      | undefined,
+                    phone: session.user.user_metadata?.phone as
+                      | string
+                      | undefined,
+                    role: "user",
+                    is_active: true,
+                    email_confirmed: true,
+                    has_2fa: false,
+                    created_at:
+                      session.user.created_at ?? new Date().toISOString(),
+                    last_login: new Date().toISOString(),
+                  } as any);
+                }
+              } else {
+                // For email/password auth, try to validate with backend
+                if (session.access_token && session.refresh_token) {
+                  tokenStorage.setTokens(
+                    session.access_token,
+                    session.refresh_token
+                  );
+                }
+
+                let validatedUser = null;
+                try {
+                  validatedUser = await validateToken();
+                } catch (error) {
+                  console.warn("Backend token validation failed:", error);
+                }
+
+                if (validatedUser) {
+                  setUser(validatedUser);
+                } else {
+                  // Fallback for email auth
+                  setUser({
+                    id: session.user.id,
+                    email: session.user.email ?? "",
+                    full_name:
+                      (session.user.user_metadata?.full_name as string) ||
+                      session.user.email?.split("@")[0] ||
+                      "Usuario",
+                    company: session.user.user_metadata?.company as
+                      | string
+                      | undefined,
+                    phone: session.user.user_metadata?.phone as
+                      | string
+                      | undefined,
+                    role: "user",
+                    is_active: true,
+                    email_confirmed: true,
+                    has_2fa: false,
+                    created_at:
+                      session.user.created_at ?? new Date().toISOString(),
+                    last_login: new Date().toISOString(),
+                  } as any);
+                }
+              }
+            } catch (error) {
+              console.error("Error processing auth session:", error);
+              // Even if backend sync fails, we can still set a basic user profile
               setUser({
                 id: session.user.id,
                 email: session.user.email ?? "",
                 full_name:
                   (session.user.user_metadata?.full_name as string) ||
+                  (session.user.user_metadata?.name as string) ||
                   session.user.email?.split("@")[0] ||
                   "Usuario",
                 company: session.user.user_metadata?.company as

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 // Hybrid approach: Supabase for Auth (Google OAuth), Backend API for data
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 if (!supabaseUrl) {
   throw new Error("NEXT_PUBLIC_SUPABASE_URL environment variable is required");
@@ -125,18 +125,23 @@ class APIClient {
 // Enhanced API client that syncs with Supabase auth
 export const apiClient = new APIClient();
 
-// Sync Supabase session with our backend
+// Enhanced sync function for Supabase auth with backend
 export async function syncAuthWithBackend(
   supabaseSession: {
     access_token?: string;
-    user?: unknown;
+    user?: any;
   } | null
 ) {
-  if (!supabaseSession?.access_token) return null;
+  if (!supabaseSession?.access_token || !supabaseSession?.user) {
+    console.warn("No valid Supabase session provided for sync");
+    return null;
+  }
 
   try {
+    console.log("🔄 Syncing Supabase auth with backend...");
+
     // Send Supabase token to our backend for verification and user sync
-    const response = await fetch(`${API_BASE_URL}/api/api/auth/supabase-sync`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/supabase-sync`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,20 +156,34 @@ export async function syncAuthWithBackend(
 
     if (response.ok) {
       const backendAuth = await response.json();
+      console.log("✅ Backend sync successful:", {
+        hasAccessToken: !!backendAuth.access_token,
+        hasUser: !!backendAuth.user,
+        userEmail: backendAuth.user?.email,
+      });
 
-      // Store our backend token
-      if (typeof window !== "undefined") {
+      // Store our backend token for API calls
+      if (typeof window !== "undefined" && backendAuth.access_token) {
         localStorage.setItem("auth_token", backendAuth.access_token);
-        localStorage.setItem("user_data", JSON.stringify(backendAuth.user));
+        if (backendAuth.user) {
+          localStorage.setItem("user_data", JSON.stringify(backendAuth.user));
+        }
       }
 
       return backendAuth;
+    } else {
+      const errorText = await response.text();
+      console.error("❌ Backend sync failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      return null;
     }
   } catch (error) {
-    console.error("Failed to sync auth with backend:", error);
+    console.error("❌ Failed to sync auth with backend:", error);
+    return null;
   }
-
-  return null;
 }
 
 // Helper function to handle Google OAuth
@@ -172,7 +191,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: `${window.location.origin}/dashboard`,
     },
   });
 

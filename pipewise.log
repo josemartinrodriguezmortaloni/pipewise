@@ -24244,3 +24244,1525 @@ fastapi.exceptions.HTTPException: 401: Invalid or expired token
 2025-07-01 15:02:25,146 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
 2025-07-01 15:02:25,146 - app.api.user_config_router - INFO - Retrieved 2 accounts for user mock_user_id
 2025-07-01 15:02:25,146 - server - INFO - Response: 200 in 0.0000s
+2025-07-03 23:13:26,262 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-03 23:13:26,592 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-03 23:13:26,802 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-03 23:13:26,815 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-03 23:13:28,113 - __main__ - INFO - User configuration router loaded successfully
+2025-07-03 23:13:28,113 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-03 23:13:28,113 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-03 23:13:28,113 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-03 23:13:28,113 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-03 23:13:28,113 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-03 23:13:28,592 - server - INFO - Full integrations module loaded successfully
+2025-07-03 23:13:28,597 - server - INFO - User configuration router loaded successfully
+2025-07-03 23:50:30,892 - __main__ - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-03 23:50:35,094 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-03 23:50:35,095 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-03 23:50:35,096 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-03 23:50:35,096 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-03 23:50:35,096 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-03 23:50:35,096 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-03 23:50:35,931 - server - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-03 23:50:35,936 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:02:16,503 - server - INFO - Request: GET /api/auth/health from 127.0.0.1
+2025-07-04 00:02:16,504 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 00:02:16,760 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:02:16,761 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 00:04:44,522 - server - INFO - Request: GET /api/auth/health from 127.0.0.1
+2025-07-04 00:04:44,522 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:04:44,787 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:04:44,787 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:04:53,103 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:04:53,104 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 00:05:02,267 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:05:02,268 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 00:05:11,713 - __main__ - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:05:12,583 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:05:12,584 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:05:12,584 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:05:12,584 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:05:12,584 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:05:12,584 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:05:13,047 - server - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:05:13,050 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:05:43,272 - server - INFO - Request: GET /api/auth/health from 127.0.0.1
+2025-07-04 00:05:43,273 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:05:43,534 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:05:43,556 - server - INFO - 🔄 Supabase sync request from 127.0.0.1
+2025-07-04 00:05:43,556 - server - INFO - 📋 Auth data keys: ['user', 'provider_token']
+2025-07-04 00:05:43,557 - server - INFO - 👤 Processing user: test@example.com (ID: test-use...)
+2025-07-04 00:05:44,726 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.test-user-id "HTTP/2 500 Internal Server Error"
+2025-07-04 00:05:44,741 - server - ERROR - ❌ Database error: {'message': 'infinite recursion detected in policy for relation "users"', 'code': '42P17', 'hint': None, 'details': None}
+2025-07-04 00:05:44,742 - server - INFO - Response: 500 in 1.2085s
+2025-07-04 00:08:49,780 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:08:49,781 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 00:08:50,047 - server - INFO - Request: POST /auth/supabase-sync from 127.0.0.1
+2025-07-04 00:08:50,047 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:10:59,978 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:10:59,978 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 00:11:00,240 - server - INFO - Request: POST /auth/supabase-sync from 127.0.0.1
+2025-07-04 00:11:00,240 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:11:15,495 - __main__ - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:11:16,464 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:11:16,464 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:11:16,464 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:11:16,465 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:11:16,465 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:11:16,465 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:11:17,033 - server - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:11:17,035 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:11:17,280 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:11:17,281 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 00:11:17,544 - server - INFO - Request: POST /auth/supabase-sync from 127.0.0.1
+2025-07-04 00:11:17,545 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:11:25,622 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:11:25,622 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 00:11:35,836 - __main__ - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:11:36,719 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:11:36,720 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:11:36,720 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:11:36,720 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:11:36,720 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:11:36,720 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:11:37,248 - server - WARNING - Could not load full integrations module: No module named 'app.agents.tools.calendly'
+2025-07-04 00:11:37,251 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:12:43,707 - server - INFO - Request: GET /docs from 127.0.0.1
+2025-07-04 00:12:43,707 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 00:12:51,293 - server - INFO - Request: GET /openapi.json from 127.0.0.1
+2025-07-04 00:12:51,350 - server - INFO - Response: 200 in 0.0568s
+2025-07-04 00:14:01,014 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:14:01,016 - server - INFO - Response: 200 in 0.0020s
+2025-07-04 00:14:01,281 - server - INFO - Request: POST /auth/supabase-sync from 127.0.0.1
+2025-07-04 00:14:01,281 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 00:15:38,497 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:15:38,497 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 00:15:38,761 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:15:38,762 - server - INFO - 🔄 Supabase sync request from 127.0.0.1
+2025-07-04 00:15:38,762 - server - INFO - 📋 Auth data keys: ['user', 'provider_token']
+2025-07-04 00:15:38,762 - server - INFO - 👤 Processing user: test@pipewise.com (ID: test-use...)
+2025-07-04 00:15:39,552 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.test-user-12345 "HTTP/2 400 Bad Request"
+2025-07-04 00:15:39,553 - server - ERROR - ❌ Database error: {'message': 'invalid input syntax for type uuid: "test-user-12345"', 'code': '22P02', 'hint': None, 'details': None}
+2025-07-04 00:15:39,553 - server - INFO - Response: 500 in 0.7917s
+2025-07-04 00:23:29,036 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 00:23:29,310 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:23:29,510 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:23:29,519 - server - INFO - Full integrations module loaded successfully
+2025-07-04 00:23:30,308 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:25:12,782 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 00:25:13,090 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:25:13,315 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:25:13,326 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 00:25:14,427 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:25:14,428 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:25:14,428 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:25:14,428 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:25:14,428 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:25:14,428 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:25:14,900 - server - INFO - Full integrations module loaded successfully
+2025-07-04 00:25:14,958 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:36:26,103 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:36:26,104 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 00:36:26,365 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:36:26,366 - server - INFO - 🔄 Supabase sync request from 127.0.0.1
+2025-07-04 00:36:26,366 - server - INFO - 📋 Auth data keys: ['user', 'provider_token']
+2025-07-04 00:36:26,366 - server - INFO - 👤 Processing user: test@example.com (ID: google_u...)
+2025-07-04 00:36:27,698 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.google_user_12345 "HTTP/2 400 Bad Request"
+2025-07-04 00:36:27,700 - server - ERROR - ❌ Database error: {'message': 'invalid input syntax for type uuid: "google_user_12345"', 'code': '22P02', 'hint': None, 'details': None}
+2025-07-04 00:36:27,700 - server - INFO - Response: 500 in 1.3347s
+2025-07-04 00:47:14,257 - server - INFO - Request: GET / from 127.0.0.1
+2025-07-04 00:47:14,259 - server - INFO - Response: 200 in 0.0015s
+2025-07-04 00:47:16,669 - server - INFO - Request: POST /api/auth/supabase-sync from 127.0.0.1
+2025-07-04 00:47:16,669 - server - INFO - 🔄 Supabase sync request from 127.0.0.1
+2025-07-04 00:47:16,670 - server - INFO - 📋 Auth data keys: ['test']
+2025-07-04 00:47:16,670 - server - WARNING - ❌ Missing user data or provider token
+2025-07-04 00:47:16,670 - server - INFO - Response: 400 in 0.0012s
+2025-07-04 00:53:42,353 - __main__ - WARNING - Could not load full integrations module: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:42,392 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 00:53:42,392 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 00:53:42,392 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 00:53:42,392 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 00:53:42,392 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 00:53:42,393 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 00:53:42,393 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 00:53:42,393 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 00:53:42,393 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:53:42,902 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:53:43,355 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:53:44,378 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:53:44,408 - __main__ - WARNING - Could not load MCP configuration router: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:44,409 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:53:44,409 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:53:44,409 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:53:44,410 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:53:44,410 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:53:45,885 - server - WARNING - Could not load full integrations module: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:45,888 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:53:45,901 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:53:45,904 - server - WARNING - Could not load MCP configuration router: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:57,964 - __main__ - WARNING - Could not load full integrations module: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 00:53:57,969 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 00:53:57,970 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:53:58,438 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:53:58,885 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:53:59,688 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:53:59,691 - __main__ - WARNING - Could not load MCP configuration router: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:53:59,691 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:53:59,691 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:53:59,691 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:53:59,691 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:53:59,692 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:54:00,186 - server - WARNING - Could not load full integrations module: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:54:00,188 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:54:00,191 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:54:00,192 - server - WARNING - Could not load MCP configuration router: cannot import name 'get_supabase_admin_client' from 'app.supabase.supabase_client' (D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\app\supabase\supabase_client.py)
+2025-07-04 00:56:07,653 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 00:56:08,157 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:56:08,598 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:56:08,607 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 00:56:08,616 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 00:56:08,616 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 00:56:08,616 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 00:56:08,617 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 00:56:08,617 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 00:56:08,617 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 00:56:08,617 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 00:56:08,617 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 00:56:08,617 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:56:10,536 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:56:10,537 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:56:10,537 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:56:10,537 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:56:10,537 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:56:10,537 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:56:11,217 - server - INFO - Full integrations module loaded successfully
+2025-07-04 00:56:11,219 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:56:11,222 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:57:58,662 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 00:57:59,157 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:57:59,671 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 00:57:59,681 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 00:57:59,684 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 00:57:59,685 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 00:57:59,685 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 00:57:59,685 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:58:00,492 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 00:58:00,492 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 00:58:00,492 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 00:58:00,492 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 00:58:00,492 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 00:58:00,493 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 00:58:00,997 - server - INFO - Full integrations module loaded successfully
+2025-07-04 00:58:00,999 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 00:58:01,002 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:00:17,393 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:00:17,936 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:00:18,466 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:00:18,475 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:00:18,479 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:00:18,480 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:00:18,480 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:00:18,480 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 01:00:19,443 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:00:19,443 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 01:00:19,443 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 01:00:19,443 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 01:00:19,443 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 01:00:19,443 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 01:00:20,009 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:00:20,011 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 01:00:20,014 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:05:26,269 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:05:26,740 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:05:27,145 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:05:27,153 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:05:27,160 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:05:27,161 - __main__ - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 01:05:27,952 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:05:27,952 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 01:05:27,952 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 01:05:27,952 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 01:05:27,952 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 01:05:27,953 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 01:05:28,462 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:05:28,465 - server - WARNING - Could not load OAuth router: No module named 'app.core.security'
+2025-07-04 01:05:28,468 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:07:58,630 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:07:59,216 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:07:59,704 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:07:59,713 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:07:59,716 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:07:59,717 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:07:59,745 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 01:07:59,936 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:07:59,987 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:08:00,258 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:08:00,258 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 01:08:00,258 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 01:08:00,273 - server - INFO - OAuth router loaded successfully
+2025-07-04 01:08:00,507 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:08:00,951 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:08:00,962 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 01:08:00,966 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:08:00,966 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:08:00,966 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:08:00,966 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:08:00,966 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:08:00,967 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:08:00,967 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:08:00,967 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:08:00,998 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 01:08:01,221 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:08:01,446 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:08:01,446 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 01:08:01,447 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 01:08:01,463 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 01:08:02,729 - __main__ - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:08:02,729 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:08:02,730 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 01:08:02,730 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 01:08:02,730 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 01:08:02,730 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 01:08:02,730 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 01:08:03,360 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:08:03,367 - server - INFO - OAuth router loaded successfully
+2025-07-04 01:08:03,370 - server - WARNING - Could not load user configuration router: No module named 'app.agents.tools.twitter'
+2025-07-04 01:20:19,067 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:20:19,755 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:20:20,167 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:20:20,176 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:20:20,207 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:20:20,300 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 01:20:20,562 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:20:20,766 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:20:20,766 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 01:20:20,766 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 01:20:20,791 - server - INFO - OAuth router loaded successfully
+2025-07-04 01:20:23,184 - server - INFO - User configuration router loaded successfully
+2025-07-04 01:20:49,179 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 01:20:49,709 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:20:50,124 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 01:20:50,129 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 01:20:50,136 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 01:20:50,136 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 01:20:50,136 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 01:20:50,137 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 01:20:50,137 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 01:20:50,137 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 01:20:50,137 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 01:20:50,137 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 01:20:50,165 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 01:20:50,370 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:20:50,575 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 01:20:50,575 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 01:20:50,575 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 01:20:50,591 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 01:20:51,360 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 01:20:51,360 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 01:20:51,360 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 01:20:51,360 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 01:20:51,360 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 01:20:51,360 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 01:20:51,930 - server - INFO - Full integrations module loaded successfully
+2025-07-04 01:20:51,936 - server - INFO - OAuth router loaded successfully
+2025-07-04 01:20:51,939 - server - INFO - User configuration router loaded successfully
+2025-07-04 12:41:38,607 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 12:41:39,315 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 12:41:39,735 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 12:41:39,744 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 12:41:39,809 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 12:41:39,809 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 12:41:39,809 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 12:41:39,810 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 12:41:39,810 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 12:41:39,810 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 12:41:39,810 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 12:41:39,810 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 12:41:39,978 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 12:41:40,181 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 12:41:40,386 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 12:41:40,386 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 12:41:40,386 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 12:41:40,399 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 12:41:46,196 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 12:41:46,197 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 12:41:46,197 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 12:41:46,197 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 12:41:46,197 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 12:41:46,197 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 12:41:46,953 - server - INFO - Full integrations module loaded successfully
+2025-07-04 12:41:46,960 - server - INFO - OAuth router loaded successfully
+2025-07-04 12:41:46,963 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:01:14,045 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:01:14,680 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:01:15,082 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:01:15,091 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:01:15,122 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:01:15,122 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:01:15,122 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:01:15,122 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:01:15,123 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:01:15,123 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:01:15,123 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:01:15,123 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:01:15,217 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:01:15,417 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:01:15,619 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:01:15,619 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:01:15,619 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:01:15,634 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:01:18,032 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:01:18,032 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:01:18,032 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:01:18,033 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:01:18,033 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:01:18,033 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:01:18,621 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:01:18,629 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:01:18,632 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:07:41,156 - server - INFO - Request: OPTIONS /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:07:41,158 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:07:41,159 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:07:41,725 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:42,416 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:42,419 - server - INFO - Response: 200 in 1.2606s
+2025-07-04 14:07:42,421 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:07:42,649 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:43,236 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:43,237 - server - INFO - Response: 200 in 0.8162s
+2025-07-04 14:07:43,238 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-07-04 14:07:43,239 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-07-04 14:07:43,239 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:07:43,239 - server - INFO - Request: OPTIONS /api/analytics/leads from 127.0.0.1
+2025-07-04 14:07:43,240 - server - INFO - Response: 200 in 0.0020s
+2025-07-04 14:07:43,240 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:07:43,241 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:07:43,468 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:45,526 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:45,548 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:46,103 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:46,214 - server - INFO - Response: 200 in 2.9727s
+2025-07-04 14:07:46,216 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:07:46,216 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-07-04 14:07:46,440 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:46,993 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:46,994 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:47,273 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:47,502 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:47,722 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:48,230 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-04-05T14%3A07%3A48.002384 "HTTP/2 200 OK"
+2025-07-04 14:07:48,232 - server - INFO - Response: 200 in 2.0165s
+2025-07-04 14:07:48,232 - server - INFO - Response: 200 in 2.0165s
+2025-07-04 14:07:48,234 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:07:48,451 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:50,483 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:50,755 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:51,019 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:51,020 - server - INFO - Response: 200 in 2.7880s
+2025-07-04 14:07:51,021 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:07:51,430 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:51,695 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:51,696 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:51,921 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:52,185 - server - INFO - Response: 200 in 1.1643s
+2025-07-04 14:07:52,185 - server - INFO - Request: OPTIONS /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:07:52,186 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:07:52,188 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:07:52,188 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:07:52,188 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:07:52,188 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:07:52,189 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:07:53,840 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:53,840 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:07:53,850 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:53,850 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:54,353 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:07:54,375 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:07:54,375 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:07:54,600 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:07:54,822 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:55,554 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:55,584 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:55,815 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:07:55,821 - server - INFO - Response: 200 in 1.2211s
+2025-07-04 14:07:56,143 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:07:56,145 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:56,145 - server - INFO - Response: 200 in 3.9576s
+2025-07-04 14:07:56,147 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:07:56,148 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:07:56,148 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:07:56,148 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:07:56,148 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:07:57,035 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:07:57,036 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:07:57,036 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:57,036 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:57,549 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:07:57,550 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:07:57,550 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:07:58,311 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:07:58,312 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:07:58,312 - server - INFO - Response: 200 in 2.1658s
+2025-07-04 14:08:03,838 - server - INFO - Request: OPTIONS /api/integrations/google/oauth/start from 127.0.0.1
+2025-07-04 14:08:03,838 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:08:03,839 - server - INFO - Request: GET /api/integrations/google/oauth/start from 127.0.0.1
+2025-07-04 14:08:03,839 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 14:08:18,637 - server - INFO - Request: OPTIONS /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:08:18,638 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:08:18,639 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:08:18,639 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 14:10:44,611 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:10:44,611 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:10:44,612 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:10:44,612 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:10:44,612 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:10:45,411 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:45,412 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:10:45,412 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:45,412 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:45,885 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:10:45,886 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:10:45,886 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:10:46,094 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:46,381 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:46,747 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:46,748 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:46,996 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:46,997 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:47,204 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:47,714 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:47,715 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:47,967 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:47,967 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-07-04 14:10:47,969 - server - INFO - Response: 200 in 1.8746s
+2025-07-04 14:10:48,226 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:48,478 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:48,737 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-04-05T14%3A10%3A48.479930 "HTTP/2 200 OK"
+2025-07-04 14:10:48,738 - server - INFO - Response: 200 in 1.7416s
+2025-07-04 14:10:48,738 - server - INFO - Response: 200 in 0.7711s
+2025-07-04 14:10:48,744 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:48,956 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:49,200 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:49,200 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:49,460 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:49,461 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:49,680 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:49,908 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:49,909 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:50,122 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:50,390 - server - INFO - Response: 200 in 1.6469s
+2025-07-04 14:10:50,391 - server - INFO - Response: 200 in 0.9301s
+2025-07-04 14:10:50,671 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:10:50,672 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:50,673 - server - INFO - Response: 200 in 6.0614s
+2025-07-04 14:10:50,674 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:10:50,675 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:10:50,675 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:10:50,675 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:10:50,675 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:10:50,969 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:50,969 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:10:50,970 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:50,970 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:51,271 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:10:51,313 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:10:51,313 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:10:51,640 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:51,857 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:10:52,132 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:52,134 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:52,374 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:10:52,375 - server - INFO - Response: 200 in 0.7353s
+2025-07-04 14:10:53,013 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:10:53,014 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:10:53,015 - server - INFO - Response: 200 in 2.3412s
+2025-07-04 14:10:54,927 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:10:59,945 - server - ERROR - Error al validar token: The read operation timed out
+2025-07-04 14:10:59,945 - server - ERROR - Token validation failed: 401: Invalid or expired token
+Traceback (most recent call last):
+  File "D:\Mis_Docs\Enprendimiento\Proyectos\pipewise\server.py", line 655, in get_current_user
+    raise HTTPException(
+fastapi.exceptions.HTTPException: 401: Invalid or expired token
+2025-07-04 14:10:59,947 - server - INFO - Response: 401 in 5.0193s
+2025-07-04 14:10:59,949 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:11:00,247 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:00,582 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:00,583 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:11:00,795 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:01,286 - server - INFO - Response: 200 in 1.3371s
+2025-07-04 14:11:01,287 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:11:01,520 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:02,062 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:02,063 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:11:02,280 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:02,281 - server - INFO - Request: OPTIONS /api/api/auth/refresh from 127.0.0.1
+2025-07-04 14:11:02,281 - server - INFO - Response: 200 in 0.9946s
+2025-07-04 14:11:02,282 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:11:02,285 - server - INFO - Request: POST /api/api/auth/refresh from 127.0.0.1
+2025-07-04 14:11:02,520 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/token?grant_type=refresh_token "HTTP/2 200 OK"
+2025-07-04 14:11:02,565 - server - INFO - Response: 200 in 0.2800s
+2025-07-04 14:11:02,569 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:11:02,787 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:03,040 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:03,041 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:11:03,260 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:03,296 - server - INFO - Response: 200 in 0.7263s
+2025-07-04 14:11:03,297 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-07-04 14:11:03,509 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:03,722 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:03,723 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-07-04 14:11:03,724 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-07-04 14:11:03,933 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:04,167 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:04,422 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-07-04 14:11:04,422 - server - INFO - Request: GET /api/contacts from 127.0.0.1
+2025-07-04 14:11:04,423 - server - INFO - Response: 200 in 1.1258s
+2025-07-04 14:11:04,638 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:04,866 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:04,866 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contacts. Platform: None
+2025-07-04 14:11:04,867 - server - INFO - Request: GET /api/contacts/stats from 127.0.0.1
+2025-07-04 14:11:04,867 - server - INFO - Response: 200 in 1.1428s
+2025-07-04 14:11:05,080 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:11:05,291 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:11:05,292 - server - INFO - User 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 fetching contact stats.
+2025-07-04 14:11:05,293 - server - INFO - Response: 200 in 0.8711s
+2025-07-04 14:11:05,293 - server - INFO - Response: 200 in 0.4260s
+2025-07-04 14:11:07,049 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-07-04 14:11:07,051 - server - INFO - Response: 404 in 0.0015s
+2025-07-04 14:11:07,057 - server - INFO - Request: GET /api/calendar/meetings from 127.0.0.1
+2025-07-04 14:11:07,058 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 14:21:11,203 - server - INFO - Request: OPTIONS /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:21:11,203 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:21:11,204 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:21:11,741 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:21:12,224 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:21:12,225 - server - INFO - Response: 200 in 1.0213s
+2025-07-04 14:21:13,174 - server - INFO - Request: OPTIONS /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:21:13,174 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:21:13,177 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:21:13,177 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:21:13,177 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:21:13,177 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:21:13,178 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:21:13,462 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:21:13,463 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:21:13,463 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:13,463 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:13,747 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:21:13,748 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:21:13,748 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:21:14,271 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:21:14,273 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:14,274 - server - INFO - Response: 200 in 1.0953s
+2025-07-04 14:21:14,275 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:21:14,275 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:21:14,275 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:21:14,275 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:21:14,275 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:21:14,487 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:21:14,487 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:21:14,487 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:14,487 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:14,720 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:21:14,721 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:21:14,721 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:21:15,223 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:21:15,224 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:21:15,224 - server - INFO - Response: 200 in 0.9489s
+2025-07-04 14:21:23,426 - server - INFO - Request: OPTIONS /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:21:23,427 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:21:23,427 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:21:23,428 - server - INFO - Response: 404 in 0.0012s
+2025-07-04 14:22:14,677 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:22:15,016 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:22:15,359 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:22:15,361 - server - INFO - Response: 200 in 0.6838s
+2025-07-04 14:22:18,009 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:22:18,241 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:22:18,474 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:22:18,475 - server - INFO - Response: 200 in 0.4663s
+2025-07-04 14:22:18,518 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:22:18,519 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:22:18,519 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:22:18,519 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:22:18,519 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:22:18,789 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:22:18,790 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:22:18,790 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:18,790 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:19,145 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:22:19,145 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:22:19,145 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:22:19,641 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:22:19,642 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:19,643 - server - INFO - Response: 200 in 1.1246s
+2025-07-04 14:22:19,644 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:22:19,644 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:22:19,644 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:22:19,644 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:22:19,644 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:22:19,865 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:22:19,865 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:22:19,865 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:19,865 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:20,098 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:22:20,099 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:22:20,099 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:22:20,596 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:22:20,599 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:22:20,600 - server - INFO - Response: 200 in 0.9561s
+2025-07-04 14:22:22,828 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:22:22,829 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 14:26:14,978 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:26:15,590 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:26:16,083 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:26:16,085 - server - INFO - Response: 200 in 1.1075s
+2025-07-04 14:26:17,392 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:26:17,643 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:26:17,878 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:26:17,879 - server - INFO - Response: 200 in 0.4873s
+2025-07-04 14:26:17,937 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:26:17,938 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:26:17,938 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:26:17,938 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:26:17,938 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:26:18,259 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:26:18,260 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:26:18,260 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:18,261 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:18,531 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:26:18,532 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:26:18,532 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:26:19,136 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:26:19,137 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:19,138 - server - INFO - Response: 200 in 1.2016s
+2025-07-04 14:26:19,141 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:26:19,142 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:26:19,142 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:26:19,142 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:26:19,142 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:26:19,349 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:26:19,350 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:26:19,350 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:19,351 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:19,559 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:26:19,560 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:26:19,560 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:26:20,095 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:26:20,096 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:26:20,096 - server - INFO - Response: 200 in 0.9544s
+2025-07-04 14:26:20,894 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:26:20,895 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 14:27:56,717 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:27:56,718 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 14:28:00,424 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:28:00,942 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:05,632 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:28:05,633 - server - INFO - Response: 200 in 5.2095s
+2025-07-04 14:28:05,687 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:28:05,688 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:28:05,688 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:28:05,688 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:28:05,688 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:28:05,981 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:05,982 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:28:05,982 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:05,982 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:06,276 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:28:06,278 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:28:06,278 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:28:06,914 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:28:06,915 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:06,915 - server - INFO - Response: 200 in 1.2282s
+2025-07-04 14:28:06,919 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:28:06,919 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:28:06,919 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:28:06,920 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:28:06,920 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:28:07,141 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:07,141 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:28:07,142 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:07,142 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:07,357 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:28:07,357 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:28:07,358 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:28:07,870 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:28:07,871 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:07,872 - server - INFO - Response: 200 in 0.9531s
+2025-07-04 14:28:11,084 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:28:11,085 - server - INFO - Response: 404 in 0.0010s
+2025-07-04 14:28:34,101 - server - INFO - Request: OPTIONS /api/integrations/google_calendar/oauth/disconnect from 127.0.0.1
+2025-07-04 14:28:34,101 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:28:34,101 - server - INFO - Request: POST /api/integrations/google_calendar/oauth/disconnect from 127.0.0.1
+2025-07-04 14:28:34,101 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:28:34,101 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:28:34,101 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:28:34,101 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:28:34,391 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:34,391 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:28:34,391 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:34,391 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:34,671 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:28:34,671 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:28:34,671 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:28:34,671 - app.api.oauth_router - INFO - 🔌 Disconnecting google_calendar for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:37,812 - httpx - INFO - HTTP Request: DELETE https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&service=eq.google_calendar "HTTP/2 200 OK"
+2025-07-04 14:28:37,812 - app.api.oauth_router - INFO - ✅ Successfully disconnected google_calendar for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:37,812 - server - INFO - Response: 200 in 3.7112s
+2025-07-04 14:28:37,818 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:28:37,820 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:28:37,820 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:28:37,820 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:28:37,820 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:28:38,041 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:38,041 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:28:38,041 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:38,041 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:38,248 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:28:38,249 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:28:38,249 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:28:38,760 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:28:38,761 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:38,761 - server - INFO - Response: 200 in 0.9429s
+2025-07-04 14:28:39,915 - server - INFO - Request: OPTIONS /api/integrations/google_calendar/oauth/start from 127.0.0.1
+2025-07-04 14:28:39,915 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:28:39,922 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/start from 127.0.0.1
+2025-07-04 14:28:39,922 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:28:39,922 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:28:39,922 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:28:39,922 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:28:40,133 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:28:40,134 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:28:40,134 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:40,134 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:40,350 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:28:40,351 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:28:40,351 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:28:40,351 - app.api.oauth_router - INFO - 🚀 Starting Google Calendar OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:40,352 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: google_calendar, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:28:40,352 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:28:40,352 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:28:40,352 - app.api.oauth_handler - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:28:40,352 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service google_calendar
+2025-07-04 14:28:40,352 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:28:40,352 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:28:40,352 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:28:40,353 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:28:40,353 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for google_calendar: https://accounts.google.com/o/oauth2/v2/auth?client_id=878617911854-5oehte0s4pmejlivgpkdlhl1de6vv4t6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Fgoogle_calendar%2Foauth%2Fcallback&response_type=code&state=NvY9sdrbjYR0ucqahfTujK7dBu2-_7Kg46tsDJuUqG0&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent
+2025-07-04 14:28:40,353 - app.api.oauth_router - INFO - ✅ Successfully generated Google Calendar auth URL
+2025-07-04 14:28:40,353 - server - INFO - Response: 200 in 0.4313s
+2025-07-04 14:29:13,322 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:29:13,602 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:13,892 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:13,896 - server - INFO - Response: 200 in 0.5741s
+2025-07-04 14:29:14,215 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-07-04 14:29:14,215 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:29:14,224 - server - INFO - Request: OPTIONS /api/leads from 127.0.0.1
+2025-07-04 14:29:14,224 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:29:14,226 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:29:14,226 - server - INFO - Request: OPTIONS /api/analytics/leads from 127.0.0.1
+2025-07-04 14:29:14,506 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:14,716 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:14,717 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:14,933 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:14,934 - server - INFO - Response: 200 in 0.7079s
+2025-07-04 14:29:14,935 - server - INFO - Response: 200 in 0.7084s
+2025-07-04 14:29:14,936 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:29:15,154 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:15,361 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:15,362 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:15,569 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:15,570 - server - INFO - Response: 200 in 0.6340s
+2025-07-04 14:29:15,571 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-07-04 14:29:15,571 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:29:15,886 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:16,101 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:16,362 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-04-05T14%3A29%3A16.101853 "HTTP/2 200 OK"
+2025-07-04 14:29:16,596 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:16,803 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:16,804 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:17,004 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:17,006 - server - INFO - Response: 200 in 1.4354s
+2025-07-04 14:29:17,007 - server - INFO - Response: 200 in 1.4359s
+2025-07-04 14:29:17,008 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:29:17,236 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:17,460 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:17,462 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:17,665 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:29:17,666 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:29:17,666 - server - INFO - Response: 200 in 0.6586s
+2025-07-04 14:29:17,667 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:29:17,667 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:29:17,667 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:29:17,667 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:29:17,949 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:17,949 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:29:17,949 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:17,950 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:18,279 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:29:18,280 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:29:18,280 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:29:18,805 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:29:18,806 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:18,807 - server - INFO - Response: 200 in 1.1409s
+2025-07-04 14:29:18,809 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:29:18,809 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:29:18,809 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:29:18,809 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:29:18,809 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:29:19,058 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:19,059 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:29:19,059 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:19,059 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:19,297 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:29:19,298 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:29:19,298 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:29:19,887 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:29:19,888 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:19,889 - server - INFO - Response: 200 in 1.0794s
+2025-07-04 14:29:23,891 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/start from 127.0.0.1
+2025-07-04 14:29:23,892 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:29:23,892 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:29:23,892 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:29:23,892 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:29:24,121 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:29:24,122 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:29:24,122 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:24,122 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:24,333 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:29:24,334 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:29:24,334 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:29:24,335 - app.api.oauth_router - INFO - 🚀 Starting Google Calendar OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:24,335 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: google_calendar, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:29:24,335 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:29:24,335 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:29:24,335 - app.api.oauth_handler - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:29:24,335 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service google_calendar
+2025-07-04 14:29:24,336 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:29:24,336 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:29:24,336 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:29:24,336 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:29:24,336 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for google_calendar: https://accounts.google.com/o/oauth2/v2/auth?client_id=878617911854-5oehte0s4pmejlivgpkdlhl1de6vv4t6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Fgoogle_calendar%2Foauth%2Fcallback&response_type=code&state=TrYCrNPVpe0nrLLfQ4cTAk7_luSIpf9tyO3o9S3HrOk&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent
+2025-07-04 14:29:24,336 - app.api.oauth_router - INFO - ✅ Successfully generated Google Calendar auth URL
+2025-07-04 14:29:24,337 - server - INFO - Response: 200 in 0.4447s
+2025-07-04 14:29:59,197 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/callback from 191.82.240.142
+2025-07-04 14:29:59,197 - app.api.oauth_router - INFO - 📞 Google Calendar OAuth callback received - code: True, state: True
+2025-07-04 14:29:59,197 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:29:59,198 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:29:59,198 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:29:59,198 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:29:59,198 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:29:59,635 - httpx - INFO - HTTP Request: POST https://oauth2.googleapis.com/token "HTTP/1.1 401 Unauthorized"
+2025-07-04 14:29:59,636 - app.api.oauth_handler - ERROR - Token exchange failed for google_calendar: {
+  "error": "invalid_client",
+  "error_description": "Unauthorized"
+}
+2025-07-04 14:29:59,636 - app.api.oauth_handler - ERROR - OAuth callback error for google_calendar: Token exchange failed: 401
+2025-07-04 14:29:59,636 - server - INFO - Response: 500 in 0.4392s
+2025-07-04 14:30:11,560 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:30:11,895 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:30:12,393 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:30:12,394 - server - INFO - Response: 200 in 0.8344s
+2025-07-04 14:30:12,443 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:30:12,443 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:30:12,443 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:30:12,443 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:30:12,443 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:30:12,718 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:30:12,718 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:30:12,718 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:12,718 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:13,032 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:30:13,033 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:30:13,033 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:30:13,588 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:30:13,588 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:13,589 - server - INFO - Response: 200 in 1.1455s
+2025-07-04 14:30:13,591 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:30:13,591 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:30:13,591 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:30:13,592 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:30:13,592 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:30:13,803 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:30:13,803 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:30:13,803 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:13,803 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:14,011 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:30:14,012 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:30:14,012 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:30:14,531 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:30:14,532 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:14,533 - server - INFO - Response: 200 in 0.9420s
+2025-07-04 14:30:14,579 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/start from 127.0.0.1
+2025-07-04 14:30:14,579 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:30:14,579 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:30:14,579 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:30:14,579 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:30:14,836 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:30:14,836 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:30:14,836 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:14,836 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:15,077 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:30:15,078 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:30:15,078 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:30:15,078 - app.api.oauth_router - INFO - 🚀 Starting Google Calendar OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:15,078 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: google_calendar, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:30:15,078 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:30:15,078 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:30:15,079 - app.api.oauth_handler - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:30:15,079 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service google_calendar
+2025-07-04 14:30:15,079 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:30:15,079 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:30:15,079 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:30:15,079 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:30:15,079 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for google_calendar: https://accounts.google.com/o/oauth2/v2/auth?client_id=878617911854-5oehte0s4pmejlivgpkdlhl1de6vv4t6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Fgoogle_calendar%2Foauth%2Fcallback&response_type=code&state=U5kfnhrYZQJ-unCxgsnxJ0No6b6HFYFvR5Nb2f6gAYU&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent
+2025-07-04 14:30:15,079 - app.api.oauth_router - INFO - ✅ Successfully generated Google Calendar auth URL
+2025-07-04 14:30:15,080 - server - INFO - Response: 200 in 0.5021s
+2025-07-04 14:30:25,718 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/callback from 191.82.240.142
+2025-07-04 14:30:25,718 - app.api.oauth_router - INFO - 📞 Google Calendar OAuth callback received - code: True, state: True
+2025-07-04 14:30:25,718 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:30:25,718 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:30:25,718 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:30:25,718 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:30:25,718 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:30:26,097 - httpx - INFO - HTTP Request: POST https://oauth2.googleapis.com/token "HTTP/1.1 401 Unauthorized"
+2025-07-04 14:30:26,097 - app.api.oauth_handler - ERROR - Token exchange failed for google_calendar: {
+  "error": "invalid_client",
+  "error_description": "Unauthorized"
+}
+2025-07-04 14:30:26,097 - app.api.oauth_handler - ERROR - OAuth callback error for google_calendar: Token exchange failed: 401
+2025-07-04 14:30:26,097 - server - INFO - Response: 500 in 0.3797s
+2025-07-04 14:30:44,683 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:30:44,683 - server - INFO - Response: 404 in 0.0000s
+2025-07-04 14:30:55,257 - server - INFO - Request: GET /docs from 127.0.0.1
+2025-07-04 14:30:55,259 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:31:18,602 - server - INFO - Request: OPTIONS /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:31:18,602 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:31:18,603 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:31:19,067 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:19,372 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:19,375 - server - INFO - Response: 200 in 0.7715s
+2025-07-04 14:31:19,490 - server - INFO - Request: OPTIONS /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:19,490 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:31:19,491 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:19,491 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:19,491 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:19,492 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:19,492 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:19,786 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:19,786 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:19,787 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:19,787 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:20,083 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:20,084 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:20,084 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:20,310 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:20,524 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:20,747 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:20,749 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:20,972 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:20,973 - server - INFO - Response: 200 in 0.6627s
+2025-07-04 14:31:20,974 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:21,216 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:21,507 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:21,508 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:21,747 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:21,748 - server - INFO - Request: OPTIONS /api/analytics/leads from 127.0.0.1
+2025-07-04 14:31:21,749 - server - INFO - Response: 200 in 0.7747s
+2025-07-04 14:31:21,749 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:21,750 - server - INFO - Response: 200 in 0.0020s
+2025-07-04 14:31:21,957 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:22,202 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:22,203 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:22,426 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:22,427 - server - INFO - Response: 200 in 0.6784s
+2025-07-04 14:31:22,428 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:22,650 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:22,870 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:22,870 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:23,092 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:23,093 - server - INFO - Response: 200 in 0.6649s
+2025-07-04 14:31:23,353 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:23,354 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:23,355 - server - INFO - Response: 200 in 3.8638s
+2025-07-04 14:31:23,357 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:23,358 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:23,358 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:23,358 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:23,358 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:23,560 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:23,562 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:23,562 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:23,562 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:23,790 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:23,791 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:23,791 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:24,082 - server - INFO - Request: OPTIONS /api/api/auth/logout from 127.0.0.1
+2025-07-04 14:31:24,083 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:31:24,085 - server - INFO - Request: POST /api/api/auth/logout from 127.0.0.1
+2025-07-04 14:31:24,290 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:24,525 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:24,526 - server - INFO - User logged out: jmrodriguezm13@gmail.com
+2025-07-04 14:31:24,527 - server - INFO - Response: 200 in 0.4414s
+2025-07-04 14:31:24,787 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:24,787 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:24,788 - server - INFO - Response: 200 in 1.4311s
+2025-07-04 14:31:24,789 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:24,790 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:24,790 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:24,790 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:24,790 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:25,009 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:25,010 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:25,010 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:25,010 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:25,231 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:25,231 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:25,232 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:25,781 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:25,782 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:25,783 - server - INFO - Response: 200 in 0.9937s
+2025-07-04 14:31:25,788 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:25,789 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:25,789 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:25,789 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:25,789 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:26,038 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:26,039 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:26,039 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:26,039 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:26,319 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:26,319 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:26,319 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:26,871 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:26,871 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:26,872 - server - INFO - Response: 200 in 1.0849s
+2025-07-04 14:31:34,215 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:31:34,503 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:34,794 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:34,795 - server - INFO - Response: 200 in 0.5800s
+2025-07-04 14:31:34,797 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:31:35,010 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:35,233 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:35,236 - server - INFO - Response: 200 in 0.4386s
+2025-07-04 14:31:35,237 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:35,475 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:35,696 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:35,697 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:35,929 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:35,930 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:35,931 - server - INFO - Response: 200 in 0.6942s
+2025-07-04 14:31:36,147 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:36,373 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:36,375 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:36,605 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:36,606 - server - INFO - Request: OPTIONS /api/analytics/leads from 127.0.0.1
+2025-07-04 14:31:36,606 - server - INFO - Response: 200 in 0.6755s
+2025-07-04 14:31:36,607 - server - INFO - Response: 200 in 0.0010s
+2025-07-04 14:31:36,610 - server - INFO - Request: GET /api/analytics/leads from 127.0.0.1
+2025-07-04 14:31:36,820 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:37,045 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:37,278 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&created_at=gte.2025-04-05T14%3A31%3A37.048852 "HTTP/2 200 OK"
+2025-07-04 14:31:37,279 - server - INFO - Response: 200 in 0.6698s
+2025-07-04 14:31:37,279 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:37,280 - server - INFO - Request: GET /api/leads from 127.0.0.1
+2025-07-04 14:31:37,493 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:37,723 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:37,725 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:37,961 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:38,176 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:38,400 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:38,400 - server - INFO - Obteniendo leads para usuario 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:38,617 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/leads?select=%2A&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:31:38,618 - server - INFO - Response: 200 in 1.3382s
+2025-07-04 14:31:38,619 - server - INFO - Response: 200 in 1.3372s
+2025-07-04 14:31:38,619 - server - INFO - Request: OPTIONS /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:38,619 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:31:38,623 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:38,623 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:38,623 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:38,623 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:38,623 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:38,930 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:38,931 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:38,931 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:38,931 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:39,219 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:39,220 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:39,220 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:39,762 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:39,763 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:39,763 - server - INFO - Response: 200 in 1.1409s
+2025-07-04 14:31:39,765 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:31:39,766 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:31:39,766 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:31:39,766 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:31:39,766 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:31:39,987 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:31:39,987 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:31:39,988 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:39,988 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:40,207 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:31:40,238 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:31:40,239 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:31:41,012 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:31:41,013 - app.api.user_config_router - INFO - Retrieved 3 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:31:41,014 - server - INFO - Response: 200 in 1.2488s
+2025-07-04 14:32:38,736 - server - INFO - Request: GET /openapi.json from 127.0.0.1
+2025-07-04 14:32:38,794 - server - INFO - Response: 200 in 0.0580s
+2025-07-04 14:34:15,678 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:34:16,194 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:34:16,618 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:34:16,628 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:34:16,631 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:34:16,631 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:34:16,631 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:34:16,631 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:34:16,632 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:34:16,632 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:34:16,632 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:34:16,632 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:34:16,660 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:34:16,882 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:34:17,100 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:34:17,100 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:34:17,101 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:34:17,118 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:34:19,769 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:34:19,769 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:34:19,769 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:34:19,769 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:34:19,769 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:34:19,769 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:34:20,322 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:34:20,329 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:34:20,332 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:34:39,409 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:34:39,914 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:34:40,629 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:34:40,631 - server - INFO - Response: 200 in 1.2228s
+2025-07-04 14:34:41,301 - server - INFO - Request: OPTIONS /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:34:41,301 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:34:41,303 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:34:41,304 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:34:41,304 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:34:41,304 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:34:41,304 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:34:41,599 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:34:41,599 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:34:41,600 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:34:41,600 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:34:42,121 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:34:42,137 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:34:42,137 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:34:42,137 - app.api.oauth_router - INFO - 🚀 Starting Gmail OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:34:42,137 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: gmail, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:34:42,137 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: gmail
+2025-07-04 14:34:42,138 - app.core.oauth_config - INFO - ✅ OAuth config found for gmail
+2025-07-04 14:34:42,138 - app.api.oauth_handler - INFO - ✅ OAuth config found for gmail
+2025-07-04 14:34:42,138 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service gmail
+2025-07-04 14:34:42,138 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: gmail
+2025-07-04 14:34:42,138 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:34:42,138 - app.core.oauth_config - INFO - ✅ Built redirect URI for gmail: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/gmail/oauth/callback
+2025-07-04 14:34:42,138 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/gmail/oauth/callback
+2025-07-04 14:34:42,139 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for gmail: https://accounts.google.com/o/oauth2/v2/auth?client_id=878617911854-5oehte0s4pmejlivgpkdlhl1de6vv4t6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Fgmail%2Foauth%2Fcallback&response_type=code&state=hjWg6RAdMqXry3EsyvTnnAL_6rexrNgMgXQAJaxpS3s&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.compose+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent
+2025-07-04 14:34:42,139 - app.api.oauth_router - INFO - ✅ Successfully generated Gmail auth URL
+2025-07-04 14:34:42,139 - server - INFO - Response: 200 in 0.8361s
+2025-07-04 14:35:03,330 - server - INFO - Request: GET /api/integrations/gmail/oauth/callback from 191.82.240.142
+2025-07-04 14:35:03,330 - app.api.oauth_router - INFO - 📞 Gmail OAuth callback received - code: True, state: True
+2025-07-04 14:35:03,330 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: gmail
+2025-07-04 14:35:03,330 - app.core.oauth_config - INFO - ✅ OAuth config found for gmail
+2025-07-04 14:35:03,330 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: gmail
+2025-07-04 14:35:03,330 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:35:03,331 - app.core.oauth_config - INFO - ✅ Built redirect URI for gmail: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/gmail/oauth/callback
+2025-07-04 14:35:04,019 - httpx - INFO - HTTP Request: POST https://oauth2.googleapis.com/token "HTTP/1.1 200 OK"
+2025-07-04 14:35:04,255 - app.core.security - WARNING - Using default encryption key. Set OAUTH_ENCRYPTION_KEY environment variable for production.
+2025-07-04 14:35:04,268 - app.api.oauth_handler - INFO - Guardando en user_accounts con user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 (UUID válido)
+2025-07-04 14:35:04,781 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?on_conflict=user_id%2Cservice "HTTP/2 201 Created"
+2025-07-04 14:35:04,782 - app.api.oauth_handler - INFO - Successfully stored OAuth tokens for gmail user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:04,782 - app.api.oauth_router - INFO - ✅ Gmail OAuth callback successful, redirecting to: http://localhost:3000/integrations?connected=gmail
+2025-07-04 14:35:04,783 - server - INFO - Response: 302 in 1.4531s
+2025-07-04 14:35:06,500 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:35:06,500 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:35:06,500 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:35:06,500 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:35:06,500 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:35:07,220 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:07,220 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:35:07,220 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:07,221 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:08,497 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:35:08,497 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:35:08,498 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:35:08,715 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:35:08,994 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:09,324 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:35:09,327 - server - INFO - Response: 200 in 0.6123s
+2025-07-04 14:35:09,610 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:35:09,613 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:09,613 - server - INFO - Response: 200 in 3.1130s
+2025-07-04 14:35:09,616 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:35:09,616 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:35:09,616 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:35:09,616 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:35:09,616 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:35:09,839 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:09,840 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:35:09,840 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:09,840 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:10,057 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:35:10,551 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:35:10,551 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:35:11,559 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:35:11,559 - app.api.user_config_router - INFO - Retrieved 4 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:11,560 - server - INFO - Response: 200 in 1.9446s
+2025-07-04 14:35:18,119 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/start from 127.0.0.1
+2025-07-04 14:35:18,120 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:35:18,120 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:35:18,122 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:35:18,122 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:35:18,962 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:18,963 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:35:18,966 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:18,966 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:19,289 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:35:19,291 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:35:19,292 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:35:19,293 - app.api.oauth_router - INFO - 🚀 Starting Google Calendar OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:19,293 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: google_calendar, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:19,294 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:35:19,294 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:35:19,295 - app.api.oauth_handler - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:35:19,295 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service google_calendar
+2025-07-04 14:35:19,295 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:35:19,296 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:35:19,296 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:35:19,297 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:35:19,297 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for google_calendar: https://accounts.google.com/o/oauth2/v2/auth?client_id=878617911854-5oehte0s4pmejlivgpkdlhl1de6vv4t6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Fgoogle_calendar%2Foauth%2Fcallback&response_type=code&state=4MwkqYnw0nXfYjB_cdLi5kPPaO0w052ACbMvLbzP3K4&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent
+2025-07-04 14:35:19,297 - app.api.oauth_router - INFO - ✅ Successfully generated Google Calendar auth URL
+2025-07-04 14:35:19,298 - server - INFO - Response: 200 in 1.1784s
+2025-07-04 14:35:29,519 - server - INFO - Request: GET /api/integrations/google_calendar/oauth/callback from 191.82.240.142
+2025-07-04 14:35:29,520 - app.api.oauth_router - INFO - 📞 Google Calendar OAuth callback received - code: True, state: True
+2025-07-04 14:35:29,520 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: google_calendar
+2025-07-04 14:35:29,520 - app.core.oauth_config - INFO - ✅ OAuth config found for google_calendar
+2025-07-04 14:35:29,520 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: google_calendar
+2025-07-04 14:35:29,520 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:35:29,521 - app.core.oauth_config - INFO - ✅ Built redirect URI for google_calendar: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/google_calendar/oauth/callback
+2025-07-04 14:35:30,073 - httpx - INFO - HTTP Request: POST https://oauth2.googleapis.com/token "HTTP/1.1 200 OK"
+2025-07-04 14:35:30,487 - httpx - INFO - HTTP Request: GET https://www.googleapis.com/oauth2/v2/userinfo "HTTP/1.1 200 OK"
+2025-07-04 14:35:30,504 - app.core.security - WARNING - Using default encryption key. Set OAUTH_ENCRYPTION_KEY environment variable for production.
+2025-07-04 14:35:30,505 - app.api.oauth_handler - INFO - Guardando en user_accounts con user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 (UUID válido)
+2025-07-04 14:35:30,819 - httpx - INFO - HTTP Request: POST https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?on_conflict=user_id%2Cservice "HTTP/2 201 Created"
+2025-07-04 14:35:30,819 - app.api.oauth_handler - INFO - Successfully stored OAuth tokens for google_calendar user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:30,819 - app.api.oauth_router - INFO - ✅ Google Calendar OAuth callback successful, redirecting to: http://localhost:3000/integrations?connected=google_calendar
+2025-07-04 14:35:30,820 - server - INFO - Response: 302 in 1.3001s
+2025-07-04 14:35:31,539 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:35:31,539 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:35:31,539 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:35:31,539 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:35:31,539 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:35:31,860 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:31,860 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:35:31,860 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:31,860 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:32,175 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:35:32,449 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:35:32,449 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:35:32,662 - server - INFO - Request: GET /api/api/auth/validate from 127.0.0.1
+2025-07-04 14:35:32,986 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:33,622 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/2 200 OK"
+2025-07-04 14:35:33,624 - server - INFO - Response: 200 in 0.9620s
+2025-07-04 14:35:33,883 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:35:33,883 - app.api.user_config_router - INFO - Retrieved 5 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:33,884 - server - INFO - Response: 200 in 2.3460s
+2025-07-04 14:35:33,886 - server - INFO - Request: GET /api/user/integrations/accounts from 127.0.0.1
+2025-07-04 14:35:33,886 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:35:33,887 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:35:33,887 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:35:33,887 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:35:34,119 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:35:34,120 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:35:34,120 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:34,120 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:34,351 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:35:34,352 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:35:34,352 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:35:34,995 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/user_accounts?select=service%2Cconnected%2Cconnected_at%2Cprofile_data&user_id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4 "HTTP/1.1 200 OK"
+2025-07-04 14:35:34,995 - app.api.user_config_router - INFO - Retrieved 5 accounts for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:35:34,996 - server - INFO - Response: 200 in 1.1099s
+2025-07-04 14:35:54,719 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:35:55,236 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:35:55,796 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:35:55,805 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:35:55,808 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:35:55,841 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:35:56,061 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:35:56,294 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:35:56,294 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:35:56,294 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:35:56,310 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:35:56,346 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:35:56,880 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:35:57,210 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:35:57,211 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:35:57,211 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:35:57,211 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:35:57,211 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:35:57,211 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:35:57,336 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:35:57,344 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:35:57,349 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:35:57,379 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:35:57,627 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:35:57,745 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:35:57,752 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:35:57,754 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:35:57,847 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:35:57,847 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:35:57,847 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:35:57,863 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:35:58,702 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:35:58,702 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:35:58,702 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:35:58,703 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:35:58,703 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:35:58,703 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:35:59,165 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:35:59,172 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:35:59,174 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:36:09,234 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:36:09,759 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:36:10,205 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:36:10,215 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:36:10,219 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:36:10,219 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:36:10,219 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:36:10,219 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:36:10,220 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:36:10,220 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:36:10,220 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:36:10,220 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:36:10,250 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:36:10,470 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:36:10,687 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:36:10,687 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:36:10,688 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:36:10,704 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:36:11,671 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:36:11,671 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:36:11,671 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:36:11,672 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:36:11,672 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:36:11,672 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:36:12,171 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:36:12,179 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:36:12,181 - server - INFO - User configuration router loaded successfully
+2025-07-04 14:36:13,918 - server - INFO - Request: GET /openapi.json from 127.0.0.1
+2025-07-04 14:36:13,953 - server - INFO - Response: 200 in 0.0352s
+2025-07-04 14:36:23,837 - server - INFO - Request: GET /api/integrations/gmail/oauth/start from 127.0.0.1
+2025-07-04 14:36:23,838 - server - INFO - Response: 403 in 0.0010s
+2025-07-04 14:36:35,318 - server - INFO - Request: OPTIONS /api/integrations/twitter_account/oauth/start from 127.0.0.1
+2025-07-04 14:36:35,318 - server - INFO - Response: 200 in 0.0000s
+2025-07-04 14:36:35,320 - server - INFO - Request: GET /api/integrations/twitter_account/oauth/start from 127.0.0.1
+2025-07-04 14:36:35,321 - app.auth.middleware - INFO - 🔐 Starting authentication process...
+2025-07-04 14:36:35,321 - app.auth.middleware - INFO - 🔍 Validating token...
+2025-07-04 14:36:35,321 - app.auth.auth_client - INFO - 🔍 Starting token validation process...
+2025-07-04 14:36:35,321 - app.auth.auth_client - INFO - 🔐 Attempting to validate token with Supabase...
+2025-07-04 14:36:35,836 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2025-07-04 14:36:35,837 - app.auth.auth_client - INFO - ✅ Successfully validated Supabase token for user jmrodriguezm13@gmail.com
+2025-07-04 14:36:35,837 - app.auth.middleware - INFO - ✅ Token valid, user_id: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:36:35,837 - app.auth.middleware - INFO - 👤 Fetching user by ID: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:36:36,335 - httpx - INFO - HTTP Request: GET https://jqnfcscgtcawazgdwxsh.supabase.co/rest/v1/users?select=%2A&id=eq.9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4&limit=1 "HTTP/2 200 OK"
+2025-07-04 14:36:36,396 - app.auth.middleware - INFO - ✅ User found: jmrodriguezm13@gmail.com, active: True
+2025-07-04 14:36:36,396 - app.auth.middleware - INFO - ✅ Authentication successful for user: jmrodriguezm13@gmail.com
+2025-07-04 14:36:36,396 - app.api.oauth_router - INFO - 🚀 Starting Twitter OAuth for user_id=9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:36:36,396 - app.api.oauth_handler - INFO - 🚀 Starting OAuth flow for service: twitter_account, user: 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4
+2025-07-04 14:36:36,396 - app.core.oauth_config - INFO - 🔍 Getting OAuth config for service: twitter_account
+2025-07-04 14:36:36,396 - app.core.oauth_config - INFO - ✅ OAuth config found for twitter_account
+2025-07-04 14:36:36,396 - app.api.oauth_handler - INFO - ✅ OAuth config found for twitter_account
+2025-07-04 14:36:36,396 - app.api.oauth_handler - INFO - 💾 Stored state for user 9e6fd7a1-d7b4-4f50-baa5-4c4d867a9ba4, service twitter_account
+2025-07-04 14:36:36,396 - app.core.oauth_config - INFO - 🔧 Building redirect URI for service: twitter_account
+2025-07-04 14:36:36,396 - app.core.oauth_config - INFO - 🔗 OAuth redirect base URL: https://solid-welcomed-tuna.ngrok-free.app
+2025-07-04 14:36:36,396 - app.core.oauth_config - INFO - ✅ Built redirect URI for twitter_account: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/twitter_account/oauth/callback
+2025-07-04 14:36:36,396 - app.api.oauth_handler - INFO - 🔗 Built redirect URI: https://solid-welcomed-tuna.ngrok-free.app/api/integrations/twitter_account/oauth/callback
+2025-07-04 14:36:36,396 - app.api.oauth_handler - INFO - ✅ Generated OAuth URL for twitter_account: https://twitter.com/i/oauth2/authorize?client_id=UnQ2LTFvWDFMUkhYUFQ5VEVvU2s6MTpjaQ&redirect_uri=https%3A%2F%2Fsolid-welcomed-tuna.ngrok-free.app%2Fapi%2Fintegrations%2Ftwitter_account%2Foauth%2Fcallback&response_type=code&state=jxABeHxm4DcS2JqOM7iaVNcaykLiCNt1JaeyhAeyUYI&scope=tweet.read+tweet.write+users.read+offline.access
+2025-07-04 14:36:36,396 - app.api.oauth_router - INFO - ✅ Successfully generated Twitter auth URL
+2025-07-04 14:36:36,396 - server - INFO - Response: 200 in 1.0764s
+2025-07-04 14:38:36,996 - app.api.integrations - WARNING - Generated new Fernet key for development. In production, use PIPEWISE_FERNET_KEY environment variable.
+2025-07-04 14:38:37,538 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:38:37,984 - app.auth.auth_client - INFO - Authentication client initialized
+2025-07-04 14:38:37,991 - __main__ - INFO - Full integrations module loaded successfully
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 🔧 Checking OAuth environment variables...
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_ID set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 GOOGLE_CLIENT_SECRET set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_ID set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 CALENDLY_CLIENT_SECRET set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_ID set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 TWITTER_CLIENT_SECRET set: True
+2025-07-04 14:38:37,996 - app.core.oauth_config - INFO - 📋 OAUTH_REDIRECT_BASE_URL set: False
+2025-07-04 14:38:38,029 - app.api.oauth_handler - INFO - 🔧 Initializing OAuthHandler...
+2025-07-04 14:38:38,263 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:38:38,486 - app.supabase.supabase_client - INFO - Supabase CRM Client initialized
+2025-07-04 14:38:38,486 - app.api.oauth_handler - INFO - ✅ Supabase clients initialized successfully
+2025-07-04 14:38:38,486 - app.api.oauth_handler - INFO - ✅ OAuthHandler initialized successfully
+2025-07-04 14:38:38,506 - __main__ - INFO - OAuth router loaded successfully
+2025-07-04 14:38:39,576 - __main__ - INFO - User configuration router loaded successfully
+2025-07-04 14:38:39,578 - __main__ - INFO - Starting PipeWise CRM Server with Supabase...
+2025-07-04 14:38:39,583 - __main__ - INFO - Server will start on 0.0.0.0:8001
+2025-07-04 14:38:39,590 - __main__ - INFO - Running in development mode with auto-reload.
+2025-07-04 14:38:39,590 - __main__ - INFO - Access the API documentation at http://localhost:8001/docs
+2025-07-04 14:38:39,590 - __main__ - INFO - Features: Supabase Auth, Google Authenticator, 2FA
+2025-07-04 14:38:40,148 - server - INFO - Full integrations module loaded successfully
+2025-07-04 14:38:40,155 - server - INFO - OAuth router loaded successfully
+2025-07-04 14:38:40,158 - server - INFO - User configuration router loaded successfully

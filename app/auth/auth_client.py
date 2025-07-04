@@ -4,7 +4,6 @@ import jwt
 import pyotp
 import qrcode
 import secrets
-import hashlib
 import logging
 from io import BytesIO
 from datetime import datetime, timedelta, timezone
@@ -15,9 +14,8 @@ import base64
 from supabase import create_client, Client
 from gotrue.errors import AuthApiError
 from passlib.context import CryptContext
-from passlib.hash import bcrypt
 
-from app.models.user import User, UserSession, AuthAuditLog
+from app.models.user import User, UserSession
 from app.schemas.auth_schema import (
     UserRegisterRequest,
     UserLoginRequest,
@@ -34,7 +32,9 @@ logger = logging.getLogger(__name__)
 class AuthenticationClient:
     """Cliente completo de autenticación con Supabase y 2FA"""
 
-    def __init__(self, supabase_url: str = None, supabase_key: str = None):
+    def __init__(
+        self, supabase_url: Optional[str] = None, supabase_key: Optional[str] = None
+    ):
         self.supabase_url = supabase_url or os.getenv("SUPABASE_URL")
         self.supabase_key = supabase_key or os.getenv("SUPABASE_ANON_KEY")
         self.jwt_secret = os.getenv("JWT_SECRET", "your-super-secret-jwt-key")
@@ -51,8 +51,18 @@ class AuthenticationClient:
                 "SUPABASE_URL and SUPABASE_ANON_KEY environment variables required"
             )
 
-        # Inicializar cliente Supabase
+        # Inicializar cliente Supabase para operaciones públicas
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
+
+        # FIXED: Inicializar cliente de admin con service_role_key para bypass RLS
+        supabase_service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        if not supabase_service_key:
+            logger.warning(
+                "SUPABASE_SERVICE_ROLE_KEY not set. Using anon key for admin operations, which may fail due to RLS."
+            )
+            self.admin_client: Client = self.client
+        else:
+            self.admin_client = create_client(self.supabase_url, supabase_service_key)
 
         # Configurar encriptación de contraseñas
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -82,7 +92,7 @@ class AuthenticationClient:
     # ===================== REGISTRO Y LOGIN =====================
 
     async def register_user(
-        self, user_data: UserRegisterRequest, ip_address: str = None
+        self, user_data: UserRegisterRequest, ip_address: Optional[str] = None
     ) -> Dict[str, Any]:
         """Registrar nuevo usuario"""
         try:
@@ -193,8 +203,8 @@ class AuthenticationClient:
     async def login_user(
         self,
         login_data: UserLoginRequest,
-        ip_address: str = None,
-        user_agent: str = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Login de usuario"""
         try:
@@ -214,7 +224,7 @@ class AuthenticationClient:
                 raise ValueError("Invalid email or password")
 
             # Obtener datos completos del usuario
-            user = await self.get_user_by_id(auth_response.user.id)
+            user = await self.get_user_by_id(str(auth_response.user.id))
             if not user:
                 raise Exception("User not found in database")
 
@@ -235,9 +245,10 @@ class AuthenticationClient:
                 temp_token = self._generate_secure_token()
 
                 # Guardar estado temporal (puedes usar Redis o base de datos)
-                await self._store_2fa_temp_session(
-                    user.id, temp_token, ip_address, user_agent
-                )
+                if user.id:
+                    await self._store_2fa_temp_session(
+                        user.id, temp_token, ip_address or "", user_agent or ""
+                    )
 
                 return {
                     "requires_2fa": True,
@@ -251,7 +262,8 @@ class AuthenticationClient:
             )
 
             # Actualizar último login
-            await self._update_last_login(user.id)
+            if user.id:
+                await self._update_last_login(str(user.id))
 
             # Log del evento
             await self._log_auth_event(
@@ -291,8 +303,8 @@ class AuthenticationClient:
         password: str,
         totp_code: str,
         temp_token: str,
-        ip_address: str = None,
-        user_agent: str = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Login con código 2FA"""
         try:
@@ -307,7 +319,9 @@ class AuthenticationClient:
                 raise ValueError("Invalid 2FA session")
 
             # Verificar código TOTP
-            if not self._verify_totp_code(user.totp_secret, totp_code):
+            if not user.totp_secret or not self._verify_totp_code(
+                user.totp_secret, totp_code
+            ):
                 await self._log_auth_event(
                     user_id=str(user.id),
                     email=user.email,
@@ -327,7 +341,8 @@ class AuthenticationClient:
             )
 
             # Actualizar último login
-            await self._update_last_login(user.id)
+            if user.id:
+                await self._update_last_login(str(user.id))
 
             # Log del evento
             await self._log_auth_event(
@@ -378,34 +393,77 @@ class AuthenticationClient:
         return jwt.encode(payload, self.jwt_secret, algorithm=self.jwt_algorithm)
 
     async def validate_token(self, token: str) -> TokenValidationResponse:
-        """Validar token de acceso"""
+        """Validar token JWT o token de Supabase"""
+        logger.info("🔍 Starting token validation process...")
+        logger.debug(f"📋 Token received (first 20 chars): {token[:20]}...")
+        logger.debug(f"📋 Token length: {len(token)}")
+
         try:
-            payload = jwt.decode(
-                token, self.jwt_secret, algorithms=[self.jwt_algorithm]
-            )
-
-            if payload.get("type") != "access":
+            # Primero, intentar validar como token de Supabase
+            logger.info("🔐 Attempting to validate token with Supabase...")
+            auth_response = self.client.auth.get_user(token)
+            if auth_response and auth_response.user:
+                logger.info(
+                    f"✅ Successfully validated Supabase token for user {auth_response.user.email}"
+                )
+                return TokenValidationResponse(
+                    valid=True,
+                    user_id=str(auth_response.user.id),
+                    email=auth_response.user.email,
+                    role=auth_response.user.user_metadata.get("role", "user"),
+                )
+            else:
+                # This case is unlikely but good to log
+                logger.warning(
+                    "⚠️ Supabase token validation returned no user but also no error."
+                )
                 return TokenValidationResponse(valid=False)
 
-            # Verificar que el usuario existe y está activo
-            user = await self.get_user_by_id(payload["sub"])
-            if not user or not user.is_active:
+        except AuthApiError as e:
+            # This is the most likely error path
+            logger.error(
+                f"❌ Supabase API error during token validation. Message: {e.message}. Status: {getattr(e, 'status', 'N/A')}"
+            )
+            logger.info("🔄 Attempting to validate as local JWT token...")
+
+            # Try to validate as local JWT token
+            try:
+                payload = jwt.decode(
+                    token, self.jwt_secret, algorithms=[self.jwt_algorithm]
+                )
+                logger.debug(f"📋 JWT payload decoded: {payload}")
+
+                if payload.get("type") != "access":
+                    logger.error("❌ Invalid JWT token type")
+                    return TokenValidationResponse(valid=False)
+
+                logger.info(
+                    f"✅ Successfully validated local JWT token for user {payload.get('sub')}"
+                )
+                return TokenValidationResponse(
+                    valid=True,
+                    user_id=payload.get("sub"),
+                    email=payload.get("email"),
+                    role=payload.get("role", "user"),
+                )
+
+            except jwt.ExpiredSignatureError:
+                logger.error("❌ JWT token expired")
+                return TokenValidationResponse(valid=False)
+            except jwt.InvalidTokenError as jwt_error:
+                logger.error(f"❌ Invalid JWT token: {jwt_error}")
+                return TokenValidationResponse(valid=False)
+            except Exception as jwt_exception:
+                logger.error(
+                    f"❌ Unexpected error during JWT validation: {jwt_exception}"
+                )
                 return TokenValidationResponse(valid=False)
 
-            return TokenValidationResponse(
-                valid=True,
-                user_id=payload["sub"],
-                email=payload["email"],
-                role=UserRole(payload["role"]),
-                expires_at=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
-            )
-
-        except jwt.ExpiredSignatureError:
-            return TokenValidationResponse(valid=False)
-        except jwt.InvalidTokenError:
-            return TokenValidationResponse(valid=False)
         except Exception as e:
-            logger.error(f"Token validation error: {e}")
+            logger.error(
+                f"❌ Unexpected error during Supabase token validation: {e}",
+                exc_info=True,
+            )
             return TokenValidationResponse(valid=False)
 
     async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
@@ -434,7 +492,8 @@ class AuthenticationClient:
             )
 
             # Actualizar actividad de la sesión
-            await self._update_session_activity(session.id)
+            if session.id:
+                await self._update_session_activity(session.id)
 
             return {
                 "access_token": access_token,
@@ -460,7 +519,9 @@ class AuthenticationClient:
             if not user:
                 raise ValueError("User not found")
 
-            if not self._verify_password(password, user.password_hash):
+            if not user.password_hash or not self._verify_password(
+                password, user.password_hash
+            ):
                 raise ValueError("Invalid password")
 
             if user.has_2fa:
@@ -483,7 +544,7 @@ class AuthenticationClient:
 
             img = qr.make_image(fill_color="black", back_color="white")
             buffer = BytesIO()
-            img.save(buffer, format="PNG")
+            img.save(buffer, "PNG")
             qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
 
             # Guardar temporalmente (no activar hasta verificar)
@@ -571,8 +632,8 @@ class AuthenticationClient:
         self,
         user_id: str,
         password: str,
-        totp_code: str = None,
-        backup_code: str = None,
+        totp_code: Optional[str] = None,
+        backup_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Deshabilitar 2FA"""
         try:
@@ -580,7 +641,9 @@ class AuthenticationClient:
             if not user:
                 raise ValueError("User not found")
 
-            if not self._verify_password(password, user.password_hash):
+            if not user.password_hash or not self._verify_password(
+                password, user.password_hash
+            ):
                 raise ValueError("Invalid password")
 
             if not user.has_2fa:
@@ -590,6 +653,8 @@ class AuthenticationClient:
             verified = False
 
             if totp_code:
+                if not user.totp_secret:
+                    raise ValueError("2FA secret not found for user")
                 verified = self._verify_totp_code(user.totp_secret, totp_code)
             elif backup_code and user.backup_codes:
                 verified = any(
@@ -632,9 +697,16 @@ class AuthenticationClient:
     # ===================== GESTIÓN DE USUARIOS =====================
 
     async def get_user_by_id(self, user_id: str) -> Optional[User]:
-        """Obtener usuario por ID"""
+        """Obtener usuario de nuestra tabla users usando el cliente de admin para bypass RLS"""
         try:
-            result = self.client.table("users").select("*").eq("id", user_id).execute()
+            # Seleccionar usuario de la tabla 'users' con el cliente de admin
+            result = (
+                self.admin_client.table("users")
+                .select("*")
+                .eq("id", user_id)
+                .limit(1)
+                .execute()
+            )
 
             if result.data:
                 return User(**result.data[0])
@@ -645,14 +717,19 @@ class AuthenticationClient:
             return None
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
-        """Obtener usuario por email"""
+        """Obtener usuario por email usando el cliente de admin para bypass RLS"""
         try:
-            result = self.client.table("users").select("*").eq("email", email).execute()
+            result = (
+                self.admin_client.table("users")
+                .select("*")
+                .eq("email", email)
+                .limit(1)
+                .execute()
+            )
 
             if result.data:
                 return User(**result.data[0])
             return None
-
         except Exception as e:
             logger.error(f"Get user by email error: {e}")
             return None
@@ -669,7 +746,7 @@ class AuthenticationClient:
             is_active=user.is_active,
             email_confirmed=user.email_confirmed,
             has_2fa=user.has_2fa,
-            created_at=user.created_at,
+            created_at=user.created_at or datetime.now(timezone.utc),
             last_login=user.last_login,
         )
 
@@ -679,8 +756,8 @@ class AuthenticationClient:
         self,
         user: User,
         remember_me: bool,
-        ip_address: str = None,
-        user_agent: str = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ) -> Tuple[str, str]:
         """Crear sesión de usuario y tokens"""
         try:
@@ -725,14 +802,14 @@ class AuthenticationClient:
 
     async def _log_auth_event(
         self,
-        user_id: str = None,
-        email: str = None,
+        user_id: Optional[str] = None,
+        email: Optional[str] = None,
         action: str = "",
         success: bool = True,
-        ip_address: str = None,
-        user_agent: str = None,
-        error_message: str = None,
-        details: Dict[str, Any] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+        error_message: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
     ):
         """Registrar evento de autenticación"""
         try:
@@ -869,8 +946,8 @@ class AuthenticationClient:
         self,
         supabase_user: Dict[str, Any],
         provider_token: str,
-        ip_address: str = None,
-        user_agent: str = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Sync Supabase OAuth user with our backend system"""
         try:
@@ -878,7 +955,11 @@ class AuthenticationClient:
             try:
                 # Verify token by getting user data from Supabase
                 verify_response = self.client.auth.get_user(provider_token)
-                if not verify_response.user or verify_response.user.id != supabase_user.get("id"):
+                if (
+                    not verify_response
+                    or not verify_response.user
+                    or verify_response.user.id != supabase_user.get("id")
+                ):
                     raise ValueError("Invalid provider token")
             except Exception as e:
                 logger.error(f"Token verification failed: {e}")
@@ -886,22 +967,25 @@ class AuthenticationClient:
 
             user_id = supabase_user.get("id")
             email = supabase_user.get("email")
-            
+
             if not user_id or not email:
                 raise ValueError("Invalid user data from Supabase")
 
             # Check if user already exists in our system
             existing_user = await self.get_user_by_id(user_id)
-            
+
             if existing_user:
                 # Update existing user's last login and activity
                 await self._update_last_login(user_id)
-                
+
                 # Create new session
                 access_token, refresh_token = await self._create_user_session(
-                    existing_user, remember_me=True, ip_address=ip_address, user_agent=user_agent
+                    existing_user,
+                    remember_me=True,
+                    ip_address=ip_address,
+                    user_agent=user_agent,
                 )
-                
+
                 # Log successful OAuth login
                 await self._log_auth_event(
                     user_id=str(existing_user.id),
@@ -909,9 +993,9 @@ class AuthenticationClient:
                     action="oauth_login",
                     success=True,
                     ip_address=ip_address,
-                    details={"provider": "google"}
+                    details={"provider": "google"},
                 )
-                
+
                 return {
                     "access_token": access_token,
                     "refresh_token": refresh_token,
@@ -922,19 +1006,20 @@ class AuthenticationClient:
             else:
                 # Create new user from OAuth data
                 user_metadata = supabase_user.get("user_metadata", {})
-                app_metadata = supabase_user.get("app_metadata", {})
-                
+
                 # Extract user info from OAuth provider
                 full_name = (
-                    user_metadata.get("full_name") or 
-                    user_metadata.get("name") or 
-                    f"{user_metadata.get('given_name', '')} {user_metadata.get('family_name', '')}".strip() or
-                    email.split("@")[0]
+                    user_metadata.get("full_name")
+                    or user_metadata.get("name")
+                    or f"{user_metadata.get('given_name', '')} {user_metadata.get('family_name', '')}".strip()
+                    or email.split("@")[0]
                 )
-                
+
                 # Determine auth provider
-                provider = "google"  # Default, could be extracted from app_metadata if needed
-                
+                provider = (
+                    "google"  # Default, could be extracted from app_metadata if needed
+                )
+
                 # Create user record
                 user_dict = {
                     "id": user_id,
@@ -943,7 +1028,9 @@ class AuthenticationClient:
                     "company": user_metadata.get("company"),
                     "phone": user_metadata.get("phone"),
                     "role": UserRole.USER.value,  # Default role for OAuth users
-                    "auth_provider": AuthProvider.GOOGLE.value if provider == "google" else AuthProvider.EMAIL.value,
+                    "auth_provider": AuthProvider.GOOGLE.value
+                    if provider == "google"
+                    else AuthProvider.EMAIL.value,
                     "password_hash": None,  # OAuth users don't have passwords
                     "is_active": True,
                     "email_confirmed": True,  # OAuth emails are pre-verified
@@ -951,22 +1038,29 @@ class AuthenticationClient:
                     "created_at": self._get_current_timestamp().isoformat(),
                     "updated_at": self._get_current_timestamp().isoformat(),
                     "last_login": self._get_current_timestamp().isoformat(),
-                    "preferences": {"theme": "light", "language": "en", "timezone": "UTC"},
+                    "preferences": {
+                        "theme": "light",
+                        "language": "en",
+                        "timezone": "UTC",
+                    },
                 }
 
                 # Insert user into our database
                 result = self.client.table("users").insert(user_dict).execute()
-                
+
                 if not result.data:
                     raise Exception("Failed to create user record")
 
                 new_user = User(**result.data[0])
-                
+
                 # Create session for new user
                 access_token, refresh_token = await self._create_user_session(
-                    new_user, remember_me=True, ip_address=ip_address, user_agent=user_agent
+                    new_user,
+                    remember_me=True,
+                    ip_address=ip_address,
+                    user_agent=user_agent,
                 )
-                
+
                 # Log successful OAuth registration and login
                 await self._log_auth_event(
                     user_id=str(new_user.id),
@@ -974,35 +1068,35 @@ class AuthenticationClient:
                     action="oauth_register_login",
                     success=True,
                     ip_address=ip_address,
-                    details={"provider": provider}
+                    details={"provider": provider},
                 )
-                
+
                 return {
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                     "token_type": "bearer",
                     "expires_in": self.access_token_expire_minutes * 60,
                     "user": self._user_to_profile(new_user),
-                    "message": "Account created and logged in successfully"
+                    "message": "Account created and logged in successfully",
                 }
-                
+
         except ValueError as e:
             # Log failed OAuth attempt
             await self._log_auth_event(
-                email=supabase_user.get("email"),
+                email=str(supabase_user.get("email")),
                 action="oauth_sync_attempt",
                 success=False,
                 ip_address=ip_address,
-                error_message=str(e)
+                error_message=str(e),
             )
             raise
         except Exception as e:
             logger.error(f"Supabase user sync error: {e}")
             await self._log_auth_event(
-                email=supabase_user.get("email"),
-                action="oauth_sync_attempt", 
+                email=str(supabase_user.get("email")),
+                action="oauth_sync_attempt",
                 success=False,
                 ip_address=ip_address,
-                error_message=str(e)
+                error_message=str(e),
             )
             raise Exception("Failed to sync user authentication")

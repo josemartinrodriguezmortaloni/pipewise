@@ -26,8 +26,53 @@ from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
-from app.agents.tools.calendly import CalendlyClient
+# from app.agents.tools.calendly import CalendlyClient  # TEMPORARILY DISABLED - Use MCP instead
 from app.agents.tools.pipedream_mcp import PipedreamMCPClient
+
+
+# Temporary CalendlyClient wrapper using MCP
+class CalendlyClient:
+    """Temporary wrapper for Calendly using MCP backend"""
+
+    def __init__(self, access_token: str):
+        self.access_token = access_token
+        self.mcp_client = PipedreamMCPClient()
+
+    def health_check(self) -> Dict[str, Any]:
+        """Mock health check"""
+        if not self.access_token or self.access_token == "":
+            return {"status": "unhealthy", "error": "No access token"}
+        return {
+            "status": "disabled",
+            "message": "Using MCP backend - legacy client disabled",
+        }
+
+    def get_current_user(self) -> Dict[str, Any]:
+        """Mock user data"""
+        return {
+            "resource": {
+                "uri": "https://api.calendly.com/users/mock-user",
+                "name": "Mock User",
+                "email": "user@example.com",
+                "timezone": "UTC",
+            }
+        }
+
+    def get_event_types(self, user_uri: str) -> Dict[str, Any]:
+        """Mock event types"""
+        return {"collection": [{"name": "Sales Call", "duration": 30, "active": True}]}
+
+    def create_personalized_link(
+        self, lead_id: str, event_type_name: str
+    ) -> Dict[str, Any]:
+        """Mock link creation"""
+        return {
+            "success": True,
+            "booking_url": f"https://calendly.com/mock-booking-{lead_id}",
+            "event_type": event_type_name,
+            "fallback": True,
+        }
+
 
 # Database imports
 # Note: This project uses Supabase instead of traditional ORM

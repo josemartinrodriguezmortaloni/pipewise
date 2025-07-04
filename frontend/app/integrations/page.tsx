@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { IntegrationsSettings } from "@/components/integrations-settings";
 import {
   SidebarProvider,
@@ -17,7 +18,15 @@ export default function IntegrationsPage() {
             <SidebarTrigger />
           </header>
           <div className="flex-1 space-y-4 p-6 pr-6 pb-0">
-            <IntegrationsSettings />
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              }
+            >
+              <IntegrationsSettings />
+            </Suspense>
           </div>
         </div>
       </SidebarInset>
