@@ -47,7 +47,6 @@ from app.supabase.supabase_client import SupabaseCRMClient
 
 # Import router de configuración de usuario (se incluirá al final para evitar rutas vacías)
 from app.api.user_config_router import router as user_config_router
-from app.api.oauth_router import router as oauth_router
 
 # Cargar variables de entorno
 load_dotenv()
@@ -136,27 +135,28 @@ app = FastAPI(
 
 # ===================== CONFIGURACIÓN DE CORS =====================
 
-# Orígenes permitidos para CORS
+# Configurar CORS
 allowed_origins = [
-    "http://localhost:3000",  # Frontend de React en desarrollo
-    "http://localhost:3001",  # Puerto alternativo para React
+    "http://localhost:3000",  # React development
+    "http://localhost:3001",  # Alternative React port
     "http://127.0.0.1:3000",
-    "https://app.pipewise.com",  # Dominio de producción
-    "https://pipewise.vercel.app",  # Despliegue en Vercel
+    "https://app.pipewise.com",  # Production frontend
+    "https://pipewise.vercel.app",  # Vercel deployment
 ]
 
-# Agregar orígenes desde variables de entorno si existen
-additional_origins = os.getenv("ALLOWED_ORIGINS")
-if additional_origins:
-    allowed_origins.extend([origin.strip() for origin in additional_origins.split(",")])
+# Agregar origins adicionales desde variables de entorno
+additional_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+allowed_origins.extend(
+    [origin.strip() for origin in additional_origins if origin.strip()]
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
-    expose_headers=["Content-Disposition", "X-Total-Count", "X-Rate-Limit-Remaining"],
+    expose_headers=["X-Total-Count", "X-Rate-Limit-Remaining", "X-Rate-Limit-Reset"],
 )
 
 # ===================== MIDDLEWARE DE SEGURIDAD =====================
@@ -364,9 +364,6 @@ app.include_router(calendar_router)
 
 # Incluir router de eventos
 app.include_router(events_router)
-
-# Incluir router OAuth
-app.include_router(oauth_router)
 
 # FIXED: Include user config router with correct prefix
 app.include_router(user_config_router, prefix="/api/user", tags=["User Configuration"])

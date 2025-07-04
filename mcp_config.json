@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "python",
+      "args": [
+        "app/agents/tools/supabase_mcp.py"
+      ],
+      "env": {
+        "SUPABASE_URL": "https://jqnfcscgtcawazgdwxsh.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxbmZjc2NndGNhd2F6Z2R3eHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0MzYzNjcsImV4cCI6MjA2MzAxMjM2N30.rIEFtEXw4RDgZzdyKTdzlVCtKLOIt0q6a2sRSfbIjDo"
+      }
+    },
+    "calendly": {
+      "command": "python",
+      "args": [
+        "app/agents/tools/calendly.py"
+      ],
+      "env": {
+        "CALENDLY_ACCESS_TOKEN": "eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzQ5MzI2NjM4LCJqdGkiOiI1M2I5YTFjOC0xZGVjLTQ3YTctODg5MC0zMTkwNTA2Mzk1MzUiLCJ1c2VyX3V1aWQiOiJmNmJkYTc5YS03MzVjLTRlNzYtYTdhMS1iNjMxMGI3OGExYTkifQ.zWt33b0oOyOLtw8bX3tzVKvto3lDk-Xs7nB-XwqZR1GwNoUrbVuxy-qL0QHMjaFTUDxvoGyAxtOgCwHIcyItTg"
+      }
+    }
+  }
+}

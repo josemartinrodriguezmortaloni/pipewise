@@ -26,66 +26,40 @@ class AuthMiddleware:
         self, credentials: HTTPAuthorizationCredentials = Depends(security)
     ) -> User:
         """Obtener usuario actual desde el token"""
-        logger.info("🔐 Starting authentication process...")
-        logger.debug(f"📋 Token received: {credentials.credentials[:20]}...")
-
         try:
             # Validar token
-            logger.info("🔍 Validating token...")
             token_data = await self.auth_client.validate_token(credentials.credentials)
-            logger.debug(f"📋 Token validation result: valid={token_data.valid}")
 
             if not token_data.valid:
-                logger.error("❌ Token validation failed - invalid token")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid authentication token",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
-            logger.info(f"✅ Token valid, user_id: {token_data.user_id}")
-
-            # Verificar que user_id no sea None
-            if not token_data.user_id:
-                logger.error("❌ Token validation failed - no user_id in token")
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token data",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-
             # Obtener usuario completo
-            logger.info(f"👤 Fetching user by ID: {token_data.user_id}")
             user = await self.auth_client.get_user_by_id(token_data.user_id)
 
             if not user:
-                logger.error(f"❌ User not found for ID: {token_data.user_id}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="User not found",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
-            logger.info(f"✅ User found: {user.email}, active: {user.is_active}")
-
             if not user.is_active:
-                logger.error(f"❌ User account disabled: {user.email}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="User account is disabled",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
-            logger.info(f"✅ Authentication successful for user: {user.email}")
             return user
 
-        except HTTPException as e:
-            logger.error(f"❌ HTTP Exception during authentication: {e.detail}")
+        except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"❌ Unexpected authentication error: {e}")
-            logger.error(f"❌ Exception type: {type(e).__name__}")
-            logger.error(f"❌ Exception details: {str(e)}")
+            logger.error(f"Authentication error: {e}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Authentication failed",

@@ -3,7 +3,6 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Union, Any
 from uuid import UUID, uuid4
-from dotenv import load_dotenv
 
 from supabase import create_client, Client
 from postgrest.exceptions import APIError
@@ -21,15 +20,9 @@ from app.schemas.contacts_schema import (
     OutreachMessageCreate,
 )
 
-load_dotenv()
-
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 
 class SupabaseCRMClient:
@@ -40,21 +33,14 @@ class SupabaseCRMClient:
     ):
         self.supabase_url = supabase_url or os.getenv("SUPABASE_URL")
         self.supabase_key = supabase_key or os.getenv("SUPABASE_ANON_KEY")
-        supabase_service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
         if not self.supabase_url or not self.supabase_key:
             raise ValueError(
                 "SUPABASE_URL and SUPABASE_ANON_KEY environment variables required"
             )
-        if not supabase_service_key:
-            raise ValueError("SUPABASE_SERVICE_ROLE_KEY environment variable required")
 
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
-        self.admin_client: Client = create_client(
-            self.supabase_url, supabase_service_key
-        )
         logger.info("Supabase CRM Client initialized")
-        logger.info(f"Admin client configured: {bool(supabase_service_key)}")
 
     def _get_current_timestamp(self) -> str:
         """Obtener timestamp actual en formato ISO"""
@@ -659,7 +645,7 @@ class SupabaseCRMClient:
         """Verificar el estado de la conexión a Supabase"""
         try:
             # Intentar una consulta simple
-            self.client.table("leads").select("id").limit(1).execute()
+            result = self.client.table("leads").select("id").limit(1).execute()
 
             return {
                 "status": "healthy",
@@ -848,19 +834,6 @@ def serialize_for_json(obj: Any) -> Any:
         return obj
 
 
-def get_supabase_client() -> Client:
-    """Get the Supabase client."""
-    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
-        raise ValueError(
-            "Supabase URL and Anon Key must be set in environment variables."
-        )
-    return create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-
-def get_supabase_admin_client() -> Client:
-    """Get the Supabase admin client with service_role_key."""
-    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        raise ValueError(
-            "Supabase URL and Service Role Key must be set for admin operations."
-        )
-    return create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+def get_supabase_client() -> SupabaseCRMClient:
+    """Get a Supabase CRM client instance."""
+    return SupabaseCRMClient()
