@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Integration } from "@/lib/integrations-config";
 import { api } from "@/lib/api";
 
-// Configuración de la URL base del backend
+// Backend base URL configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 interface OAuthIntegrationCardProps {
@@ -39,7 +39,7 @@ export function OAuthIntegrationCard({
 
   const handleConnect = async () => {
     if (!integration.oauthUrl) {
-      toast.error("OAuth no configurado para esta integración");
+      toast.error("OAuth not configured for this integration");
       return;
     }
 
@@ -47,22 +47,20 @@ export function OAuthIntegrationCard({
     try {
       const redirectUrl = `${window.location.origin}/integrations?connected=${integration.key}`;
 
-      // Obtener la URL de autorización desde el backend
+      // Get authorization URL from backend
       const response = await api.startOAuthFlow(integration.key, redirectUrl);
 
       if (response && response.authorization_url) {
-        // Redirigir al usuario a la página de autorización del proveedor
+        // Redirect user to provider's authorization page
         window.location.href = response.authorization_url;
       } else {
-        throw new Error(
-          "No se recibió una URL de autorización válida del servidor."
-        );
+        throw new Error("No valid authorization URL received from server.");
       }
     } catch (error) {
       console.error("Error starting OAuth flow:", error);
       toast.error(
-        `Error al iniciar la conexión OAuth: ${
-          error instanceof Error ? error.message : "Error desconocido"
+        `Error starting OAuth connection: ${
+          error instanceof Error ? error.message : "Unknown error"
         }`
       );
       setIsLoading(false);
@@ -73,11 +71,11 @@ export function OAuthIntegrationCard({
     setIsLoading(true);
     try {
       await api.post(`/api/integrations/${integration.key}/oauth/disconnect`);
-      toast.success(`Desconectado de ${integration.name}`);
+      toast.success(`Disconnected from ${integration.name}`);
       onConnectionUpdate();
     } catch (error) {
       console.error("Error disconnecting:", error);
-      toast.error("Error al desconectar la integración");
+      toast.error("Error disconnecting integration");
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +101,7 @@ export function OAuthIntegrationCard({
               variant={isConnected ? "default" : "secondary"}
               className="text-xs"
             >
-              {isConnected ? "Conectado" : "Desconectado"}
+              {isConnected ? "Connected" : "Disconnected"}
             </Badge>
             {integration.docs && (
               <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0">
@@ -111,7 +109,7 @@ export function OAuthIntegrationCard({
                   href={integration.docs}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Ver documentación"
+                  title="View documentation"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>
@@ -129,12 +127,12 @@ export function OAuthIntegrationCard({
                 <Separator />
                 <div className="text-sm">
                   <div className="font-medium text-gray-700 mb-2">
-                    Información de la cuenta:
+                    Account information:
                   </div>
                   <div className="space-y-1 text-gray-600">
                     {connectionData.profile.name && (
                       <div>
-                        <span className="font-medium">Nombre:</span>{" "}
+                        <span className="font-medium">Name:</span>{" "}
                         {connectionData.profile.name}
                       </div>
                     )}
@@ -146,7 +144,7 @@ export function OAuthIntegrationCard({
                     )}
                     {connectionData.profile.username && (
                       <div>
-                        <span className="font-medium">Usuario:</span> @
+                        <span className="font-medium">Username:</span> @
                         {connectionData.profile.username}
                       </div>
                     )}
@@ -157,9 +155,9 @@ export function OAuthIntegrationCard({
 
             {connectionData?.connected_at && (
               <div className="text-xs text-gray-500">
-                Conectado el:{" "}
+                Connected on:{" "}
                 {new Date(connectionData.connected_at).toLocaleDateString(
-                  "es-ES",
+                  "en-US",
                   {
                     year: "numeric",
                     month: "long",
@@ -178,7 +176,7 @@ export function OAuthIntegrationCard({
                 disabled
                 className="bg-green-600 text-white"
               >
-                Conectado
+                Connected
               </Button>
               <Button
                 variant="outline"
@@ -187,7 +185,7 @@ export function OAuthIntegrationCard({
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Desconectar
+                Disconnect
               </Button>
             </div>
           </div>
@@ -195,7 +193,9 @@ export function OAuthIntegrationCard({
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <AlertCircle className="h-4 w-4" />
-              <span>Conecta tu cuenta de {integration.name} con un clic</span>
+              <span>
+                Connect your {integration.name} account with one click
+              </span>
             </div>
 
             <div className="flex justify-end">
@@ -205,7 +205,7 @@ export function OAuthIntegrationCard({
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Conectar con {integration.name}
+                Connect with {integration.name}
               </Button>
             </div>
           </div>

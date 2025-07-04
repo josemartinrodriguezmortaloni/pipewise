@@ -13,8 +13,14 @@ import logging
 import httpx
 from fastapi import HTTPException
 import uuid
+import base64
 
-from app.core.oauth_config import get_oauth_config, build_redirect_uri
+from app.core.oauth_config import (
+    get_oauth_config,
+    build_redirect_uri,
+    generate_pkce_pair,
+    get_services_requiring_pkce,
+)
 from app.core.security import encrypt_oauth_tokens, decrypt_oauth_tokens, safe_decrypt
 from app.supabase.supabase_client import get_supabase_client, get_supabase_admin_client
 
@@ -81,13 +87,24 @@ class OAuthHandler:
         state = secrets.token_urlsafe(32)
         logger.debug(f"🔐 Generated state token: {state[:10]}...")
 
-        # Store state with user context
-        self._state_store[state] = {
+        # Initialize state data
+        state_data = {
             "user_id": user_id,
             "service": service,
             "timestamp": datetime.utcnow(),
             "redirect_url": redirect_url,
         }
+
+        # Generate PKCE if required for this service
+        pkce_data = None
+        if service in get_services_requiring_pkce():
+            pkce_data = generate_pkce_pair()
+            state_data["code_verifier"] = pkce_data["code_verifier"]
+            logger.info(f"🔐 Generated PKCE pair for {service}")
+            logger.debug(f"📋 Code challenge: {pkce_data['code_challenge'][:10]}...")
+
+        # Store state with user context
+        self._state_store[state] = state_data
         logger.info(f"💾 Stored state for user {user_id}, service {service}")
 
         # Build authorization URL
@@ -110,6 +127,12 @@ class OAuthHandler:
         if oauth_config.scope:
             params["scope"] = oauth_config.scope
             logger.debug(f"📋 Added scope: {oauth_config.scope}")
+
+        # Add PKCE parameters if required
+        if pkce_data:
+            params["code_challenge"] = pkce_data["code_challenge"]
+            params["code_challenge_method"] = pkce_data["code_challenge_method"]
+            logger.debug(f"📋 Added PKCE parameters for {service}")
 
         # Add extra parameters if specified
         if oauth_config.extra_params:
@@ -155,9 +178,6 @@ class OAuthHandler:
             del self._state_store[state]
             raise HTTPException(status_code=400, detail="State token expired")
 
-        # Clean up state
-        del self._state_store[state]
-
         # Validate service matches
         if state_data["service"] != service:
             raise HTTPException(status_code=400, detail="Service mismatch in state")
@@ -173,8 +193,11 @@ class OAuthHandler:
             )
 
         try:
-            # Exchange code for tokens
-            tokens = await self._exchange_code_for_tokens(service, code)
+            # Exchange code for tokens (passing state_data for PKCE)
+            tokens = await self._exchange_code_for_tokens(service, code, state_data)
+
+            # Clean up state after successful token exchange
+            del self._state_store[state]
 
             # Get user profile if available
             user_profile = await self._get_user_profile(service, tokens)
@@ -197,12 +220,15 @@ class OAuthHandler:
 
         except Exception as e:
             logger.error(f"OAuth callback error for {service}: {e}")
+            # Clean up state on error
+            if state in self._state_store:
+                del self._state_store[state]
             raise HTTPException(
                 status_code=500, detail=f"Failed to complete OAuth flow: {str(e)}"
             )
 
     async def _exchange_code_for_tokens(
-        self, service: str, code: str
+        self, service: str, code: str, state_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Exchange authorization code for access tokens"""
         oauth_config = get_oauth_config(service)
@@ -214,20 +240,47 @@ class OAuthHandler:
         token_data = {
             "grant_type": "authorization_code",
             "client_id": oauth_config.client_id,
-            "client_secret": oauth_config.client_secret,
             "code": code,
             "redirect_uri": redirect_uri,
         }
+
+        # Prepare headers
+        headers = {"Accept": "application/json"}
+
+        # Twitter requires Basic Authentication in header instead of client_secret in body
+        if service == "twitter_account":
+            credentials = f"{oauth_config.client_id}:{oauth_config.client_secret}"
+            encoded_credentials = base64.b64encode(credentials.encode()).decode()
+            headers["Authorization"] = f"Basic {encoded_credentials}"
+            logger.info(f"🔐 Using Basic Authentication for Twitter token exchange")
+        else:
+            # For other services, include client_secret in body
+            token_data["client_secret"] = oauth_config.client_secret
+
+        # Add PKCE code_verifier if required
+        if service in get_services_requiring_pkce() and state_data:
+            code_verifier = state_data.get("code_verifier")
+            if code_verifier:
+                token_data["code_verifier"] = code_verifier
+                logger.info(f"🔐 Added code_verifier for {service} token exchange")
+            else:
+                logger.warning(
+                    f"⚠️ PKCE required for {service} but no code_verifier found"
+                )
+
+        logger.debug(f"📋 Token exchange data keys: {list(token_data.keys())}")
+        logger.debug(f"📋 Request headers: {list(headers.keys())}")
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 oauth_config.token_url,
                 data=token_data,
-                headers={"Accept": "application/json"},
+                headers=headers,
             )
 
             if response.status_code != 200:
                 logger.error(f"Token exchange failed for {service}: {response.text}")
+                logger.error(f"Status code: {response.status_code}")
                 raise ValueError(f"Token exchange failed: {response.status_code}")
 
             tokens = response.json()

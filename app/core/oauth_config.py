@@ -7,8 +7,12 @@ All client credentials are stored as environment variables for security.
 
 import os
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
+import base64
+import hashlib
+import secrets
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -187,3 +191,34 @@ def validate_oauth_env_vars():
 
 # Ejecutar validación al importar el módulo
 # validate_oauth_env_vars()  # Comentado para desarrollo - permitir que el servidor inicie sin todas las variables OAuth
+
+
+def generate_pkce_pair() -> Dict[str, str]:
+    """
+    Generate PKCE code_verifier and code_challenge pair for OAuth 2.0.
+    Required for Twitter OAuth 2.0.
+
+    Returns:
+        Dict containing code_verifier and code_challenge
+    """
+    # Generate code_verifier (43-128 characters, URL-safe)
+    code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode("utf-8")
+    code_verifier = re.sub("[^a-zA-Z0-9]+", "", code_verifier)
+
+    # Generate code_challenge (SHA256 hash of code_verifier, base64 encoded)
+    code_challenge = hashlib.sha256(code_verifier.encode("utf-8")).digest()
+    code_challenge = base64.urlsafe_b64encode(code_challenge).decode("utf-8")
+    code_challenge = code_challenge.replace("=", "")
+
+    return {
+        "code_verifier": code_verifier,
+        "code_challenge": code_challenge,
+        "code_challenge_method": "S256",
+    }
+
+
+def get_services_requiring_pkce() -> List[str]:
+    """
+    Return list of services that require PKCE.
+    """
+    return ["twitter_account", "instagram_account"]

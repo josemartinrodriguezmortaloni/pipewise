@@ -34,14 +34,14 @@ export function IntegrationsSettings() {
 
     if (success) {
       const integration = getIntegrationByKey(success);
-      toast.success(`${integration?.name || success} conectado exitosamente`);
+      toast.success(`${integration?.name || success} connected successfully`);
       // Clean up URL
       router.replace("/integrations");
     }
 
     if (error) {
       const integration = getIntegrationByKey(error);
-      toast.error(`Error conectando ${integration?.name || error}`);
+      toast.error(`Error connecting ${integration?.name || error}`);
       // Clean up URL
       router.replace("/integrations");
     }
@@ -60,10 +60,10 @@ export function IntegrationsSettings() {
   const loadUserAccounts = async () => {
     try {
       setLoading(true);
-      // Usar la API autenticada con la ruta corregida
+      // Use authenticated API with the corrected route
       const data = await api.get("/api/user/integrations/accounts");
-      // El backend ahora retorna un array plano de cuentas
-      // Mapear a la estructura esperada por el frontend
+      // The backend now returns a flat array of accounts
+      // Map to the structure expected by the frontend
       const mappedAccounts = (Array.isArray(data) ? data : []).map(
         (acc: any) => ({
           account_id: `oauth_${acc.service}`,
@@ -77,7 +77,7 @@ export function IntegrationsSettings() {
       setAccounts(mappedAccounts);
     } catch (error) {
       console.error("Error loading accounts:", error);
-      toast.error("Error cargando configuraciones de cuentas");
+      toast.error("Error loading account configurations");
     } finally {
       setLoading(false);
     }
@@ -120,17 +120,17 @@ export function IntegrationsSettings() {
     const getCategoryName = (cat: string) => {
       switch (cat) {
         case "calendar":
-          return "Calendario";
+          return "Calendar";
         case "email":
           return "Email";
         case "social":
-          return "Redes Sociales";
+          return "Social Media";
         case "crm":
           return "CRM";
         case "automation":
-          return "Automatización";
+          return "Automation";
         default:
-          return "Otros";
+          return "Other";
       }
     };
 
@@ -167,21 +167,19 @@ export function IntegrationsSettings() {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold">
-          Configuración de Integraciones
-        </h3>
+        <h3 className="text-lg font-semibold">Integration Settings</h3>
         <p className="text-sm text-muted-foreground">
-          Conecta tus cuentas y servicios para automatizar la gestión de leads y
-          comunicaciones usando OAuth 2.0.
+          Connect your accounts and services to automate lead management and
+          communications using OAuth 2.0.
         </p>
       </div>
 
       <div className="space-y-8">
         <div>
-          <h4 className="text-md font-medium mb-2">🔐 Conexiones OAuth</h4>
+          <h4 className="text-md font-medium mb-2">🔐 OAuth Connections</h4>
           <p className="text-sm text-muted-foreground mb-6">
-            Conecta con un solo clic usando OAuth 2.0. Estas integraciones se
-            autentican de forma segura sin necesidad de compartir credenciales.
+            Connect with one click using OAuth 2.0. These integrations
+            authenticate securely without the need to share credentials.
           </p>
 
           {categories.map((category) => renderIntegrationsByCategory(category))}
