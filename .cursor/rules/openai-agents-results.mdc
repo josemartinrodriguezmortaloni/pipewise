@@ -1,0 +1,455 @@
+---
+description: How to handle the results from agents using the Agent SDK from OpenAI
+globs: 
+alwaysApply: false
+---
+# OpenAI Agent SDK - Results Handling
+
+Guidelines for properly handling and processing results from OpenAI Agent SDK runs, covering RunResult, RunResultStreaming, and result processing patterns.
+
+## Result Types
+
+### RunResult
+Returned by `Runner.run()` and `Runner.run_sync()` - complete results.
+
+### RunResultStreaming  
+Returned by `Runner.run_streamed()` - streaming results for real-time processing.
+
+### RunResultBase
+Base class containing most useful information shared by both result types.
+
+## Core Result Properties
+
+### Final Output
+```python
+async def handle_agent_result():
+    result = await Runner.run(agent, "Process this request")
+    
+    # Get the final output from the last agent
+    final_output = result.final_output
+    
+    # Type depends on agent's output_type
+    if hasattr(result.last_agent, 'output_type'):
+        # Structured output based on agent's output_type
+        typed_output = result.final_output  # Type: last_agent.output_type
+    else:
+        # Default string output
+        text_output = result.final_output  # Type: str
+```
+
+### Last Agent Context
+```python
+async def process_with_context():
+    result = await Runner.run(agent, "Handle user request")
+    
+    # Get the last agent that executed
+    last_agent = result.last_agent
+    
+    # Use for next interaction context
+    print(f"Last agent: {last_agent.name}")
+    
+    # Store for conversation continuity
+    conversation_context = {
+        "last_agent": last_agent.name,
+        "final_output": result.final_output
+    }
+```
+
+## Result Item Processing
+
+### New Items Analysis
+```python
+from agents import (
+    MessageOutputItem, HandoffCallItem, HandoffOutputItem,
+    ToolCallItem, ToolCallOutputItem, ReasoningItem
+)
+
+async def analyze_result_items(result: RunResult):
+    """Process all new items generated during the run."""
+    
+    for item in result.new_items:
+        if isinstance(item, MessageOutputItem):
+            # LLM generated message
+            message = item.raw_item
+            print(f"LLM Message: {message}")
+            
+        elif isinstance(item, HandoffCallItem):
+            # LLM called handoff tool
+            handoff_call = item.raw_item
+            print(f"Handoff requested: {handoff_call}")
+            
+        elif isinstance(item, HandoffOutputItem):
+            # Handoff occurred
+            source_agent = item.source_agent
+            target_agent = item.target_agent
+            print(f"Handoff: {source_agent.name} -> {target_agent.name}")
+            
+        elif isinstance(item, ToolCallItem):
+            # LLM invoked a tool
+            tool_call = item.raw_item
+            print(f"Tool called: {tool_call.name}")
+            
+        elif isinstance(item, ToolCallOutputItem):
+            # Tool execution completed
+            tool_output = item.tool_output
+            print(f"Tool result: {tool_output}")
+            
+        elif isinstance(item, ReasoningItem):
+            # LLM reasoning (if available)
+            reasoning = item.raw_item
+            print(f"LLM Reasoning: {reasoning}")
+```
+
+### Item Processing Patterns
+```python
+def extract_tool_usage(result: RunResult) -> Dict[str, Any]:
+    """Extract tool usage statistics from result."""
+    
+    tool_calls = []
+    tool_outputs = []
+    
+    for item in result.new_items:
+        if isinstance(item, ToolCallItem):
+            tool_calls.append({
+                "name": item.raw_item.name,
+                "arguments": item.raw_item.arguments,
+                "timestamp": getattr(item, 'timestamp', None)
+            })
+        elif isinstance(item, ToolCallOutputItem):
+            tool_outputs.append({
+                "output": item.tool_output,
+                "success": not hasattr(item, 'error'),
+                "timestamp": getattr(item, 'timestamp', None)
+            })
+    
+    return {
+        "tool_calls": tool_calls,
+        "tool_outputs": tool_outputs,
+        "total_tools_used": len(tool_calls)
+    }
+
+def extract_handoff_chain(result: RunResult) -> List[Dict[str, str]]:
+    """Extract the chain of handoffs that occurred."""
+    
+    handoffs = []
+    for item in result.new_items:
+        if isinstance(item, HandoffOutputItem):
+            handoffs.append({
+                "from": item.source_agent.name,
+                "to": item.target_agent.name,
+                "context": str(item.raw_item)
+            })
+    
+    return handoffs
+```
+
+## Conversation Continuity
+
+### Input Chaining
+```python
+async def continue_conversation(previous_result: RunResult, new_input: str):
+    """Continue conversation by chaining previous result with new input."""
+    
+    # Convert previous result to input format
+    continued_input = previous_result.to_input_list()
+    
+    # Add new user input
+    continued_input.append(new_input)
+    
+    # Use last agent for continuity
+    result = await Runner.run(
+        previous_result.last_agent, 
+        continued_input
+    )
+    
+    return result
+
+# Example usage
+async def multi_turn_conversation():
+    # First turn
+    result1 = await Runner.run(agent, "Tell me about Python")
+    
+    # Second turn - continue conversation
+    result2 = await continue_conversation(result1, "Can you give me an example?")
+    
+    # Third turn - continue further
+    result3 = await continue_conversation(result2, "How about a more complex example?")
+    
+    return result3
+```
+
+### Conversation State Management
+```python
+class ConversationManager:
+    def __init__(self, initial_agent: Agent):
+        self.current_agent = initial_agent
+        self.conversation_history = []
+        
+    async def send_message(self, message: str) -> RunResult:
+        """Send message and maintain conversation state."""
+        
+        # Build input from history + new message
+        if self.conversation_history:
+            input_list = self.conversation_history + [message]
+        else:
+            input_list = message
+            
+        # Run with current agent
+        result = await Runner.run(self.current_agent, input_list)
+        
+        # Update state
+        self.current_agent = result.last_agent
+        self.conversation_history = result.to_input_list()
+        
+        return result
+    
+    def get_conversation_summary(self) -> Dict[str, Any]:
+        """Get summary of conversation state."""
+        return {
+            "current_agent": self.current_agent.name,
+            "message_count": len(self.conversation_history),
+            "last_output": self.conversation_history[-1] if self.conversation_history else None
+        }
+```
+
+## Streaming Results
+
+### Basic Streaming Pattern
+```python
+async def handle_streaming_result():
+    """Process streaming results in real-time."""
+    
+    streaming_result = await Runner.run_streamed(agent, "Generate a long response")
+    
+    async for chunk in streaming_result:
+        if hasattr(chunk, 'content'):
+            # Process content as it arrives
+            print(chunk.content, end='', flush=True)
+        
+        # Access other properties as they become available
+        if hasattr(chunk, 'new_items'):
+            for item in chunk.new_items:
+                # Process items in real-time
+                process_item_immediately(item)
+    
+    # Get final result
+    final_result = streaming_result.final_result
+    return final_result
+```
+
+### Streaming with Progress Tracking
+```python
+async def stream_with_progress(input_text: str) -> RunResult:
+    """Stream results with progress tracking."""
+    
+    progress = {
+        "tokens_received": 0,
+        "tools_called": 0,
+        "handoffs_made": 0,
+        "messages_generated": 0
+    }
+    
+    streaming_result = await Runner.run_streamed(agent, input_text)
+    
+    async for chunk in streaming_result:
+        # Update progress counters
+        if hasattr(chunk, 'content'):
+            progress["tokens_received"] += len(chunk.content.split())
+            
+        if hasattr(chunk, 'new_items'):
+            for item in chunk.new_items:
+                if isinstance(item, ToolCallItem):
+                    progress["tools_called"] += 1
+                elif isinstance(item, HandoffOutputItem):
+                    progress["handoffs_made"] += 1
+                elif isinstance(item, MessageOutputItem):
+                    progress["messages_generated"] += 1
+        
+        # Emit progress updates
+        emit_progress_update(progress)
+    
+    return streaming_result.final_result
+```
+
+## Error Handling and Validation
+
+### Result Validation
+```python
+def validate_result(result: RunResult) -> bool:
+    """Validate that result contains expected data."""
+    
+    # Check for final output
+    if not result.final_output:
+        logger.warning("Result has no final output")
+        return False
+    
+    # Check for errors in tool calls
+    for item in result.new_items:
+        if isinstance(item, ToolCallOutputItem):
+            if hasattr(item, 'error') and item.error:
+                logger.error(f"Tool call failed: {item.error}")
+                return False
+    
+    # Check for successful completion
+    if not result.last_agent:
+        logger.warning("No agent completed the task")
+        return False
+    
+    return True
+
+async def safe_agent_run(agent: Agent, input_text: str) -> Optional[RunResult]:
+    """Run agent with proper error handling and validation."""
+    
+    try:
+        result = await Runner.run(agent, input_text)
+        
+        if validate_result(result):
+            return result
+        else:
+            logger.error("Result validation failed")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Agent run failed: {e}")
+        return None
+```
+
+## Result Processing Utilities
+
+### Result Analysis
+```python
+class ResultAnalyzer:
+    @staticmethod
+    def get_execution_summary(result: RunResult) -> Dict[str, Any]:
+        """Generate comprehensive execution summary."""
+        
+        summary = {
+            "final_output_length": len(str(result.final_output)),
+            "last_agent": result.last_agent.name if result.last_agent else "Unknown",
+            "total_items": len(result.new_items),
+            "item_breakdown": {},
+            "tools_used": [],
+            "handoffs_made": [],
+            "has_errors": False
+        }
+        
+        # Analyze items
+        for item in result.new_items:
+            item_type = type(item).__name__
+            summary["item_breakdown"][item_type] = summary["item_breakdown"].get(item_type, 0) + 1
+            
+            if isinstance(item, ToolCallItem):
+                summary["tools_used"].append(item.raw_item.name)
+            elif isinstance(item, HandoffOutputItem):
+                summary["handoffs_made"].append(f"{item.source_agent.name} -> {item.target_agent.name}")
+            elif hasattr(item, 'error') and item.error:
+                summary["has_errors"] = True
+        
+        return summary
+    
+    @staticmethod
+    def extract_conversation_flow(result: RunResult) -> List[Dict[str, Any]]:
+        """Extract the flow of conversation/execution."""
+        
+        flow = []
+        for i, item in enumerate(result.new_items):
+            flow_item = {
+                "step": i + 1,
+                "type": type(item).__name__,
+                "timestamp": getattr(item, 'timestamp', None)
+            }
+            
+            if isinstance(item, MessageOutputItem):
+                flow_item["content"] = item.raw_item[:100] + "..." if len(item.raw_item) > 100 else item.raw_item
+            elif isinstance(item, ToolCallItem):
+                flow_item["tool"] = item.raw_item.name
+                flow_item["arguments"] = item.raw_item.arguments
+            elif isinstance(item, HandoffOutputItem):
+                flow_item["handoff"] = f"{item.source_agent.name} -> {item.target_agent.name}"
+            
+            flow.append(flow_item)
+        
+        return flow
+```
+
+## Complete Result Handling Example
+
+```python
+async def comprehensive_result_handling(agent: Agent, input_text: str):
+    """Complete example of proper result handling."""
+    
+    try:
+        # Run agent
+        result = await Runner.run(agent, input_text)
+        
+        # Validate result
+        if not validate_result(result):
+            return {"error": "Invalid result"}
+        
+        # Extract key information
+        final_output = result.final_output
+        last_agent = result.last_agent
+        
+        # Analyze execution
+        analyzer = ResultAnalyzer()
+        summary = analyzer.get_execution_summary(result)
+        flow = analyzer.extract_conversation_flow(result)
+        
+        # Process specific items
+        tool_usage = extract_tool_usage(result)
+        handoff_chain = extract_handoff_chain(result)
+        
+        # Prepare for next turn
+        next_input = result.to_input_list()
+        
+        return {
+            "success": True,
+            "final_output": final_output,
+            "last_agent": last_agent.name,
+            "execution_summary": summary,
+            "conversation_flow": flow,
+            "tool_usage": tool_usage,
+            "handoff_chain": handoff_chain,
+            "next_input": next_input,
+            "raw_result": result  # Keep reference for advanced usage
+        }
+        
+    except Exception as e:
+        logger.error(f"Result handling failed: {e}")
+        return {"error": str(e)}
+
+# Usage
+async def main():
+    result_data = await comprehensive_result_handling(
+        agent, 
+        "Please help me analyze this data and create a report"
+    )
+    
+    if result_data.get("success"):
+        print(f"Task completed by: {result_data['last_agent']}")
+        print(f"Tools used: {len(result_data['tool_usage']['tool_calls'])}")
+        print(f"Final output: {result_data['final_output']}")
+    else:
+        print(f"Error: {result_data.get('error')}")
+```
+
+## Best Practices
+
+### Result Processing
+- Always validate results before using them
+- Extract and store relevant information for analytics
+- Handle streaming results appropriately for real-time applications
+- Maintain conversation context for multi-turn interactions
+
+### Error Handling
+- Implement comprehensive error checking for tool calls
+- Validate result structure and content
+- Provide fallback mechanisms for failed operations
+- Log detailed error information for debugging
+
+### Performance
+- Process result items efficiently in loops
+- Cache frequently accessed result data
+- Use streaming for long-running operations
+- Implement proper timeout handling
+

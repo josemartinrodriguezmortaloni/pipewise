@@ -1,0 +1,466 @@
+---
+description: How to create Tools for agents using the Agent SDK from OpenAI
+globs: 
+alwaysApply: false
+---
+# OpenAI Agent SDK - Tools
+
+Guidelines for implementing and using tools in the OpenAI Agent SDK, covering function tools, hosted tools, and agents as tools.
+
+## Tool Categories
+
+### 1. Hosted Tools
+Run on LLM servers alongside AI models (OpenAI-provided).
+
+### 2. Function Tools  
+Use any Python function as a tool with automatic schema generation.
+
+### 3. Agents as Tools
+Use agents as tools for orchestration without handoffs.
+
+## Hosted Tools
+
+### Available Hosted Tools
+```python
+from agents import Agent, FileSearchTool, WebSearchTool, ComputerTool
+
+agent = Agent(
+    name="Assistant",
+    tools=[
+        WebSearchTool(),
+        FileSearchTool(
+            max_num_results=3,
+            vector_store_ids=["VECTOR_STORE_ID"],
+        ),
+        ComputerTool()  # For computer automation tasks
+    ],
+)
+```
+
+### Usage Example
+```python
+async def main():
+    result = await Runner.run(
+        agent, 
+        "Which coffee shop should I go to, taking into account my preferences and the weather today in SF?"
+    )
+    print(result.final_output)
+```
+
+## Function Tools
+
+### Automatic Schema Generation
+The SDK automatically:
+- Uses function name as tool name (or custom name via `name_override`)
+- Extracts tool description from docstring
+- Generates schema from function signature using `inspect` module
+- Parses argument descriptions from docstring using `griffe`
+
+### Basic Function Tool
+```python
+from agents import function_tool
+from typing_extensions import TypedDict
+
+class Location(TypedDict):
+    lat: float
+    long: float
+
+@function_tool  
+async def fetch_weather(location: Location) -> str:
+    """Fetch the weather for a given location.
+
+    Args:
+        location: The location to fetch the weather for.
+    """
+    # In real life, we'd fetch the weather from a weather API
+    return "sunny"
+```
+
+### Function Tool with Context
+```python
+from agents import RunContextWrapper, function_tool
+
+@function_tool(name_override="fetch_data")  
+def read_file(ctx: RunContextWrapper[Any], path: str, directory: str | None = None) -> str:
+    """Read the contents of a file.
+
+    Args:
+        path: The path to the file to read.
+        directory: The directory to read the file from.
+    """
+    # Access context for user info, conversation history, etc.
+    user_id = ctx.user_id
+    return "<file contents>"
+```
+
+### Tool Registration and Inspection
+```python
+import json
+from agents import Agent, FunctionTool
+
+agent = Agent(
+    name="Assistant",
+    tools=[fetch_weather, read_file],  
+)
+
+# Inspect generated tools
+for tool in agent.tools:
+    if isinstance(tool, FunctionTool):
+        print(f"Tool: {tool.name}")
+        print(f"Description: {tool.description}")
+        print(f"Schema: {json.dumps(tool.params_json_schema, indent=2)}")
+```
+
+## Function Tool Best Practices
+
+### Comprehensive Type Annotations
+```python
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel
+
+class ContactInfo(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = None
+
+@function_tool
+async def create_contact(contact: ContactInfo, tags: List[str] = None) -> Dict[str, Any]:
+    """Create a new contact in the system.
+    
+    Args:
+        contact: The contact information to create
+        tags: Optional tags to associate with the contact
+        
+    Returns:
+        Dictionary containing the created contact ID and status
+    """
+    # Implementation here
+    return {"id": "contact_123", "status": "created"}
+```
+
+### Error Handling in Tools
+```python
+@function_tool
+async def safe_api_call(endpoint: str, params: Dict[str, Any]) -> str:
+    """Make a safe API call with proper error handling.
+    
+    Args:
+        endpoint: The API endpoint to call
+        params: Parameters to send with the request
+        
+    Raises:
+        ValueError: If endpoint is invalid
+        ConnectionError: If API is unreachable
+    """
+    try:
+        # API call implementation
+        response = await make_api_request(endpoint, params)
+        return response
+    except Exception as e:
+        # Return error info that the LLM can understand and act on
+        return f"API call failed: {str(e)}. Please try with different parameters."
+```
+
+### Docstring Formats
+Supports Google, Sphinx, and NumPy docstring formats:
+
+```python
+# Google style (recommended)
+@function_tool
+def google_style_function(param1: str, param2: int) -> str:
+    """Brief description of function.
+    
+    Args:
+        param1: Description of param1
+        param2: Description of param2
+        
+    Returns:
+        Description of return value
+    """
+    pass
+
+# Sphinx style
+@function_tool  
+def sphinx_style_function(param1: str, param2: int) -> str:
+    """Brief description of function.
+    
+    :param param1: Description of param1
+    :param param2: Description of param2
+    :return: Description of return value
+    """
+    pass
+```
+
+### Disable Docstring Parsing
+```python
+@function_tool(use_docstring_info=False)
+def minimal_tool(data: str) -> str:
+    """This docstring will be ignored."""
+    return data.upper()
+```
+
+## Agents as Tools
+
+Use agents as tools for orchestration without transferring control.
+
+### Basic Agent as Tool
+```python
+from agents import Agent, Runner
+
+# Specialized agents
+spanish_agent = Agent(
+    name="Spanish agent",
+    instructions="You translate the user's message to Spanish",
+)
+
+french_agent = Agent(
+    name="French agent", 
+    instructions="You translate the user's message to French",
+)
+
+# Orchestrator using agents as tools
+orchestrator_agent = Agent(
+    name="orchestrator_agent",
+    instructions=(
+        "You are a translation agent. You use the tools given to you to translate."
+        "If asked for multiple translations, you call the relevant tools."
+    ),
+    tools=[
+        spanish_agent.as_tool(
+            tool_name="translate_to_spanish",
+            tool_description="Translate the user's message to Spanish",
+        ),
+        french_agent.as_tool(
+            tool_name="translate_to_french", 
+            tool_description="Translate the user's message to French",
+        ),
+    ],
+)
+```
+
+### Advanced Agent Tool Patterns
+```python
+# Specialized analysis agents
+data_analysis_agent = Agent(
+    name="Data Analyst",
+    instructions="Analyze data and provide statistical insights",
+    tools=[data_processing_tool, visualization_tool]
+)
+
+report_generation_agent = Agent(
+    name="Report Generator",
+    instructions="Generate comprehensive reports from analysis",
+    tools=[formatting_tool, chart_tool]
+)
+
+# Master orchestrator
+research_orchestrator = Agent(
+    name="Research Orchestrator",
+    instructions="""You coordinate research tasks by:
+    1. Using data analysis agent for statistical work
+    2. Using report generation agent for final outputs  
+    3. Combining results into comprehensive research""",
+    tools=[
+        data_analysis_agent.as_tool(
+            tool_name="analyze_data",
+            tool_description="Perform statistical analysis on datasets"
+        ),
+        report_generation_agent.as_tool(
+            tool_name="generate_report",
+            tool_description="Create formatted reports from analysis"
+        )
+    ]
+)
+```
+
+## Tool Development Patterns
+
+### Tool Factory Pattern
+```python
+def create_api_tool(api_name: str, base_url: str, auth_header: str):
+    """Factory function to create API-specific tools."""
+    
+    @function_tool(name_override=f"{api_name}_api_call")
+    async def api_tool(endpoint: str, method: str = "GET", data: Dict = None) -> str:
+        f"""Make API calls to {api_name}.
+        
+        Args:
+            endpoint: The API endpoint to call
+            method: HTTP method (GET, POST, PUT, DELETE)
+            data: Optional data to send with request
+        """
+        headers = {"Authorization": auth_header}
+        # Implementation here
+        return f"API response from {api_name}"
+    
+    return api_tool
+
+# Create specific API tools
+calendly_tool = create_api_tool("Calendly", "https://api.calendly.com", f"Bearer {token}")
+email_tool = create_api_tool("Email", "https://api.sendgrid.com", f"Bearer {key}")
+```
+
+### Conditional Tool Loading
+```python
+def create_agent_with_conditional_tools(user_permissions: List[str]) -> Agent:
+    """Create agent with tools based on user permissions."""
+    
+    tools = [basic_tool]  # Always available
+    
+    if "admin" in user_permissions:
+        tools.extend([admin_tool, delete_tool])
+    
+    if "integration_access" in user_permissions:
+        tools.extend([api_tool, webhook_tool])
+        
+    return Agent(
+        name="Conditional Agent",
+        instructions="Use available tools based on user permissions",
+        tools=tools
+    )
+```
+
+## Tool Configuration and Validation
+
+### Tool Input Validation
+```python
+from pydantic import BaseModel, Field, validator
+
+class EmailData(BaseModel):
+    to: str = Field(..., description="Recipient email address")
+    subject: str = Field(..., min_length=1, description="Email subject")
+    body: str = Field(..., min_length=1, description="Email body content")
+    
+    @validator('to')
+    def validate_email(cls, v):
+        if '@' not in v:
+            raise ValueError('Invalid email address')
+        return v
+
+@function_tool
+async def send_email(email_data: EmailData) -> str:
+    """Send an email with validation.
+    
+    Args:
+        email_data: Email data with recipient, subject, and body
+    """
+    # Pydantic will automatically validate the input
+    # Implementation here
+    return f"Email sent to {email_data.to}"
+```
+
+### Tool Output Schemas
+```python
+from typing import Union
+
+class ToolResult(BaseModel):
+    success: bool
+    data: Union[str, Dict[str, Any]]
+    error: Optional[str] = None
+
+@function_tool
+async def structured_tool(input_data: str) -> ToolResult:
+    """Tool that returns structured output.
+    
+    Args:
+        input_data: The data to process
+        
+    Returns:
+        ToolResult with success status and data or error
+    """
+    try:
+        result = process_data(input_data)
+        return ToolResult(success=True, data=result)
+    except Exception as e:
+        return ToolResult(success=False, error=str(e))
+```
+
+## Performance and Monitoring
+
+### Tool Performance Tracking
+```python
+import time
+from functools import wraps
+
+def track_tool_performance(func):
+    """Decorator to track tool execution time."""
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.time()
+        try:
+            result = await func(*args, **kwargs)
+            execution_time = time.time() - start_time
+            logger.info(f"Tool {func.__name__} executed in {execution_time:.2f}s")
+            return result
+        except Exception as e:
+            execution_time = time.time() - start_time
+            logger.error(f"Tool {func.__name__} failed after {execution_time:.2f}s: {e}")
+            raise
+    return wrapper
+
+@function_tool
+@track_tool_performance
+async def monitored_tool(data: str) -> str:
+    """Tool with performance monitoring."""
+    # Implementation here
+    return processed_data
+```
+
+## Complete Tool Integration Example
+
+```python
+# Complete example showing all tool types
+from agents import Agent, WebSearchTool, function_tool, Runner
+
+# Function tools
+@function_tool
+async def calculate_metrics(data: List[float]) -> Dict[str, float]:
+    """Calculate statistical metrics for data.
+    
+    Args:
+        data: List of numerical values to analyze
+        
+    Returns:
+        Dictionary with mean, median, std deviation
+    """
+    return {
+        "mean": sum(data) / len(data),
+        "median": sorted(data)[len(data) // 2],
+        "std_dev": calculate_std(data)
+    }
+
+# Specialized agents as tools
+analysis_agent = Agent(
+    name="Data Analyzer",
+    instructions="Analyze data and provide insights",
+    tools=[calculate_metrics]
+)
+
+# Main agent with all tool types
+comprehensive_agent = Agent(
+    name="Research Assistant",
+    instructions="""You help with research and analysis tasks using:
+    - Web search for external information
+    - Data analysis for numerical insights  
+    - Specialized agents for complex tasks""",
+    tools=[
+        WebSearchTool(),  # Hosted tool
+        calculate_metrics,  # Function tool
+        analysis_agent.as_tool(  # Agent as tool
+            tool_name="deep_analysis",
+            tool_description="Perform deep data analysis"
+        )
+    ]
+)
+
+# Usage
+async def main():
+    result = await Runner.run(
+        comprehensive_agent,
+        "Research market trends and analyze the data [1, 2, 3, 4, 5]"
+    )
+    print(result.final_output)
+```
+
+Refer to the OpenAI Agent SDK documentation and `examples/` directory for more comprehensive tool examples.
+

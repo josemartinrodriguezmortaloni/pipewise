@@ -1,0 +1,309 @@
+---
+description: How to create AI Agents using the Agent SDK from OpenAI
+globs: 
+alwaysApply: false
+---
+# OpenAI Agent SDK - Model Context Protocol (MCP)
+
+Guidelines for integrating MCP servers with OpenAI Agent SDK to provide standardized tools and context to LLMs.
+
+## MCP Overview
+
+MCP (Model Context Protocol) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications - it provides a standardized way to connect AI models to different data sources and tools.
+
+## MCP Server Types
+
+### 1. Stdio Servers
+Run as subprocess of your application (locally).
+
+```python
+from agents import MCPServerStdio
+
+# Example: Using the official MCP filesystem server
+async with MCPServerStdio(
+    params={
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", samples_dir],
+    }
+) as server:
+    tools = await server.list_tools()
+```
+
+### 2. HTTP over SSE Servers
+Run remotely via URL connection.
+
+```python
+from agents import MCPServerSse
+
+# Example: Connecting to remote MCP server
+async with MCPServerSse(
+    url="https://your-mcp-server.com/sse",
+    headers={"Authorization": "Bearer your-token"}
+) as server:
+    tools = await server.list_tools()
+```
+
+## Agent Integration
+
+### Basic MCP Integration
+```python
+from agents import Agent, MCPServerStdio, MCPServerSse
+
+# Create MCP servers
+filesystem_server = MCPServerStdio(
+    params={
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+)
+
+database_server = MCPServerSse(
+    url="https://db-mcp-server.com/sse"
+)
+
+# Add MCP servers to agent
+agent = Agent(
+    name="Assistant",
+    instructions="Use the tools to achieve the task",
+    mcp_servers=[filesystem_server, database_server]
+)
+```
+
+### MCP Tool Usage Pattern
+The SDK automatically:
+1. Calls `list_tools()` on MCP servers when agent runs
+2. Makes LLM aware of available MCP tools  
+3. Calls `call_tool()` on server when LLM uses an MCP tool
+
+```python
+# No manual tool registration needed - MCP handles this automatically
+async def run_agent_with_mcp():
+    result = await Runner.run(
+        agent, 
+        "Search for files containing 'config' and read their contents"
+    )
+    return result.final_output
+```
+
+## Performance Optimization
+
+### Tool Caching
+Enable caching when tool lists are stable to reduce latency.
+
+```python
+# Enable tool caching for stable MCP servers
+filesystem_server = MCPServerStdio(
+    params={
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", samples_dir]
+    },
+    cache_tools_list=True  # Only use if tool list won't change
+)
+
+database_server = MCPServerSse(
+    url="https://db-server.com/sse",
+    cache_tools_list=True
+)
+```
+
+### Cache Management
+```python
+# Invalidate cache when needed
+async def refresh_mcp_tools():
+    await filesystem_server.invalidate_tools_cache()
+    await database_server.invalidate_tools_cache()
+```
+
+### Conditional Caching Strategy
+```python
+# Use caching selectively based on server type
+def create_mcp_server(server_type: str, **kwargs):
+    if server_type == "filesystem":
+        # Filesystem tools are stable - use caching
+        return MCPServerStdio(
+            cache_tools_list=True,
+            **kwargs
+        )
+    elif server_type == "dynamic_api":
+        # API tools may change - don't cache
+        return MCPServerSse(
+            cache_tools_list=False,
+            **kwargs
+        )
+```
+
+## Error Handling and Reliability
+
+### Connection Management
+```python
+async def safe_mcp_agent_run(agent: Agent, input_text: str):
+    try:
+        result = await Runner.run(agent, input_text)
+        return result
+    except MCPServerError as e:
+        # Handle MCP server connection issues
+        logger.error(f"MCP server error: {e}")
+        # Fallback to agent without MCP tools
+        fallback_agent = Agent(
+            name=agent.name,
+            instructions=agent.instructions,
+            tools=agent.tools  # Exclude MCP servers
+        )
+        return await Runner.run(fallback_agent, input_text)
+```
+
+### Server Health Checks
+```python
+async def verify_mcp_servers(servers: list[MCPServerStdio | MCPServerSse]):
+    """Verify MCP servers are responsive before using agent."""
+    for server in servers:
+        try:
+            tools = await server.list_tools()
+            logger.info(f"MCP server healthy with {len(tools)} tools")
+        except Exception as e:
+            logger.warning(f"MCP server unhealthy: {e}")
+            # Consider removing from agent or using fallback
+```
+
+## Tracing and Monitoring
+
+### Automatic Tracing
+MCP operations are automatically captured in tracing:
+- Calls to MCP server to list tools
+- MCP-related info on function calls
+- Performance metrics for MCP operations
+
+```python
+# Tracing is automatic - just enable it in your agent
+agent = Agent(
+    name="MCP Agent",
+    instructions="Use MCP tools for file and data operations",
+    mcp_servers=[filesystem_server, database_server]
+)
+
+# Run with tracing enabled
+result = await Runner.run(agent, input_text, trace=True)
+
+# Access trace information
+for item in result.new_items:
+    if hasattr(item, 'mcp_info'):
+        logger.info(f"MCP operation: {item.mcp_info}")
+```
+
+## Common MCP Integration Patterns
+
+### File System Operations
+```python
+# Filesystem MCP server for file operations
+filesystem_agent = Agent(
+    name="File Assistant",
+    instructions="""You help users with file operations:
+    - Search for files by name or content
+    - Read file contents
+    - List directory structures
+    - Create and modify files when requested""",
+    mcp_servers=[
+        MCPServerStdio(
+            params={
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"]
+            },
+            cache_tools_list=True
+        )
+    ]
+)
+```
+
+### Database Integration
+```python
+# Database MCP server for data operations
+database_agent = Agent(
+    name="Data Assistant", 
+    instructions="""You help users query and analyze data:
+    - Execute SQL queries safely
+    - Summarize data patterns
+    - Generate reports from database results""",
+    mcp_servers=[
+        MCPServerSse(
+            url="https://your-db-mcp.com/sse",
+            headers={"Authorization": f"Bearer {db_api_key}"}
+        )
+    ]
+)
+```
+
+### Multi-Source Integration
+```python
+# Agent with multiple MCP servers for comprehensive capabilities
+comprehensive_agent = Agent(
+    name="Research Assistant",
+    instructions="""You are a research assistant with access to:
+    - File system for document analysis
+    - Database for structured data queries  
+    - Web APIs for external data sources
+    
+    Use the appropriate tools based on the user's request.""",
+    mcp_servers=[
+        filesystem_server,
+        database_server,
+        web_api_server
+    ]
+)
+```
+
+## Best Practices
+
+### Server Selection
+- Use stdio servers for local, fast operations (file system, local databases)
+- Use SSE servers for remote services and APIs
+- Enable caching only for stable tool sets
+- Implement health checks for critical MCP servers
+
+### Agent Design
+- Clearly document available MCP capabilities in agent instructions
+- Provide fallback mechanisms when MCP servers are unavailable
+- Monitor MCP tool usage patterns for optimization
+
+### Development Workflow
+- Test MCP servers independently before agent integration
+- Use examples from `examples/mcp` directory for reference implementations
+- Implement proper error handling for network-dependent MCP servers
+
+## Complete Example
+
+```python
+# Complete MCP integration example
+async def create_mcp_powered_agent():
+    # Configure MCP servers
+    fs_server = MCPServerStdio(
+        params={
+            "command": "npx", 
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "./data"]
+        },
+        cache_tools_list=True
+    )
+    
+    # Create agent with MCP integration
+    agent = Agent(
+        name="Research Assistant",
+        instructions="""You help with research tasks using available tools:
+        - Search and read files for relevant information
+        - Analyze document contents
+        - Summarize findings from multiple sources""",
+        mcp_servers=[fs_server]
+    )
+    
+    return agent
+
+# Usage
+async def main():
+    agent = await create_mcp_powered_agent()
+    result = await Runner.run(
+        agent, 
+        "Find all documents about 'machine learning' and summarize key findings"
+    )
+    print(result.final_output)
+```
+
+Refer to `examples/mcp` in the OpenAI Agent SDK for complete working examples.
+

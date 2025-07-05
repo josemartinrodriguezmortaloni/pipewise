@@ -1,0 +1,212 @@
+---
+description: How to orchestrates agente created using the Agent SDK from OpenAI
+globs: 
+alwaysApply: false
+---
+# OpenAI Agent SDK - Orchestration Patterns
+
+Guidelines for orchestrating multiple agents using the OpenAI Agent SDK, covering both LLM-based and code-based orchestration approaches.
+
+## Orchestration Approaches
+
+### 1. LLM-Based Orchestration
+
+Use when tasks are open-ended and you want to leverage LLM intelligence for planning and decision-making.
+
+**Best Practices:**
+- Invest in good prompts with clear tool descriptions and operational parameters
+- Monitor and iterate based on performance observations
+- Allow agents to introspect and self-improve through loops and error feedback
+- Use specialized agents that excel at specific tasks rather than general-purpose agents
+- Implement comprehensive evaluation systems
+
+**Example Pattern:**
+```python
+research_agent = Agent(
+    name="Research Agent",
+    instructions="""You are a research agent equipped with:
+    - Web search for online information
+    - File search for proprietary data
+    - Code execution for data analysis
+    - Handoffs to specialized planning and writing agents
+    
+    Always be clear about your approach and reasoning.""",
+    tools=[web_search_tool, file_search_tool, code_execution_tool],
+    handoffs=[planning_agent, writing_agent]
+)
+```
+
+### 2. Code-Based Orchestration
+
+Use for more deterministic, predictable workflows in terms of speed, cost, and performance.
+
+**Common Patterns:**
+
+#### Structured Classification
+```python
+# Use structured outputs to classify and route tasks
+classifier_agent = Agent(
+    name="Task Classifier",
+    instructions="Classify the incoming task into predefined categories",
+    output_type=TaskClassification
+)
+
+result = await Runner.run(classifier_agent, task_input)
+next_agent = select_agent_by_category(result.final_output.category)
+```
+
+#### Sequential Chaining
+```python
+# Chain agents by transforming output of one into input of the next
+async def blog_post_workflow(topic: str):
+    # Research phase
+    research_result = await Runner.run(research_agent, f"Research: {topic}")
+    
+    # Outline phase
+    outline_result = await Runner.run(
+        outline_agent, 
+        research_result.to_input_list() + [f"Create outline for: {topic}"]
+    )
+    
+    # Writing phase
+    draft_result = await Runner.run(
+        writing_agent,
+        outline_result.to_input_list() + ["Write the blog post"]
+    )
+    
+    return draft_result
+```
+
+#### Evaluation Loops
+```python
+# Run task agent with evaluator feedback until criteria are met
+async def iterative_improvement(task: str, max_iterations: int = 3):
+    current_result = await Runner.run(task_agent, task)
+    
+    for i in range(max_iterations):
+        evaluation = await Runner.run(
+            evaluator_agent,
+            current_result.to_input_list() + ["Evaluate and provide feedback"]
+        )
+        
+        if evaluation.final_output.passes_criteria:
+            break
+            
+        current_result = await Runner.run(
+            task_agent,
+            current_result.to_input_list() + [evaluation.final_output.feedback]
+        )
+    
+    return current_result
+```
+
+#### Parallel Execution
+```python
+# Run independent agents concurrently for speed
+async def parallel_analysis(data_sources: list[str]):
+    tasks = [
+        Runner.run(analysis_agent, f"Analyze: {source}")
+        for source in data_sources
+    ]
+    
+    results = await asyncio.gather(*tasks)
+    return results
+```
+
+## Agent Design Principles
+
+### Specialization Over Generalization
+- Create agents focused on specific domains or tasks
+- Use handoffs to delegate to specialized agents
+- Avoid creating overly broad general-purpose agents
+
+### Clear Instructions and Boundaries
+- Define clear operational parameters and constraints
+- Specify available tools and their usage patterns
+- Include examples of expected behavior and outputs
+
+### Error Handling and Recovery
+- Implement error feedback mechanisms
+- Allow agents to self-correct through iteration
+- Provide clear error context and recovery suggestions
+
+## Implementation Guidelines
+
+### Agent Configuration
+```python
+# Specialized agent example
+lead_qualifier = Agent(
+    name="Lead Qualifier",
+    instructions="""You qualify leads by:
+    1. Analyzing contact information and engagement history
+    2. Scoring leads based on predefined criteria
+    3. Categorizing leads into hot/warm/cold buckets
+    4. Handoff to meeting scheduler for qualified leads""",
+    tools=[lead_analysis_tool, scoring_tool],
+    handoffs=[meeting_scheduler_agent],
+    output_type=LeadQualificationResult
+)
+```
+
+### Orchestration Controller
+```python
+# Central orchestration logic
+class AgentOrchestrator:
+    def __init__(self):
+        self.coordinator = coordinator_agent
+        self.specialists = {
+            "lead_qualification": lead_qualifier_agent,
+            "meeting_scheduling": meeting_scheduler_agent,
+            "follow_up": follow_up_agent
+        }
+    
+    async def process_lead(self, lead_data: LeadData):
+        # Route through coordinator for intelligent orchestration
+        result = await Runner.run(
+            self.coordinator,
+            f"Process lead: {lead_data.to_dict()}"
+        )
+        return result
+```
+
+### Result Handling
+```python
+# Proper result processing and chaining
+async def handle_agent_result(result: RunResult):
+    # Extract final output
+    output = result.final_output
+    
+    # Get the last agent for context
+    last_agent = result.last_agent
+    
+    # Convert to input for next agent if needed
+    next_input = result.to_input_list()
+    
+    # Process new items generated
+    for item in result.new_items:
+        if isinstance(item, HandoffCallItem):
+            # Handle handoff logic
+            await process_handoff(item)
+        elif isinstance(item, ToolCallItem):
+            # Log tool usage
+            log_tool_usage(item)
+    
+    return output
+```
+
+## Monitoring and Evaluation
+
+### Performance Tracking
+- Monitor agent execution times and costs
+- Track handoff patterns and success rates
+- Measure task completion quality
+
+### Iterative Improvement
+- Analyze failure patterns and optimize prompts
+- Refine agent specializations based on usage
+- Update orchestration logic based on performance data
+
+## Examples Reference
+
+Refer to `examples/agent_patterns` in the OpenAI Agent SDK for complete working examples of these orchestration patterns.
+

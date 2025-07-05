@@ -1,0 +1,257 @@
+# Frontend Directory Structure - PipeWise
+
+Esta regla define la estructura completa del frontend de PipeWise construido con Next.js 15, App Router, TypeScript y Tailwind CSS.
+
+## Root Directory Structure
+
+```
+frontend/
+├── [app/](mdc:frontend/app/)                    # Next.js App Router pages y layouts
+├── [components/](mdc:frontend/components/)      # Componentes React reutilizables
+├── [hooks/](mdc:frontend/hooks/)                # Custom React hooks
+├── [lib/](mdc:frontend/lib/)                    # Librerías y configuraciones
+├── [public/](mdc:frontend/public/)              # Assets estáticos
+├── [.next/](mdc:frontend/.next/)                # Build output Next.js (auto-generado)
+├── [node_modules/](mdc:frontend/node_modules/)  # Dependencias NPM (auto-generado)
+├── [package.json](mdc:frontend/package.json)   # Dependencias Node.js y scripts
+├── [tsconfig.json](mdc:frontend/tsconfig.json) # Configuración TypeScript
+├── [next.config.ts](mdc:frontend/next.config.ts) # Configuración Next.js
+├── [tailwind.config.js](mdc:frontend/tailwind.config.js) # Configuración Tailwind CSS
+├── [postcss.config.mjs](mdc:frontend/postcss.config.mjs) # Configuración PostCSS
+├── [components.json](mdc:frontend/components.json) # Configuración Shadcn/UI
+└── [README.md](mdc:frontend/README.md)          # Documentación del frontend
+```
+
+## App Directory ([app/](mdc:frontend/app/)) - Next.js App Router
+
+Estructura App Router siguiendo convenciones de Next.js 15:
+
+### Core Pages
+- **[layout.tsx](mdc:frontend/app/layout.tsx)** - Layout raíz con providers globales y metadata
+- **[page.tsx](mdc:frontend/app/page.tsx)** - Página landing/home
+- **[globals.css](mdc:frontend/app/globals.css)** - Estilos globales y configuración Tailwind
+
+### Route Pages
+```
+app/
+├── [auth/](mdc:frontend/app/auth/)
+│   └── [callback/](mdc:frontend/app/auth/callback/)
+│       └── [page.tsx](mdc:frontend/app/auth/callback/page.tsx)        # Handler callback auth Supabase
+├── [dashboard/](mdc:frontend/app/dashboard/)
+│   ├── [layout.tsx](mdc:frontend/app/dashboard/layout.tsx)             # Layout específico dashboard con sidebar
+│   ├── [page.tsx](mdc:frontend/app/dashboard/page.tsx)                 # Vista principal dashboard
+│   ├── [page-server.tsx](mdc:frontend/app/dashboard/page-server.tsx)   # Implementación Server Component
+│   ├── [loading.tsx](mdc:frontend/app/dashboard/loading.tsx)           # UI loading para dashboard
+│   └── [error.tsx](mdc:frontend/app/dashboard/error.tsx)               # Error boundary para dashboard
+├── [leads/](mdc:frontend/app/leads/)
+│   ├── [layout.tsx](mdc:frontend/app/leads/layout.tsx)                 # Layout sección leads
+│   └── [page.tsx](mdc:frontend/app/leads/page.tsx)                     # Página gestión leads
+├── [contacted/](mdc:frontend/app/contacted/)
+│   └── [page.tsx](mdc:frontend/app/contacted/page.tsx)                 # Vista leads contactados
+├── [calendar/](mdc:frontend/app/calendar/)
+│   ├── [layout.tsx](mdc:frontend/app/calendar/layout.tsx)              # Layout sección calendario
+│   └── [page.tsx](mdc:frontend/app/calendar/page.tsx)                  # Página integración calendario
+├── [integrations/](mdc:frontend/app/integrations/)
+│   └── [page.tsx](mdc:frontend/app/integrations/page.tsx)              # Gestión integraciones terceros
+├── [settings/](mdc:frontend/app/settings/)
+│   ├── [layout.tsx](mdc:frontend/app/settings/layout.tsx)              # Layout sección configuración
+│   └── [page.tsx](mdc:frontend/app/settings/page.tsx)                  # Página configuración usuario
+├── [login/](mdc:frontend/app/login/)
+│   └── [page.tsx](mdc:frontend/app/login/page.tsx)                     # Página login
+├── [signup/](mdc:frontend/app/signup/)
+│   └── [page.tsx](mdc:frontend/app/signup/page.tsx)                    # Página registro
+└── [api/](mdc:frontend/app/api/)
+    └── [chat/](mdc:frontend/app/api/chat/)
+        └── [route.ts](mdc:frontend/app/api/chat/route.ts)               # API route para chat
+```
+
+## Components Directory ([components/](mdc:frontend/components/))
+
+### Core Layout Components
+- **[app-sidebar.tsx](mdc:frontend/components/app-sidebar.tsx)** - Sidebar principal aplicación con navegación
+- **[nav-main.tsx](mdc:frontend/components/nav-main.tsx)** - Componente navegación principal
+- **[nav-secondary.tsx](mdc:frontend/components/nav-secondary.tsx)** - Componente navegación secundaria
+- **[nav-user.tsx](mdc:frontend/components/nav-user.tsx)** - Componente dropdown perfil usuario
+- **[nav-documents.tsx](mdc:frontend/components/nav-documents.tsx)** - Navegación documentos
+- **[protected-route.tsx](mdc:frontend/components/protected-route.tsx)** - Wrapper protección rutas
+
+### Feature Components
+- **[data-table.tsx](mdc:frontend/components/data-table.tsx)** - Tabla datos completa con filtrado, ordenación y paginación
+- **[section-cards.tsx](mdc:frontend/components/section-cards.tsx)** - Componente tarjetas estadísticas dashboard
+- **[chart-area-interactive.tsx](mdc:frontend/components/chart-area-interactive.tsx)** - Gráficos analíticos interactivos
+- **[calendar-view.tsx](mdc:frontend/components/calendar-view.tsx)** - Display integración calendario
+- **[integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx)** - Interfaz gestión integraciones terceros
+- **[oauth-integration-card.tsx](mdc:frontend/components/oauth-integration-card.tsx)** - Tarjeta integración OAuth
+- **[agent-settings.tsx](mdc:frontend/components/agent-settings.tsx)** - Interfaz configuración agentes AI
+
+### Authentication Components
+- **[login-form.tsx](mdc:frontend/components/login-form.tsx)** - Formulario login con validación
+- **[signup-form.tsx](mdc:frontend/components/signup-form.tsx)** - Formulario registro con validación
+
+### Chat Components
+- **[chat/](mdc:frontend/components/chat/)**
+  - **[page.tsx](mdc:frontend/components/chat/page.tsx)** - Página principal chat
+
+### UI Components Directory ([components/ui/](mdc:frontend/components/ui/))
+
+Librería componentes Shadcn/UI - primitivos UI reutilizables y accesibles:
+
+#### Form & Input Components
+- **[button.tsx](mdc:frontend/components/ui/button.tsx)** - Componente botón con variantes
+- **[input.tsx](mdc:frontend/components/ui/input.tsx)** - Componente campo input
+- **[textarea.tsx](mdc:frontend/components/ui/textarea.tsx)** - Componente textarea
+- **[label.tsx](mdc:frontend/components/ui/label.tsx)** - Componente label formulario
+- **[checkbox.tsx](mdc:frontend/components/ui/checkbox.tsx)** - Componente checkbox
+- **[select.tsx](mdc:frontend/components/ui/select.tsx)** - Componente select dropdown
+
+#### Layout & Navigation Components
+- **[sidebar.tsx](mdc:frontend/components/ui/sidebar.tsx)** - Componente primitivo sidebar
+- **[sheet.tsx](mdc:frontend/components/ui/sheet.tsx)** - Componente panel slide-over
+- **[dropdown-menu.tsx](mdc:frontend/components/ui/dropdown-menu.tsx)** - Componente dropdown menu
+- **[breadcrumb.tsx](mdc:frontend/components/ui/breadcrumb.tsx)** - Navegación breadcrumb
+- **[tabs.tsx](mdc:frontend/components/ui/tabs.tsx)** - Componente navegación tabs
+
+#### Display Components
+- **[card.tsx](mdc:frontend/components/ui/card.tsx)** - Componente contenedor tarjeta
+- **[table.tsx](mdc:frontend/components/ui/table.tsx)** - Componentes primitivos tabla
+- **[badge.tsx](mdc:frontend/components/ui/badge.tsx)** - Componente badge/tag
+- **[avatar.tsx](mdc:frontend/components/ui/avatar.tsx)** - Componente avatar usuario
+- **[skeleton.tsx](mdc:frontend/components/ui/skeleton.tsx)** - Componente skeleton loading
+
+#### Interactive Components
+- **[dialog.tsx](mdc:frontend/components/ui/dialog.tsx)** - Componente modal dialog
+- **[drawer.tsx](mdc:frontend/components/ui/drawer.tsx)** - Componente drawer para mobile
+- **[tooltip.tsx](mdc:frontend/components/ui/tooltip.tsx)** - Componente tooltip
+- **[toggle.tsx](mdc:frontend/components/ui/toggle.tsx)** - Componente toggle button
+- **[toggle-group.tsx](mdc:frontend/components/ui/toggle-group.tsx)** - Componente toggle group
+- **[progress.tsx](mdc:frontend/components/ui/progress.tsx)** - Componente barra progreso
+
+#### Utility Components
+- **[separator.tsx](mdc:frontend/components/ui/separator.tsx)** - Componente separador visual
+- **[sonner.tsx](mdc:frontend/components/ui/sonner.tsx)** - Componente notificaciones toast
+- **[chart.tsx](mdc:frontend/components/ui/chart.tsx)** - Contenedor gráficos y utilidades
+- **[scroll-area.tsx](mdc:frontend/components/ui/scroll-area.tsx)** - Área scroll customizada
+
+#### Chat & Interactive Components
+- **[chat-bubble.tsx](mdc:frontend/components/ui/chat-bubble.tsx)** - Burbuja mensaje chat
+- **[message-loading.tsx](mdc:frontend/components/ui/message-loading.tsx)** - Loading estado mensaje
+- **[prompt-box.tsx](mdc:frontend/components/ui/prompt-box.tsx)** - Caja entrada prompts
+- **[prompt-box-icons.tsx](mdc:frontend/components/ui/prompt-box-icons.tsx)** - Iconos prompt box
+- **[agent-plan.tsx](mdc:frontend/components/ui/agent-plan.tsx)** - Plan agente UI
+- **[text-shimmer.tsx](mdc:frontend/components/ui/text-shimmer.tsx)** - Efecto shimmer texto
+
+## Hooks Directory ([hooks/](mdc:frontend/hooks/))
+
+Custom React hooks para gestión estado y interacciones API:
+
+- **[use-auth.tsx](mdc:frontend/hooks/use-auth.tsx)** - Gestión estado autenticación e integración Supabase
+- **[use-api.ts](mdc:frontend/hooks/use-api.ts)** - Utilidades interacción API genéricas
+- **[use-leads.ts](mdc:frontend/hooks/use-leads.ts)** - Gestión datos leads y operaciones CRUD
+- **[use-lead-stats.ts](mdc:frontend/hooks/use-lead-stats.ts)** - Estadísticas leads y datos analíticos
+- **[use-leads-analytics.ts](mdc:frontend/hooks/use-leads-analytics.ts)** - Analíticos avanzados leads y datos gráficos
+- **[use-mobile.ts](mdc:frontend/hooks/use-mobile.ts)** - Diseño responsive y detección mobile
+
+## Lib Directory ([lib/](mdc:frontend/lib/))
+
+Librerías utilidades y configuraciones servicios:
+
+- **[supabase.ts](mdc:frontend/lib/supabase.ts)** - Configuración cliente Supabase y utilidades database
+- **[auth.ts](mdc:frontend/lib/auth.ts)** - Utilidades autenticación y gestión sesiones
+- **[utils.ts](mdc:frontend/lib/utils.ts)** - Funciones utilidades generales y helpers
+- **[api.ts](mdc:frontend/lib/api.ts)** - Cliente API y configuración HTTP
+- **[integrations-config.ts](mdc:frontend/lib/integrations-config.ts)** - Configuración integraciones terceros
+
+## Public Directory ([public/](mdc:frontend/public/))
+
+Assets estáticos servidos directamente por Next.js:
+
+- **[favicon.ico](mdc:frontend/public/favicon.ico)** - Favicon del sitio web
+- **[manifest.json](mdc:frontend/public/manifest.json)** - Archivo manifest PWA
+- **SVG Icons** - Varios iconos SVG para la aplicación
+- **Static Images** - Logo, gráficos y otros assets visuales estáticos
+
+## Configuration Files
+
+### Core Configuration
+- **[package.json](mdc:frontend/package.json)** - Dependencias, scripts y metadata proyecto
+- **[tsconfig.json](mdc:frontend/tsconfig.json)** - Configuración compilador TypeScript
+- **[next.config.ts](mdc:frontend/next.config.ts)** - Configuración build y runtime Next.js
+
+### Styling Configuration
+- **[components.json](mdc:frontend/components.json)** - Configuración librería componentes Shadcn/UI
+- **[postcss.config.mjs](mdc:frontend/postcss.config.mjs)** - Configuración PostCSS para procesamiento CSS
+- **[tailwind.config.js](mdc:frontend/tailwind.config.js)** - Configuración Tailwind CSS
+
+### Development Tools
+- **[eslint.config.mjs](mdc:frontend/eslint.config.mjs)** - Configuración ESLint para calidad código
+- **[.gitignore](mdc:frontend/.gitignore)** - Patrones ignore Git
+
+## Architecture Patterns
+
+### Component Organization
+1. **UI Components** - Componentes atómicos reutilizables en directorio `ui/`
+2. **Feature Components** - Componentes lógica negocio en directorio raíz `components/`
+3. **Page Components** - Componentes específicos rutas en directorio `app/`
+
+### State Management
+1. **Authentication** - Centralizado en hook [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx) con Supabase
+2. **API Data** - Hooks custom para fetch datos y caching
+3. **Local State** - React useState y useReducer para estado componente
+
+### Styling Approach
+1. **Tailwind CSS** - Framework CSS utility-first
+2. **Shadcn/UI** - Primitivos componentes accesibles
+3. **CSS Variables** - Propiedades custom para consistencia tema
+4. **Responsive Design** - Enfoque mobile-first con breakpoints Tailwind
+
+## Development Guidelines
+
+### File Naming Conventions
+- **Components** - PascalCase (ej. `DataTable.tsx`)
+- **Hooks** - camelCase con prefijo `use-` (ej. `use-auth.tsx`)
+- **Pages** - lowercase (ej. `page.tsx`, `layout.tsx`)
+- **Utilities** - camelCase (ej. `utils.ts`)
+
+### Import Organization
+1. **Imports React** primero
+2. **Librerías terceros** segundo
+3. **Componentes internos** tercero
+4. **Imports relativos** último
+
+### Component Structure
+1. **Interfaz props** primero
+2. **Función componente** con JSX
+3. **Export default** último
+4. **Datos estáticos** y **funciones helper** fuera componente
+
+### Best Practices
+- Usar TypeScript para todos archivos
+- Implementar error boundaries apropiados
+- Usar Suspense para estados loading
+- Seguir guías accesibilidad (WCAG)
+- Implementar patrones diseño responsive
+- Usar elementos HTML semánticos
+- Optimizar para Core Web Vitals
+
+## Integration Points
+
+### Authentication Flow
+- **Frontend Hook** → [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx)
+- **Supabase Client** → [supabase.ts](mdc:frontend/lib/supabase.ts)
+- **Auth Utilities** → [auth.ts](mdc:frontend/lib/auth.ts)
+
+### API Integration
+- **API Client** → [api.ts](mdc:frontend/lib/api.ts)
+- **API Hook** → [use-api.ts](mdc:frontend/hooks/use-api.ts)
+- **Data Hooks** → [use-leads.ts](mdc:frontend/hooks/use-leads.ts), [use-lead-stats.ts](mdc:frontend/hooks/use-lead-stats.ts)
+
+### Real-time Updates
+- **Supabase Subscriptions** → [supabase.ts](mdc:frontend/lib/supabase.ts)
+- **WebSocket Events** → Integración con backend `/api/events`
+
+Esta estructura soporta una aplicación Next.js escalable y mantenible con patrones React modernos, soporte TypeScript completo y componentes UI enterprise-grade.
+
+- Use semantic HTML elements
+- Optimize for Core Web Vitals
+
+This structure supports a scalable, maintainable Next.js application with modern React patterns, comprehensive TypeScript support, and enterprise-grade UI components.

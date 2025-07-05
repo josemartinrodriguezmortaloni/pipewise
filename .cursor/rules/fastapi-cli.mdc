@@ -1,0 +1,435 @@
+---
+description: How to create APIs using FastAPI
+globs: 
+alwaysApply: false
+---
+# FastAPI CLI - Development and Production Conventions
+
+Guidelines for using FastAPI CLI effectively in development and production environments, covering command usage, configuration, and deployment best practices.
+
+## FastAPI CLI Overview
+
+FastAPI CLI is a command line program `fastapi` that automatically detects your FastAPI application and serves it using Uvicorn ASGI server.
+
+### Installation
+FastAPI CLI is included when you install FastAPI:
+```bash
+pip install fastapi
+# or
+uv add fastapi
+```
+
+### Auto-Detection Conventions
+- FastAPI CLI automatically detects the FastAPI variable (commonly named `app`)
+- Automatically determines how to import your application
+- Takes the path to your Python program as input
+
+## Development Mode
+
+### fastapi dev Command
+Use `fastapi dev` for development with auto-reload capabilities.
+
+```bash
+# Basic development server
+fastapi dev app/server.py
+
+# With specific host and port
+fastapi dev app/server.py --host 127.0.0.1 --port 8000
+
+# With reload patterns
+fastapi dev app/server.py --reload
+```
+
+### Development Conventions
+- **Auto-reload enabled by default** - automatically reloads when code changes
+- **Listens on 127.0.0.1 (localhost)** - accessible only from local machine
+- **Resource intensive** - should only be used during development
+- **Less stable** than production mode due to auto-reload overhead
+
+### Development Best Practices
+```python
+# app/server.py - Main application entry point
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="PipeWise API",
+    description="AI-powered lead qualification and meeting scheduling",
+    version="2.0.0",
+    debug=True  # Enable debug mode for development
+)
+
+# Include routers
+from app.api.main import router as main_router
+from app.api.auth import router as auth_router
+
+app.include_router(main_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/auth")
+
+if __name__ == "__main__":
+    # This allows running with python app/server.py in development
+    import uvicorn
+    uvicorn.run(
+        "app.server:app",
+        host="127.0.0.1", 
+        port=8000,
+        reload=True,
+        log_level="debug"
+    )
+```
+
+### Development Environment Setup
+```bash
+# Development commands
+fastapi dev app/server.py                    # Basic development server
+fastapi dev app/server.py --port 3001        # Custom port
+fastapi dev app/server.py --host 0.0.0.0     # Accessible from network (testing)
+```
+
+## Production Mode
+
+### fastapi run Command
+Use `fastapi run` for production deployment with optimized settings.
+
+```bash
+# Basic production server
+fastapi run app/server.py
+
+# With specific configuration
+fastapi run app/server.py --host 0.0.0.0 --port 8000
+
+# With workers (for scaling)
+fastapi run app/server.py --workers 4
+```
+
+### Production Conventions
+- **Auto-reload disabled by default** - stable performance
+- **Listens on 0.0.0.0** - accessible from all network interfaces  
+- **Publicly accessible** - can be reached by anyone who can communicate with the machine
+- **Requires termination proxy** - should have HTTPS handled by reverse proxy
+
+### Production Best Practices
+```python
+# app/server.py - Production configuration
+from fastapi import FastAPI
+from app.core.config import settings
+
+app = FastAPI(
+    title="PipeWise API",
+    description="AI-powered lead qualification and meeting scheduling", 
+    version="2.0.0",
+    debug=settings.DEBUG,  # Should be False in production
+    docs_url="/docs" if settings.DEBUG else None,  # Disable docs in production
+    redoc_url="/redoc" if settings.DEBUG else None
+)
+
+# Production-ready middleware
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
+app.add_middleware(
+    TrustedHostMiddleware, 
+    allowed_hosts=settings.ALLOWED_HOSTS
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+```
+
+## Application Structure Conventions
+
+### Standard FastAPI Application Layout
+```python
+# app/server.py - Main entry point
+from fastapi import FastAPI, Depends
+from app.core.config import settings
+from app.core.middleware import setup_middleware
+from app.api.main import api_router
+
+def create_application() -> FastAPI:
+    """Create and configure FastAPI application."""
+    
+    application = FastAPI(
+        title=settings.PROJECT_NAME,
+        version=settings.VERSION,
+        description=settings.DESCRIPTION,
+        debug=settings.DEBUG,
+        docs_url="/docs" if settings.DEBUG else None,
+        redoc_url="/redoc" if settings.DEBUG else None,
+        openapi_url="/openapi.json" if settings.DEBUG else None
+    )
+    
+    # Setup middleware
+    setup_middleware(application)
+    
+    # Include API routes
+    application.include_router(api_router, prefix=settings.API_V1_STR)
+    
+    return application
+
+# This is what FastAPI CLI will auto-detect
+app = create_application()
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for load balancers."""
+    return {"status": "healthy"}
+```
+
+### Environment-Specific Configuration
+```python
+# app/core/config.py
+from pydantic_settings import BaseSettings
+from typing import List, Optional
+
+class Settings(BaseSettings):
+    PROJECT_NAME: str = "PipeWise"
+    VERSION: str = "2.0.0"
+    DESCRIPTION: str = "AI-powered lead qualification and meeting scheduling"
+    
+    # Server settings
+    DEBUG: bool = False
+    API_V1_STR: str = "/api/v1"
+    
+    # Security
+    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    
+    # Database
+    DATABASE_URL: Optional[str] = None
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+settings = Settings()
+```
+
+## Deployment Patterns
+
+### Container Deployment
+```dockerfile
+# Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Use fastapi run for production
+CMD ["fastapi", "run", "app/server.py", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Docker Compose Setup
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - DATABASE_URL=postgresql://user:pass@db:5432/pipewise
+    command: fastapi run app/server.py --host 0.0.0.0 --port 8000
+    depends_on:
+      - db
+      
+  # Development override
+  api-dev:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=true
+    command: fastapi dev app/server.py --host 0.0.0.0 --port 8000
+```
+
+### Production with Nginx
+```nginx
+# nginx.conf
+server {
+    listen 80;
+    server_name your-domain.com;
+    
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Command Line Options
+
+### Development Options
+```bash
+# FastAPI dev command options
+fastapi dev app/server.py \
+    --host 127.0.0.1 \          # Development host
+    --port 8000 \               # Custom port  
+    --reload \                  # Enable auto-reload (default)
+    --reload-dir app \          # Watch specific directory
+    --reload-include "*.py" \   # Include patterns
+    --reload-exclude "tests/*" \ # Exclude patterns
+    --log-level debug           # Logging level
+```
+
+### Production Options
+```bash
+# FastAPI run command options  
+fastapi run app/server.py \
+    --host 0.0.0.0 \           # Production host
+    --port 8000 \              # Server port
+    --workers 4 \              # Number of worker processes
+    --worker-class uvicorn.workers.UvicornWorker \
+    --log-level info \         # Production logging
+    --access-log \             # Enable access logs
+    --no-access-log            # Disable access logs
+```
+
+## Environment-Specific Scripts
+
+### Development Scripts
+```bash
+#!/bin/bash
+# scripts/dev.sh
+set -e
+
+echo "Starting PipeWise development server..."
+export DEBUG=true
+export LOG_LEVEL=debug
+
+# Run database migrations if needed
+python -m alembic upgrade head
+
+# Start development server
+fastapi dev app/server.py --host 127.0.0.1 --port 8000
+```
+
+### Production Scripts
+```bash
+#!/bin/bash
+# scripts/start.sh
+set -e
+
+echo "Starting PipeWise production server..."
+export DEBUG=false
+export LOG_LEVEL=info
+
+# Run database migrations
+python -m alembic upgrade head
+
+# Start production server
+fastapi run app/server.py \
+    --host 0.0.0.0 \
+    --port ${PORT:-8000} \
+    --workers ${WORKERS:-4}
+```
+
+## Monitoring and Health Checks
+
+### Health Check Endpoints
+```python
+# app/api/health.py
+from fastapi import APIRouter, Depends
+from app.core.dependencies import get_database
+from app.core.config import settings
+
+router = APIRouter()
+
+@router.get("/health")
+async def health_check():
+    """Basic health check."""
+    return {
+        "status": "healthy",
+        "version": settings.VERSION,
+        "environment": "production" if not settings.DEBUG else "development"
+    }
+
+@router.get("/health/detailed")
+async def detailed_health_check(db=Depends(get_database)):
+    """Detailed health check with dependencies."""
+    try:
+        # Check database connection
+        await db.execute("SELECT 1")
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    return {
+        "status": "healthy" if db_status == "healthy" else "unhealthy",
+        "version": settings.VERSION,
+        "database": db_status,
+        "environment": "production" if not settings.DEBUG else "development"
+    }
+```
+
+## Best Practices Summary
+
+### Development Best Practices
+- Use `fastapi dev` only for development
+- Keep auto-reload enabled for faster iteration
+- Use localhost (127.0.0.1) for security
+- Enable debug logging and detailed error messages
+- Include hot-reload for static assets
+
+### Production Best Practices  
+- Use `fastapi run` for production deployments
+- Disable auto-reload for stability and performance
+- Listen on 0.0.0.0 for public accessibility
+- Use a reverse proxy (Nginx/Apache) for HTTPS termination
+- Implement proper logging and monitoring
+- Use multiple workers for scaling
+- Disable debug mode and API documentation endpoints
+
+### Security Considerations
+- Never expose development server to public networks
+- Always use HTTPS in production (via reverse proxy)
+- Configure trusted hosts and CORS properly
+- Implement proper authentication and authorization
+- Use environment variables for sensitive configuration
+
+## Integration with PipeWise
+
+### Main Application File
+Reference the main server file: [app/server.py](mdc:app/server.py)
+
+### Development Workflow
+```bash
+# Start backend development server
+cd /path/to/pipewise
+fastapi dev app/server.py
+
+# The server will be available at:
+# http://127.0.0.1:8000 - API endpoints
+# http://127.0.0.1:8000/docs - Interactive API documentation
+# http://127.0.0.1:8000/redoc - ReDoc documentation
+```
+
+### Production Deployment
+```bash
+# Production deployment
+fastapi run app/server.py --host 0.0.0.0 --port 8000 --workers 4
+
+# With environment variables
+export DEBUG=false
+export DATABASE_URL=postgresql://user:pass@localhost/pipewise
+fastapi run app/server.py
+```
+
+This CLI approach provides a standardized way to run FastAPI applications across different environments while maintaining consistency and following best practices for development and production deployments.
+

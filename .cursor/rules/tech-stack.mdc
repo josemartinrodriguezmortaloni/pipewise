@@ -1,0 +1,283 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# PipeWise Technology Stack & Dependencies
+
+This document outlines the complete technology stack for PipeWise with current dependency versions and best practices for each technology.
+
+## Backend Stack (Python/FastAPI)
+
+### Core Framework & Runtime
+- **Python**: `>=3.11` - Use modern Python features, type hints, and async/await
+- **FastAPI**: `0.115.12` - Latest stable version with enhanced performance and OpenAPI 3.1 support
+- **Uvicorn**: Implicit with FastAPI - Use for ASGI server in development and production
+
+### AI & Language Models
+- **OpenAI**: `1.90.0` - Latest OpenAI SDK with improved streaming and function calling
+- **OpenAI Agents**: `0.0.19` - Experimental agent framework for multi-agent systems
+
+#### Best Practices:
+```python
+# Always use async with OpenAI client
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI()
+
+# Use structured outputs with Pydantic models
+response = await client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello"}],
+    response_format={"type": "json_object"}
+)
+```
+
+### Database & ORM
+- **Supabase**: `2.15.3` - PostgreSQL with real-time subscriptions and built-in auth
+- **SQLAlchemy**: `2.0.41` - Modern async ORM with 2.0 syntax
+- **AsyncPG**: `0.30.0` - High-performance PostgreSQL adapter
+- **Alembic**: `1.16.2` - Database migration tool
+
+#### Best Practices:
+```python
+# Use SQLAlchemy 2.0 syntax
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+async def get_user(session: AsyncSession, user_id: int):
+    stmt = select(User).where(User.id == user_id)
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+```
+
+### Data Validation & Serialization
+- **Pydantic**: `2.11.5` - Data validation with enhanced performance and v2 features
+- **Pydantic Settings**: `2.10.0` - Environment-based configuration management
+
+#### Best Practices:
+```python
+# Use Pydantic v2 syntax with Field and model validation
+from pydantic import BaseModel, Field, field_validator
+
+class UserSchema(BaseModel):
+    email: str = Field(..., description="User email address")
+    age: int = Field(ge=0, le=120)
+    
+    @field_validator('email')
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        return v.lower().strip()
+```
+
+### Authentication & Security
+- **Passlib**: `1.7.4` - Password hashing with bcrypt support
+- **Python-JOSE**: `3.5.0` - JWT token handling with cryptography
+- **Python-multipart**: `0.0.20` - Form data parsing
+
+### Caching & Background Tasks
+- **Redis**: `5.2.1` - In-memory caching and session storage
+- **Celery**: `5.5.3` - Distributed task queue with Redis broker
+
+### HTTP Client & Utilities
+- **HTTPX**: `0.28.1` - Modern async HTTP client
+- **AIOHTTP**: `3.12.13` - Alternative async HTTP client
+- **Requests**: `2.32.4` - Synchronous HTTP client for simple use cases
+- **Python-dotenv**: `1.1.0` - Environment variable management
+
+### Development & Testing
+- **Pytest-asyncio**: `1.0.0` - Async testing support
+- **Structlog**: `25.4.0` - Structured logging
+
+### Utilities
+- **QRCode**: `8.2` - QR code generation with PIL support
+
+## Frontend Stack (Next.js/React)
+
+### Core Framework & Runtime
+- **Next.js**: `15.3.3` - Latest stable with App Router, Turbopack, and React 19 support
+- **React**: `19.0.0` - Latest with Concurrent Features and Server Components
+- **React DOM**: `19.0.0` - DOM renderer for React 19
+- **TypeScript**: `5` - Latest TypeScript with enhanced type inference
+
+#### Best Practices:
+```typescript
+// Use App Router with Server Components by default
+// app/page.tsx
+export default async function Page() {
+  const data = await fetch('api/data', { cache: 'no-store' })
+  return <div>{/* JSX */}</div>
+}
+
+// Use 'use client' only when needed
+'use client'
+import { useState } from 'react'
+```
+
+### UI Framework & Styling
+- **Tailwind CSS**: `4` - Latest version with enhanced performance and new features
+- **Radix UI**: Multiple components (`^1.x` series) - Accessible headless UI primitives
+- **Class Variance Authority**: `0.7.1` - Component variant management
+- **Clsx**: `2.1.1` - Conditional class names
+- **Tailwind Merge**: `3.3.0` - Conflicting Tailwind class resolution
+
+#### UI Components:
+- **Lucide React**: `0.513.0` - Beautiful icons
+- **Tabler Icons**: `3.34.0` - Additional icon set
+- **Recharts**: `2.15.3` - Data visualization charts
+- **Sonner**: `2.0.5` - Toast notifications
+- **Vaul**: `1.1.2` - Drawer component
+
+#### Best Practices:
+```typescript
+// Use CVA for component variants
+import { cva } from "class-variance-authority"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+```
+
+### Data Management & Tables
+- **TanStack React Table**: `8.21.3` - Powerful data table with sorting, filtering, pagination
+- **DND Kit**: `6.3.1` - Drag and drop functionality with accessibility
+
+#### Best Practices:
+```typescript
+// Use TanStack Table with TypeScript
+import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
+
+const table = useReactTable({
+  data,
+  columns,
+  getCoreRowModel: getCoreRowModel(),
+})
+```
+
+### Database Integration
+- **Supabase JS**: `2.50.0` - Client-side database and auth integration
+
+#### Best Practices:
+```typescript
+// Use Supabase with TypeScript types
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from './types/supabase'
+
+const supabase = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+```
+
+### Theming & State
+- **Next Themes**: `0.4.6` - Theme management with system preference support
+- **Zod**: `3.25.56` - Schema validation for forms and API responses
+
+### Development Tools
+- **ESLint**: `9` - Latest ESLint with flat config
+- **ESLint Config Next**: `15.3.3` - Next.js specific linting rules
+- **PostCSS**: `4` - CSS processing with Tailwind
+
+## Development Best Practices by Technology
+
+### Python/FastAPI Guidelines
+1. **Always use type hints** - Required for all functions and class methods
+2. **Async by default** - Use async/await for all I/O operations
+3. **Pydantic models** - Use for all request/response validation
+4. **Dependency injection** - Leverage FastAPI's dependency system
+5. **Error handling** - Use HTTPException with proper status codes
+
+### Next.js/React Guidelines
+1. **Server Components first** - Use RSC by default, 'use client' only when needed
+2. **TypeScript strict mode** - Enable strict type checking
+3. **App Router** - Use the new App Router pattern exclusively
+4. **Performance optimization** - Implement proper caching and lazy loading
+5. **Accessibility** - Use Radix UI for accessible components
+
+### Database Best Practices
+1. **Supabase RLS** - Implement Row Level Security for data protection
+2. **Async operations** - Use async patterns for all database operations
+3. **Connection pooling** - Leverage connection pooling for performance
+4. **Migrations** - Use Alembic for schema changes
+5. **Real-time subscriptions** - Implement where appropriate
+
+### API Integration Best Practices
+1. **OpenAI SDK** - Use async client with proper error handling
+2. **Rate limiting** - Implement proper rate limiting for external APIs
+3. **Caching** - Cache responses where appropriate
+4. **Retry logic** - Implement exponential backoff for failed requests
+5. **Type safety** - Use Pydantic models for all API responses
+
+## Performance Considerations
+
+### Frontend Performance
+- **Turbopack**: Enabled in development for faster builds
+- **React 19**: Leverage concurrent features and automatic batching
+- **Code splitting**: Implement dynamic imports for large components
+- **Image optimization**: Use Next.js Image component
+
+### Backend Performance
+- **Async everywhere**: Use async/await for all I/O operations
+- **Connection pooling**: Configure proper database connection pools
+- **Caching**: Implement Redis caching for frequently accessed data
+- **Background tasks**: Use Celery for long-running operations
+
+## Security Best Practices
+
+### Authentication & Authorization
+- **Supabase Auth**: Use built-in authentication with RLS
+- **JWT tokens**: Implement proper token validation
+- **Password hashing**: Use bcrypt with proper salt rounds
+- **Session management**: Use Redis for session storage
+
+### Data Protection
+- **Input validation**: Validate all inputs with Pydantic
+- **SQL injection**: Use parameterized queries (SQLAlchemy handles this)
+- **XSS protection**: Sanitize user inputs
+- **CORS**: Configure proper CORS settings
+
+## Environment Management
+
+### Python Environment
+```bash
+# Use UV for dependency management
+uv add package-name
+uv lock
+uv sync
+```
+
+### Node.js Environment
+```bash
+# Use pnpm for faster installs
+pnpm install
+pnpm dev
+pnpm build
+```
+
+## Version Compatibility Matrix
+
+| Technology | Current Version | Minimum Required | Notes |
+|------------|----------------|------------------|-------|
+| Python | 3.11+ | 3.11 | Required for latest features |
+| Node.js | 18+ | 18 | Next.js 15 requirement |
+| PostgreSQL | 14+ | 13 | Supabase compatibility |
+| Redis | 6+ | 5 | Celery compatibility |
+
+This tech stack provides a modern, scalable foundation for the PipeWise application with emphasis on type safety, performance, and developer experience.
+

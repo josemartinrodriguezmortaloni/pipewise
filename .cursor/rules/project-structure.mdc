@@ -1,0 +1,174 @@
+# PipeWise Project Directory Structure
+
+PipeWise es una aplicación full-stack de CRM con AI agents para calificación automática de leads y programación de reuniones.
+
+## Root Directory Structure
+
+```
+pipewise/
+├── app/                    # Backend FastAPI con Python
+├── frontend/               # Frontend Next.js 15 con TypeScript
+├── docs/                   # Documentación del proyecto
+├── .cursor/               # Configuración de Cursor IDE
+├── pyproject.toml         # Configuración Python/UV
+├── uv.lock               # Lock file de dependencias
+└── README.md             # Documentación principal
+```
+
+## Backend Application ([app/](mdc:app/))
+
+### Core Architecture
+- **FastAPI** - Framework web principal
+- **Supabase** - Base de datos PostgreSQL con real-time
+- **OpenAI Agents SDK** - Sistema multi-agente para AI
+- **OAuth 2.0** - Integración con servicios externos
+- **Redis/Supabase** - Cache y sesiones
+
+### Directory Structure
+
+```
+app/
+├── [api/](mdc:app/api/)                    # FastAPI endpoints y API logic
+│   ├── [main.py](mdc:app/api/main.py)                # Aplicación principal con todos los routers
+│   ├── [auth.py](mdc:app/api/auth.py)                # Endpoints de autenticación y 2FA
+│   ├── [integrations.py](mdc:app/api/integrations.py)        # Gestión de integraciones (Calendly, etc.)
+│   ├── [oauth_router.py](mdc:app/api/oauth_router.py)        # Rutas OAuth para servicios externos
+│   ├── [oauth_handler.py](mdc:app/api/oauth_handler.py)      # Lógica de OAuth flows
+│   ├── [agent_config.py](mdc:app/api/agent_config.py)        # Configuración de AI agents
+│   ├── [calendar.py](mdc:app/api/calendar.py)               # Integración de calendario
+│   ├── [search.py](mdc:app/api/search.py)                  # Búsqueda y exportación
+│   ├── [webhooks.py](mdc:app/api/webhooks.py)              # Webhooks y notificaciones
+│   ├── [events.py](mdc:app/api/events.py)                  # WebSocket events
+│   ├── [config.py](mdc:app/api/config.py)                  # Configuración frontend
+│   └── [user_config_router.py](mdc:app/api/user_config_router.py) # Config de usuario
+├── [agents/](mdc:app/agents/)              # Sistema de AI agents (OpenAI SDK)
+│   ├── [agents.py](mdc:app/agents/agents.py)               # Agentes principales (Coordinator, Lead Qualifier, Meeting Scheduler)
+│   ├── [callbacks/](mdc:app/agents/callbacks/)             # Callbacks para handoffs entre agentes
+│   ├── [memory/](mdc:app/agents/memory/)                   # Sistema de memoria dual (volatile + persistent)
+│   ├── [prompts/](mdc:app/agents/prompts/)                 # Prompts para agentes en archivos .md
+│   └── [tools/](mdc:app/agents/tools/)                     # Herramientas (Gmail, Google Calendar, Twitter, etc.)
+├── [auth/](mdc:app/auth/)                  # Sistema de autenticación
+│   ├── [auth_client.py](mdc:app/auth/auth_client.py)        # Cliente principal de autenticación
+│   ├── [middleware.py](mdc:app/auth/middleware.py)          # Middleware de auth y permisos
+│   ├── [supabase_auth_client.py](mdc:app/auth/supabase_auth_client.py) # Cliente Supabase auth
+│   ├── [redis_client.py](mdc:app/auth/redis_client.py)      # Cliente Redis para cache
+│   └── [utils.py](mdc:app/auth/utils.py)                   # Utilidades de auth
+├── [core/](mdc:app/core/)                  # Configuración y componentes centrales
+│   ├── [config.py](mdc:app/core/config.py)                 # Configuración de la aplicación
+│   ├── [dependencies.py](mdc:app/core/dependencies.py)     # Dependency injection
+│   ├── [middleware.py](mdc:app/core/middleware.py)         # Middleware de aplicación
+│   ├── [oauth_config.py](mdc:app/core/oauth_config.py)     # Configuración OAuth services
+│   └── [security.py](mdc:app/core/security.py)             # Encriptación y seguridad
+├── [models/](mdc:app/models/)              # Modelos de datos (Pydantic)
+│   ├── [user.py](mdc:app/models/user.py)                   # Modelos de usuario y sesiones
+│   ├── [lead.py](mdc:app/models/lead.py)                   # Modelo de leads
+│   ├── [conversation.py](mdc:app/models/conversation.py)   # Modelo de conversaciones
+│   ├── [message.py](mdc:app/models/message.py)             # Modelo de mensajes
+│   ├── [tenant.py](mdc:app/models/tenant.py)               # Modelo de tenants (multi-tenancy)
+│   └── [agent_config.py](mdc:app/models/agent_config.py)   # Modelos de configuración de agentes
+├── [schemas/](mdc:app/schemas/)            # Esquemas Pydantic para validación
+│   ├── [auth_schema.py](mdc:app/schemas/auth_schema.py)     # Esquemas de autenticación
+│   ├── [lead_schema.py](mdc:app/schemas/lead_schema.py)     # Esquemas de leads
+│   ├── [agent_schema.py](mdc:app/schemas/agent_schema.py)   # Esquemas de agentes
+│   ├── [crm_schema.py](mdc:app/schemas/crm_schema.py)       # Esquemas CRM generales
+│   └── [contacts_schema.py](mdc:app/schemas/contacts_schema.py) # Esquemas de contactos
+├── [supabase/](mdc:app/supabase/)          # Cliente Supabase para database
+│   └── [supabase_client.py](mdc:app/supabase/supabase_client.py) # Cliente CRM Supabase
+└── [scripts/](mdc:app/scripts/)            # Scripts de setup y utilidades
+    ├── [setup_agent_memories.py](mdc:app/scripts/setup_agent_memories.py) # Setup memoria agentes
+    └── [setup_contacts_database.py](mdc:app/scripts/setup_contacts_database.py) # Setup BD contactos
+```
+
+## Frontend Application ([frontend/](mdc:frontend/))
+
+### Core Architecture
+- **Next.js 15** - Framework React con App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS + Shadcn/UI** - Styling y componentes
+- **Supabase Client** - Integración con backend
+- **Real-time Updates** - WebSocket y subscriptions
+
+### Directory Structure
+
+```
+frontend/
+├── [app/](mdc:frontend/app/)                    # Next.js App Router (páginas)
+│   ├── [layout.tsx](mdc:frontend/app/layout.tsx)            # Layout principal con providers
+│   ├── [page.tsx](mdc:frontend/app/page.tsx)               # Página home/landing
+│   ├── [globals.css](mdc:frontend/app/globals.css)         # Estilos globales y Tailwind
+│   ├── [auth/](mdc:frontend/app/auth/)                     # Páginas de autenticación
+│   ├── [dashboard/](mdc:frontend/app/dashboard/)           # Dashboard principal
+│   ├── [leads/](mdc:frontend/app/leads/)                   # Gestión de leads
+│   ├── [calendar/](mdc:frontend/app/calendar/)             # Integración calendario
+│   ├── [integrations/](mdc:frontend/app/integrations/)     # Configuración integraciones
+│   ├── [settings/](mdc:frontend/app/settings/)             # Configuración usuario
+│   └── [contacted/](mdc:frontend/app/contacted/)           # Vista leads contactados
+├── [components/](mdc:frontend/components/)  # Componentes React reutilizables
+│   ├── [ui/](mdc:frontend/components/ui/)                  # Componentes UI base (Shadcn/UI)
+│   ├── [app-sidebar.tsx](mdc:frontend/components/app-sidebar.tsx)           # Sidebar principal
+│   ├── [data-table.tsx](mdc:frontend/components/data-table.tsx)             # Tabla de datos avanzada
+│   ├── [integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx) # Config integraciones
+│   ├── [agent-settings.tsx](mdc:frontend/components/agent-settings.tsx)     # Config agentes AI
+│   ├── [login-form.tsx](mdc:frontend/components/login-form.tsx)             # Formulario login
+│   └── [protected-route.tsx](mdc:frontend/components/protected-route.tsx)   # Protección rutas
+├── [hooks/](mdc:frontend/hooks/)            # Custom React hooks
+│   ├── [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx)     # Hook autenticación
+│   ├── [use-leads.ts](mdc:frontend/hooks/use-leads.ts)     # Hook gestión leads
+│   ├── [use-api.ts](mdc:frontend/hooks/use-api.ts)         # Hook interacción API
+│   └── [use-mobile.ts](mdc:frontend/hooks/use-mobile.ts)   # Hook detección mobile
+├── [lib/](mdc:frontend/lib/)                # Librerías y utilidades
+│   ├── [supabase.ts](mdc:frontend/lib/supabase.ts)         # Cliente Supabase
+│   ├── [auth.ts](mdc:frontend/lib/auth.ts)                 # Utilidades auth
+│   └── [utils.ts](mdc:frontend/lib/utils.ts)               # Utilidades generales
+├── [public/](mdc:frontend/public/)          # Assets estáticos
+├── [package.json](mdc:frontend/package.json)               # Dependencias Node.js
+├── [next.config.ts](mdc:frontend/next.config.ts)           # Configuración Next.js
+├── [tsconfig.json](mdc:frontend/tsconfig.json)             # Configuración TypeScript
+└── [components.json](mdc:frontend/components.json)         # Configuración Shadcn/UI
+```
+
+## Key Integration Points
+
+### Authentication Flow
+1. **Frontend** → [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx) → **Backend** → [auth.py](mdc:app/api/auth.py)
+2. **Supabase Auth** → [supabase_auth_client.py](mdc:app/auth/supabase_auth_client.py)
+3. **OAuth Services** → [oauth_router.py](mdc:app/api/oauth_router.py) → [oauth_handler.py](mdc:app/api/oauth_handler.py)
+
+### AI Agents Workflow
+1. **Lead Processing** → [agents.py](mdc:app/agents/agents.py) → **ModernLeadProcessor**
+2. **Agent Communication** → [callbacks/](mdc:app/agents/callbacks/) → **Handoff System**
+3. **Memory Management** → [memory/](mdc:app/agents/memory/) → **Dual Memory System**
+
+### Data Flow
+1. **Frontend Components** → [hooks/](mdc:frontend/hooks/) → **API Calls**
+2. **Backend APIs** → [api/](mdc:app/api/) → **Business Logic**
+3. **Database Operations** → [supabase_client.py](mdc:app/supabase/supabase_client.py)
+
+## Development Guidelines
+
+### Backend Development
+- Use **FastAPI** with async/await patterns
+- Follow **Pydantic** schemas for validation
+- Implement **dependency injection** via [dependencies.py](mdc:app/core/dependencies.py)
+- Use **Supabase Client** for database operations
+- Follow **OpenAI Agents SDK** patterns for AI agents
+
+### Frontend Development
+- Use **Next.js App Router** exclusively
+- Implement **Server Components** by default, Client Components when needed
+- Use **TypeScript** strict mode
+- Follow **Shadcn/UI** component patterns
+- Implement **real-time updates** via Supabase subscriptions
+
+### Integration Development
+- OAuth flows handled in [oauth_handler.py](mdc:app/api/oauth_handler.py)
+- External API integrations in [agents/tools/](mdc:app/agents/tools/)
+- Frontend integration UI in [integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx)
+
+Este proyecto sigue una arquitectura moderna con separación clara entre frontend y backend, sistema de autenticación robusto, y un sistema avanzado de AI agents para automatización de CRM.
+
+
+- **Email Services**: Automated outreach and communication
+- **Social Media**: Instagram, Twitter integration for lead generation
+- **MCP (Model Context Protocol)**: AI agent communication framework
+

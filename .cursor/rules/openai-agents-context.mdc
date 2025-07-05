@@ -1,0 +1,587 @@
+---
+description: How to Mange the Context using the Agent SDK from OpenAI
+globs: 
+alwaysApply: false
+---
+# OpenAI Agent SDK - Context Management
+
+Guidelines for effectively providing context to LLMs in the OpenAI Agent SDK through various mechanisms.
+
+## Context Overview
+
+When an LLM is called, the **only** data it can see is from the conversation history. To make new data available to the LLM, it must be included in that history through one of these mechanisms:
+
+1. **Agent Instructions** (System Prompts)
+2. **Input Messages** (User Messages)  
+3. **Function Tools** (On-demand Context)
+4. **Retrieval/Web Search** (Grounding Data)
+
+## Agent Instructions (System Prompts)
+
+### Static Instructions
+```python
+from agents import Agent
+
+agent = Agent(
+    name="Customer Service Agent",
+    instructions="""You are a helpful customer service representative for TechCorp.
+
+    Company Information:
+    - Founded in 2020
+    - Specializes in AI software solutions
+    - Has 24/7 support
+    - Offers 30-day money-back guarantee
+    
+    Guidelines:
+    - Always be polite and professional
+    - Escalate complex technical issues to Level 2 support
+    - Reference knowledge base before providing solutions""",
+    tools=[knowledge_base_tool, escalation_tool]
+)
+```
+
+### Dynamic Instructions
+```python
+from datetime import datetime
+from agents import Agent
+
+def create_context_aware_instructions(user_context: dict) -> str:
+    """Generate dynamic instructions based on user context."""
+    
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+    user_name = user_context.get("name", "User")
+    user_tier = user_context.get("tier", "basic")
+    
+    return f"""You are an AI assistant helping {user_name}.
+    
+    Current Context:
+    - Current time: {current_time}
+    - User tier: {user_tier}
+    - User preferences: {user_context.get('preferences', {})}
+    
+    Tier-specific guidelines:
+    {"- Provide premium support with priority handling" if user_tier == "premium" else "- Provide standard support"}
+    {"- Access to advanced features available" if user_tier in ["premium", "enterprise"] else "- Basic features only"}
+    
+    Always personalize responses and consider the current time for scheduling."""
+
+# Usage with dynamic context
+def create_personalized_agent(user_context: dict) -> Agent:
+    return Agent(
+        name="Personal Assistant",
+        instructions=create_context_aware_instructions(user_context),
+        tools=[calendar_tool, notification_tool]
+    )
+```
+
+### Context-Aware Function Instructions
+```python
+from typing import Dict, Any
+
+def get_dynamic_instructions(context: Dict[str, Any]) -> str:
+    """Create instructions that adapt to current context."""
+    
+    base_instructions = "You are a helpful AI assistant."
+    
+    # Add context-specific instructions
+    context_additions = []
+    
+    if context.get("user_location"):
+        context_additions.append(f"User is located in {context['user_location']}. Consider local time zones and regional preferences.")
+    
+    if context.get("current_project"):
+        context_additions.append(f"User is currently working on: {context['current_project']}. Prioritize relevant information.")
+    
+    if context.get("urgent_mode"):
+        context_additions.append("This is an urgent request. Provide concise, actionable responses.")
+    
+    if context.get("user_expertise"):
+        level = context["user_expertise"]
+        if level == "beginner":
+            context_additions.append("Provide detailed explanations and avoid technical jargon.")
+        elif level == "advanced":
+            context_additions.append("You can use technical terms and provide in-depth technical details.")
+    
+    if context_additions:
+        return base_instructions + "\n\nContext-specific guidelines:\n" + "\n".join(f"- {addition}" for addition in context_additions)
+    
+    return base_instructions
+
+# Create agent with context
+def create_adaptive_agent(context: Dict[str, Any]) -> Agent:
+    return Agent(
+        name="Adaptive Assistant",
+        instructions=get_dynamic_instructions(context),
+        tools=[search_tool, analysis_tool]
+    )
+```
+
+## Input Messages
+
+### Contextual Input Formatting
+```python
+async def run_with_context(agent: Agent, user_request: str, context_data: dict):
+    """Run agent with contextual information in the input."""
+    
+    # Format context as part of the input
+    context_message = f"""
+Context Information:
+- User: {context_data.get('user_name', 'Unknown')}
+- Session ID: {context_data.get('session_id', 'N/A')}
+- Previous Actions: {context_data.get('recent_actions', [])}
+- Current Focus: {context_data.get('current_focus', 'General')}
+
+User Request: {user_request}
+"""
+    
+    result = await Runner.run(agent, context_message)
+    return result
+
+# Usage
+context = {
+    "user_name": "Alice",
+    "session_id": "sess_123",
+    "recent_actions": ["viewed dashboard", "updated profile"],
+    "current_focus": "data analysis"
+}
+
+result = await run_with_context(agent, "Help me create a report", context)
+```
+
+### Multi-Message Context
+```python
+from typing import List
+
+def build_contextual_input(user_message: str, context_items: List[str]) -> List[str]:
+    """Build input with multiple context messages."""
+    
+    input_messages = []
+    
+    # Add context messages first
+    for item in context_items:
+        input_messages.append(f"Context: {item}")
+    
+    # Add user message last
+    input_messages.append(f"User: {user_message}")
+    
+    return input_messages
+
+# Usage
+context_items = [
+    "Previous conversation: User asked about pricing plans",
+    "User tier: Premium customer since 2023",
+    "Recent activity: Viewed billing dashboard",
+    "Known preferences: Prefers detailed explanations"
+]
+
+input_messages = build_contextual_input(
+    "I want to upgrade my plan", 
+    context_items
+)
+
+result = await Runner.run(agent, input_messages)
+```
+
+## Function Tools for On-Demand Context
+
+### Context Retrieval Tools
+```python
+from agents import function_tool
+
+@function_tool
+async def get_user_profile(user_id: str) -> dict:
+    """Retrieve user profile information.
+    
+    Args:
+        user_id: The ID of the user to retrieve
+        
+    Returns:
+        Dictionary containing user profile data
+    """
+    # In real implementation, fetch from database
+    profile = await database.get_user_profile(user_id)
+    return {
+        "name": profile.name,
+        "tier": profile.tier,
+        "preferences": profile.preferences,
+        "recent_activity": profile.recent_activity
+    }
+
+@function_tool  
+async def get_conversation_history(session_id: str, limit: int = 10) -> List[dict]:
+    """Retrieve recent conversation history.
+    
+    Args:
+        session_id: The session to retrieve history for
+        limit: Maximum number of messages to retrieve
+        
+    Returns:
+        List of conversation messages
+    """
+    messages = await database.get_conversation_history(session_id, limit)
+    return [{"role": msg.role, "content": msg.content, "timestamp": msg.timestamp} for msg in messages]
+
+@function_tool
+async def search_knowledge_base(query: str, category: str = None) -> List[dict]:
+    """Search the knowledge base for relevant information.
+    
+    Args:
+        query: The search query
+        category: Optional category to filter by
+        
+    Returns:
+        List of relevant knowledge base articles
+    """
+    results = await knowledge_base.search(query, category)
+    return [{"title": r.title, "content": r.content, "relevance": r.score} for r in results]
+```
+
+### Contextual Data Tools
+```python
+@function_tool
+async def get_current_project_context(user_id: str) -> dict:
+    """Get context about user's current project.
+    
+    Args:
+        user_id: The user ID
+        
+    Returns:
+        Current project context information
+    """
+    project = await project_service.get_active_project(user_id)
+    if not project:
+        return {"status": "no_active_project"}
+    
+    return {
+        "project_name": project.name,
+        "status": project.status,
+        "deadline": project.deadline.isoformat(),
+        "team_members": [m.name for m in project.team],
+        "recent_updates": project.recent_updates
+    }
+
+@function_tool
+async def get_system_status() -> dict:
+    """Get current system status and relevant alerts.
+    
+    Returns:
+        System status information
+    """
+    return {
+        "api_status": "operational",
+        "last_maintenance": "2024-01-15T10:00:00Z", 
+        "scheduled_maintenance": "2024-01-20T02:00:00Z",
+        "active_alerts": await alerts_service.get_active_alerts()
+    }
+```
+
+## Retrieval and Web Search
+
+### File Search Integration
+```python
+from agents import Agent, FileSearchTool
+
+# Agent with file search for document context
+document_agent = Agent(
+    name="Document Assistant",
+    instructions="""You help users find and understand information from documents.
+    
+    Use the file search tool to:
+    - Find relevant documents based on user queries
+    - Extract specific information from files
+    - Summarize document contents
+    - Cross-reference information across multiple documents""",
+    tools=[
+        FileSearchTool(
+            max_num_results=5,
+            vector_store_ids=["company_docs_store", "policy_store"]
+        )
+    ]
+)
+
+# Usage
+async def search_documents():
+    result = await Runner.run(
+        document_agent,
+        "Find our company policy on remote work and flexible hours"
+    )
+    return result.final_output
+```
+
+### Web Search for External Context
+```python
+from agents import Agent, WebSearchTool
+
+# Agent with web search for current information
+research_agent = Agent(
+    name="Research Assistant", 
+    instructions="""You are a research assistant that helps users find current information.
+    
+    Use web search to:
+    - Find the latest news and developments
+    - Research current market conditions
+    - Verify facts and get up-to-date information
+    - Find examples and case studies
+    
+    Always cite your sources and note when information was found.""",
+    tools=[WebSearchTool()]
+)
+
+# Usage  
+async def research_topic():
+    result = await Runner.run(
+        research_agent,
+        "What are the latest trends in AI agent development for 2024?"
+    )
+    return result.final_output
+```
+
+## Context Management Patterns
+
+### Layered Context Strategy
+```python
+class ContextManager:
+    def __init__(self):
+        self.global_context = {}
+        self.session_context = {}
+        self.conversation_context = []
+    
+    def update_global_context(self, data: dict):
+        """Update persistent global context."""
+        self.global_context.update(data)
+    
+    def update_session_context(self, data: dict):
+        """Update session-specific context."""
+        self.session_context.update(data)
+    
+    def add_conversation_context(self, message: str):
+        """Add to conversation history."""
+        self.conversation_context.append(message)
+        # Keep only recent context
+        if len(self.conversation_context) > 20:
+            self.conversation_context = self.conversation_context[-20:]
+    
+    def build_agent_instructions(self, base_instructions: str) -> str:
+        """Build complete instructions with all context layers."""
+        
+        instructions = [base_instructions]
+        
+        if self.global_context:
+            instructions.append(f"Global Context: {self.global_context}")
+        
+        if self.session_context:
+            instructions.append(f"Session Context: {self.session_context}")
+        
+        return "\n\n".join(instructions)
+    
+    def build_input_with_context(self, user_input: str) -> List[str]:
+        """Build input messages with conversation context."""
+        
+        messages = []
+        
+        # Add recent conversation context
+        for ctx_msg in self.conversation_context[-5:]:  # Last 5 messages
+            messages.append(ctx_msg)
+        
+        # Add current user input
+        messages.append(user_input)
+        
+        return messages
+
+# Usage
+context_manager = ContextManager()
+context_manager.update_global_context({
+    "user_id": "user_123",
+    "organization": "TechCorp",
+    "timezone": "PST"
+})
+
+agent = Agent(
+    name="Context Aware Agent",
+    instructions=context_manager.build_agent_instructions(
+        "You are a helpful AI assistant."
+    ),
+    tools=[context_retrieval_tool]
+)
+```
+
+### Conditional Context Loading
+```python
+@function_tool
+async def load_relevant_context(query: str, context_types: List[str]) -> dict:
+    """Load context based on query analysis and specified types.
+    
+    Args:
+        query: The user query to analyze
+        context_types: Types of context to load (user, project, system, etc.)
+        
+    Returns:
+        Dictionary with relevant context data
+    """
+    context = {}
+    
+    if "user" in context_types:
+        # Load user-specific context
+        user_context = await get_user_context_from_query(query)
+        context["user"] = user_context
+    
+    if "project" in context_types:
+        # Load project context if query seems project-related
+        if any(keyword in query.lower() for keyword in ["project", "task", "deadline", "team"]):
+            project_context = await get_project_context()
+            context["project"] = project_context
+    
+    if "system" in context_types:
+        # Load system context for technical queries
+        if any(keyword in query.lower() for keyword in ["api", "error", "status", "performance"]):
+            system_context = await get_system_context()
+            context["system"] = system_context
+    
+    return context
+
+# Create context-aware agent
+context_aware_agent = Agent(
+    name="Smart Context Agent",
+    instructions="""You are an intelligent assistant that loads relevant context based on user queries.
+    
+    Before responding to complex queries:
+    1. Analyze what type of context might be helpful
+    2. Use the load_relevant_context tool to get that information
+    3. Incorporate the context into your response""",
+    tools=[load_relevant_context, search_tool, analysis_tool]
+)
+```
+
+## Best Practices
+
+### Context Optimization
+```python
+# Efficient context management
+class EfficientContextManager:
+    def __init__(self, max_context_length: int = 4000):
+        self.max_context_length = max_context_length
+        
+    def optimize_context(self, context_data: dict) -> str:
+        """Optimize context to fit within token limits."""
+        
+        # Prioritize context by importance
+        priority_order = ["user_profile", "current_task", "recent_actions", "preferences"]
+        
+        context_parts = []
+        current_length = 0
+        
+        for key in priority_order:
+            if key in context_data:
+                part = f"{key}: {context_data[key]}"
+                if current_length + len(part) < self.max_context_length:
+                    context_parts.append(part)
+                    current_length += len(part)
+                else:
+                    # Truncate if needed
+                    remaining = self.max_context_length - current_length
+                    if remaining > 50:  # Minimum meaningful size
+                        truncated = part[:remaining] + "..."
+                        context_parts.append(truncated)
+                    break
+        
+        return "\n".join(context_parts)
+```
+
+### Context Validation
+```python
+def validate_context(context: dict) -> dict:
+    """Validate and sanitize context data."""
+    
+    validated = {}
+    
+    # Remove sensitive information
+    sensitive_keys = ["password", "token", "secret", "key"]
+    for key, value in context.items():
+        if not any(sensitive in key.lower() for sensitive in sensitive_keys):
+            validated[key] = value
+    
+    # Ensure data types are serializable
+    for key, value in validated.items():
+        if not isinstance(value, (str, int, float, bool, list, dict)):
+            validated[key] = str(value)
+    
+    return validated
+```
+
+## Complete Context Management Example
+
+```python
+async def comprehensive_context_example():
+    """Complete example showing all context management techniques."""
+    
+    # Initialize context manager
+    context_mgr = ContextManager()
+    
+    # Set up global context
+    context_mgr.update_global_context({
+        "app_name": "PipeWise",
+        "version": "2.0.0",
+        "environment": "production"
+    })
+    
+    # Create agent with dynamic instructions
+    agent = Agent(
+        name="Comprehensive Assistant",
+        instructions=lambda ctx: f"""You are an AI assistant for {ctx.get('app_name', 'the application')}.
+        
+        Current Environment: {ctx.get('environment', 'unknown')}
+        Version: {ctx.get('version', 'unknown')}
+        
+        You have access to:
+        - User profile and preferences
+        - Conversation history
+        - Knowledge base search
+        - Real-time system status
+        
+        Always consider the user's context and provide personalized responses.""",
+        tools=[
+            get_user_profile,
+            get_conversation_history, 
+            search_knowledge_base,
+            get_system_status,
+            FileSearchTool(vector_store_ids=["docs_store"]),
+            WebSearchTool()
+        ]
+    )
+    
+    # Run with comprehensive context
+    result = await Runner.run(
+        agent,
+        context_mgr.build_input_with_context(
+            "I need help setting up automated lead qualification for my sales team"
+        )
+    )
+    
+    return result
+
+# Usage
+result = await comprehensive_context_example()
+print(result.final_output)
+```
+
+## Context Strategy Guidelines
+
+### When to Use Each Approach
+
+1. **Agent Instructions**: For stable, always-relevant information
+2. **Input Messages**: For request-specific context and conversation history  
+3. **Function Tools**: For on-demand, dynamic context that might not always be needed
+4. **Retrieval/Search**: For grounding responses in large knowledge bases or current information
+
+### Performance Considerations
+- Monitor token usage with large context
+- Cache frequently accessed context data
+- Use function tools for expensive context operations
+- Implement context prioritization for token limits
+
+### Security Considerations  
+- Never include sensitive data in context
+- Validate and sanitize all context inputs
+- Implement access controls for context retrieval tools
+- Log context access for audit purposes
+
