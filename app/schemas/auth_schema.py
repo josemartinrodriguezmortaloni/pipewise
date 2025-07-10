@@ -84,9 +84,6 @@ class UserLoginResponse(BaseModel):
     user: "UserProfile"
     requires_2fa: bool = False
 
-    class Config:
-        from_attributes = True
-
 
 # ===================== ESQUEMAS DE 2FA =====================
 
@@ -182,8 +179,6 @@ class UserProfile(BaseModel):
     has_2fa: bool
     created_at: datetime
     last_login: Optional[datetime] = None
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdateRequest(BaseModel):

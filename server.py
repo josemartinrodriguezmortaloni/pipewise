@@ -41,6 +41,14 @@ from supabase import create_client, Client
 import pyotp
 import qrcode
 
+# Import application models and schemas
+from app.models.lead import Lead as AppLead
+from app.schemas.lead_schema import (
+    LeadCreate as AppLeadCreate,
+    LeadUpdate as AppLeadUpdate,
+    LeadResponse,
+)
+
 # Cargar variables de entorno
 load_dotenv()
 
@@ -258,7 +266,7 @@ class LeadAnalytics(BaseModel):
     total_leads: int
     leads_by_status: Dict[str, int]
     leads_by_source: Dict[str, int]
-    recent_leads: List[Lead]
+    recent_leads: List[LeadResponse]
     conversion_rate: float
     average_value: float
 
@@ -1061,7 +1069,15 @@ app.include_router(auth_router, prefix="/api")
 # ===================== RUTAS PARA LEADS =====================
 
 
-@app.get("/api/leads", response_model=LeadsList)
+class LeadsListResponse(BaseModel):
+    items: List[LeadResponse]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int
+
+
+@app.get("/api/leads", response_model=LeadsListResponse)
 async def get_leads(
     request: Request,
     page: int = Query(1, ge=1),
@@ -1119,10 +1135,12 @@ async def get_leads(
         )
 
 
-@app.post("/api/leads", status_code=status.HTTP_201_CREATED, response_model=Lead)
+@app.post(
+    "/api/leads", status_code=status.HTTP_201_CREATED, response_model=LeadResponse
+)
 async def create_lead(
     request: Request,
-    lead_data: LeadCreate,
+    lead_data: AppLeadCreate,
     current_user: dict = Depends(get_current_user),
 ):
     """Crear un nuevo lead"""
@@ -1147,7 +1165,7 @@ async def create_lead(
                 detail="Error al crear el lead",
             )
 
-        return Lead(**response.data[0])
+        return LeadResponse(**response.data[0])
 
     except Exception as e:
         logger.error(f"Error al crear lead: {e}")
@@ -1157,7 +1175,7 @@ async def create_lead(
         )
 
 
-@app.get("/api/leads/{lead_id}", response_model=Lead)
+@app.get("/api/leads/{lead_id}", response_model=LeadResponse)
 async def get_lead(
     request: Request,
     lead_id: str,
@@ -1183,7 +1201,7 @@ async def get_lead(
                 detail="Lead no encontrado",
             )
 
-        return Lead(**response.data[0])
+        return LeadResponse(**response.data[0])
 
     except HTTPException:
         raise
@@ -1195,11 +1213,11 @@ async def get_lead(
         )
 
 
-@app.put("/api/leads/{lead_id}", response_model=Lead)
+@app.put("/api/leads/{lead_id}", response_model=LeadResponse)
 async def update_lead(
     request: Request,
     lead_id: str,
-    lead_data: LeadUpdate,
+    lead_data: AppLeadUpdate,
     current_user: dict = Depends(get_current_user),
 ):
     """Actualizar un lead"""
@@ -1236,7 +1254,7 @@ async def update_lead(
             .execute()
         )
 
-        return Lead(**response.data[0])
+        return LeadResponse(**response.data[0])
 
     except HTTPException:
         raise
@@ -1350,13 +1368,13 @@ async def get_lead_analytics(
             .limit(5)
             .execute()
         )
-        recent_leads = [Lead(**lead) for lead in recent_leads_response.data]
+        recent_leads = [LeadResponse(**lead) for lead in recent_leads_response.data]
 
         # Get all leads for aggregation (we need this for status/source counts)
         # In a production environment, you might want to use database views or functions
         leads_response = (
             client.table("leads")
-            .select("status, source, value")
+            .select("status, source")
             .eq("user_id", user_id)
             .gte("created_at", start_date_str)
             .execute()
@@ -1368,8 +1386,6 @@ async def get_lead_analytics(
         leads_by_status = {}
         leads_by_source = {}
         closed_count = 0
-        value_sum = 0
-        value_count = 0
 
         for lead in leads:
             # Count by status
@@ -1385,15 +1401,9 @@ async def get_lead_analytics(
             if source:
                 leads_by_source[source] = leads_by_source.get(source, 0) + 1
 
-            # Sum values for average
-            value = lead.get("value")
-            if value is not None:
-                value_sum += value
-                value_count += 1
-
         # Calculate metrics
         conversion_rate = (closed_count / total_leads) * 100 if total_leads > 0 else 0
-        average_value = value_sum / value_count if value_count > 0 else 0
+        average_value = 0  # No value column in current schema
 
         return LeadAnalytics(
             total_leads=total_leads,
@@ -1576,6 +1586,75 @@ try:
     logger.info("User configuration router loaded successfully")
 except ImportError as e:
     logger.warning(f"Could not load user configuration router: {e}")
+
+# ===================== ENDPOINTS DE WORKFLOW =====================
+
+
+@app.get("/api/test-connection")
+async def test_connection():
+    """
+    Endpoint simple para probar la conectividad frontend-backend.
+    """
+    return {
+        "status": "success",
+        "message": "Backend connection is working",
+        "timestamp": datetime.now().isoformat(),
+        "server": "PipeWise Backend",
+    }
+
+
+@app.post("/api/process-lead-workflow")
+async def process_lead_workflow_endpoint(
+    lead_data: dict, current_user: dict = Depends(get_current_user)
+):
+    """
+    Endpoint REAL para procesar workflows de leads desde el frontend.
+    Utiliza el sistema de agentes ModernLeadProcessor para procesar workflows reales.
+    """
+    try:
+        # Obtener el user_id del usuario autenticado
+        user_id = current_user["id"]
+
+        logger.info(f"🚀 Processing REAL workflow request for user: {user_id}")
+        logger.info(f"📋 Lead data received: {lead_data}")
+
+        # Importar las clases necesarias
+        from app.ai_agents.agents import ModernLeadProcessor, TenantContext
+
+        # Crear contexto de tenant real con el user_id del usuario autenticado
+        tenant_context = TenantContext(
+            tenant_id="default",
+            user_id=user_id,  # Use authenticated user's ID
+            is_premium=True,
+            api_limits={"calls_per_hour": 1000},
+            features_enabled=["lead_processing", "workflow_tracking", "ai_agents"],
+        )
+
+        # Inicializar el procesador moderno REAL
+        processor = ModernLeadProcessor(tenant_context)
+
+        # Procesar el workflow REAL con agentes AI
+        result = await processor.process_lead_workflow(lead_data)
+
+        logger.info(
+            f"✅ REAL Workflow processed successfully for user {user_id}: {result['status']}"
+        )
+
+        return {
+            "success": True,
+            "data": result,
+            "message": "Real workflow processed successfully with AI agents",
+            "workflow_type": "REAL_AI_WORKFLOW",
+            "user_id": user_id,
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Error in REAL workflow endpoint: {e}")
+        import traceback
+
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Real workflow error: {str(e)}")
+
 
 # ===================== RUTAS PARA DESARROLLO =====================
 

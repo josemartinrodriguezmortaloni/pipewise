@@ -1,3 +1,4 @@
+
 # PipeWise Project Directory Structure
 
 PipeWise es una aplicación full-stack de CRM con AI agents para calificación automática de leads y programación de reuniones.
@@ -9,9 +10,19 @@ pipewise/
 ├── app/                    # Backend FastAPI con Python
 ├── frontend/               # Frontend Next.js 15 con TypeScript
 ├── docs/                   # Documentación del proyecto
+├── .github/               # GitHub Actions workflows
 ├── .cursor/               # Configuración de Cursor IDE
+├── .venv/                 # Virtual environment Python
 ├── pyproject.toml         # Configuración Python/UV
 ├── uv.lock               # Lock file de dependencias
+├── pytest.ini            # Configuración de pytest
+├── server.py             # Script principal del servidor
+├── package.json          # Configuración Node.js raíz
+├── package-lock.json     # Lock file Node.js raíz
+├── .gitignore            # Patrones ignore Git
+├── .python-version       # Versión Python especificada
+├── app.log              # Log file aplicación
+├── pipewise.log         # Log file principal
 └── README.md             # Documentación principal
 ```
 
@@ -28,55 +39,98 @@ pipewise/
 
 ```
 app/
+├── [__init__.py](mdc:app/__init__.py)              # Init del módulo app
 ├── [api/](mdc:app/api/)                    # FastAPI endpoints y API logic
+│   ├── [__init__.py](mdc:app/api/__init__.py)
 │   ├── [main.py](mdc:app/api/main.py)                # Aplicación principal con todos los routers
 │   ├── [auth.py](mdc:app/api/auth.py)                # Endpoints de autenticación y 2FA
 │   ├── [integrations.py](mdc:app/api/integrations.py)        # Gestión de integraciones (Calendly, etc.)
 │   ├── [oauth_router.py](mdc:app/api/oauth_router.py)        # Rutas OAuth para servicios externos
 │   ├── [oauth_handler.py](mdc:app/api/oauth_handler.py)      # Lógica de OAuth flows
+│   ├── [oauth_integration_manager.py](mdc:app/api/oauth_integration_manager.py)  # Gestión centralizada de integraciones OAuth
 │   ├── [agent_config.py](mdc:app/api/agent_config.py)        # Configuración de AI agents
 │   ├── [calendar.py](mdc:app/api/calendar.py)               # Integración de calendario
 │   ├── [search.py](mdc:app/api/search.py)                  # Búsqueda y exportación
 │   ├── [webhooks.py](mdc:app/api/webhooks.py)              # Webhooks y notificaciones
 │   ├── [events.py](mdc:app/api/events.py)                  # WebSocket events
 │   ├── [config.py](mdc:app/api/config.py)                  # Configuración frontend
-│   └── [user_config_router.py](mdc:app/api/user_config_router.py) # Config de usuario
-├── [agents/](mdc:app/agents/)              # Sistema de AI agents (OpenAI SDK)
-│   ├── [agents.py](mdc:app/agents/agents.py)               # Agentes principales (Coordinator, Lead Qualifier, Meeting Scheduler)
-│   ├── [callbacks/](mdc:app/agents/callbacks/)             # Callbacks para handoffs entre agentes
-│   ├── [memory/](mdc:app/agents/memory/)                   # Sistema de memoria dual (volatile + persistent)
-│   ├── [prompts/](mdc:app/agents/prompts/)                 # Prompts para agentes en archivos .md
-│   └── [tools/](mdc:app/agents/tools/)                     # Herramientas (Gmail, Google Calendar, Twitter, etc.)
+│   ├── [user_config_router.py](mdc:app/api/user_config_router.py) # Config de usuario
+│   ├── [leads_router.py](mdc:app/api/leads_router.py)       # Endpoints de gestión de leads
+│   └── [api.py](mdc:app/api/api.py)                        # Utilidades API compartidas
+├── [ai_agents/](mdc:app/ai_agents/)        # Sistema de AI agents (OpenAI SDK)
+│   ├── [__init__.py](mdc:app/ai_agents/__init__.py)
+│   ├── [agents.py](mdc:app/ai_agents/agents.py)            # Agentes principales (Coordinator, Lead Administrator, Meeting Scheduler)
+│   ├── [callbacks/](mdc:app/ai_agents/callbacks/)          # Callbacks para handoffs entre agentes
+│   │   ├── [__init__.py](mdc:app/ai_agents/callbacks/__init__.py)
+│   │   └── [handoff.py](mdc:app/ai_agents/callbacks/handoff.py)   # Gestión de handoffs entre agentes
+│   ├── [memory/](mdc:app/ai_agents/memory/)                # Sistema de memoria dual (volatile + persistent)
+│   │   ├── [__init__.py](mdc:app/ai_agents/memory/__init__.py)
+│   │   ├── [base.py](mdc:app/ai_agents/memory/base.py)            # Clase base de memoria
+│   │   ├── [handoff.py](mdc:app/ai_agents/memory/handoff.py)      # Gestión de memoria en handoffs
+│   │   ├── [in_memory.py](mdc:app/ai_agents/memory/in_memory.py)  # Implementación en memoria
+│   │   └── [supabase.py](mdc:app/ai_agents/memory/supabase.py)    # Implementación con Supabase
+│   ├── [prompts/](mdc:app/ai_agents/prompts/)              # Prompts para agentes en archivos .md
+│   │   ├── [coordinatorPrompt.md](mdc:app/ai_agents/prompts/coordinatorPrompt.md)
+│   │   ├── [leadAdministratorPrompt.md](mdc:app/ai_agents/prompts/leadAdministratorPrompt.md)
+│   │   └── [meetingSchedulerPrompt.md](mdc:app/ai_agents/prompts/meetingSchedulerPrompt.md)
+│   └── [tools/](mdc:app/ai_agents/tools/)                  # Herramientas para agentes
+│       ├── [__init__.py](mdc:app/ai_agents/tools/__init__.py)
+│       ├── [gmail.py](mdc:app/ai_agents/tools/gmail.py)              # Integración Gmail
+│       ├── [google_calendar.py](mdc:app/ai_agents/tools/google_calendar.py)  # Integración Google Calendar
+│       ├── [twitter.py](mdc:app/ai_agents/tools/twitter.py)          # Integración Twitter/X
+│       └── [pipedream_mcp.py](mdc:app/ai_agents/tools/pipedream_mcp.py)     # Integración Pipedream MCP
 ├── [auth/](mdc:app/auth/)                  # Sistema de autenticación
-│   ├── [auth_client.py](mdc:app/auth/auth_client.py)        # Cliente principal de autenticación
-│   ├── [middleware.py](mdc:app/auth/middleware.py)          # Middleware de auth y permisos
-│   ├── [supabase_auth_client.py](mdc:app/auth/supabase_auth_client.py) # Cliente Supabase auth
-│   ├── [redis_client.py](mdc:app/auth/redis_client.py)      # Cliente Redis para cache
+│   ├── [auth_client.py](mdc:app/auth/auth_client.py)        # Cliente principal de autenticación (40KB)
+│   ├── [middleware.py](mdc:app/auth/middleware.py)          # Middleware de auth y permisos (13KB)
+│   ├── [supabase_auth_client.py](mdc:app/auth/supabase_auth_client.py) # Cliente Supabase auth (22KB)
+│   ├── [redis_client.py](mdc:app/auth/redis_client.py)      # Cliente Redis para cache (22KB)
 │   └── [utils.py](mdc:app/auth/utils.py)                   # Utilidades de auth
 ├── [core/](mdc:app/core/)                  # Configuración y componentes centrales
-│   ├── [config.py](mdc:app/core/config.py)                 # Configuración de la aplicación
-│   ├── [dependencies.py](mdc:app/core/dependencies.py)     # Dependency injection
-│   ├── [middleware.py](mdc:app/core/middleware.py)         # Middleware de aplicación
-│   ├── [oauth_config.py](mdc:app/core/oauth_config.py)     # Configuración OAuth services
-│   └── [security.py](mdc:app/core/security.py)             # Encriptación y seguridad
+│   ├── [config.py](mdc:app/core/config.py)                 # Configuración de la aplicación (14KB)
+│   ├── [dependencies.py](mdc:app/core/dependencies.py)     # Dependency injection (8KB)
+│   ├── [middleware.py](mdc:app/core/middleware.py)         # Middleware de aplicación (13KB)
+│   ├── [oauth_config.py](mdc:app/core/oauth_config.py)     # Configuración OAuth services (9KB)
+│   └── [security.py](mdc:app/core/security.py)             # Encriptación y seguridad (6KB)
 ├── [models/](mdc:app/models/)              # Modelos de datos (Pydantic)
-│   ├── [user.py](mdc:app/models/user.py)                   # Modelos de usuario y sesiones
+│   ├── [__init__.py](mdc:app/models/__init__.py)
+│   ├── [user.py](mdc:app/models/user.py)                   # Modelos de usuario y sesiones (6.9KB)
 │   ├── [lead.py](mdc:app/models/lead.py)                   # Modelo de leads
 │   ├── [conversation.py](mdc:app/models/conversation.py)   # Modelo de conversaciones
 │   ├── [message.py](mdc:app/models/message.py)             # Modelo de mensajes
-│   ├── [tenant.py](mdc:app/models/tenant.py)               # Modelo de tenants (multi-tenancy)
+│   ├── [tenant.py](mdc:app/models/tenant.py)               # Modelo de tenants (multi-tenancy) (6KB)
 │   └── [agent_config.py](mdc:app/models/agent_config.py)   # Modelos de configuración de agentes
 ├── [schemas/](mdc:app/schemas/)            # Esquemas Pydantic para validación
-│   ├── [auth_schema.py](mdc:app/schemas/auth_schema.py)     # Esquemas de autenticación
+│   ├── [__init__.py](mdc:app/schemas/__init__.py)
+│   ├── [auth_schema.py](mdc:app/schemas/auth_schema.py)     # Esquemas de autenticación (9.4KB)
 │   ├── [lead_schema.py](mdc:app/schemas/lead_schema.py)     # Esquemas de leads
-│   ├── [agent_schema.py](mdc:app/schemas/agent_schema.py)   # Esquemas de agentes
-│   ├── [crm_schema.py](mdc:app/schemas/crm_schema.py)       # Esquemas CRM generales
-│   └── [contacts_schema.py](mdc:app/schemas/contacts_schema.py) # Esquemas de contactos
+│   ├── [agent_schema.py](mdc:app/schemas/agent_schema.py)   # Esquemas de agentes (13KB)
+│   ├── [crm_schema.py](mdc:app/schemas/crm_schema.py)       # Esquemas CRM generales (14KB)
+│   ├── [contacts_schema.py](mdc:app/schemas/contacts_schema.py) # Esquemas de contactos (8KB)
+│   ├── [conversations_schema.py](mdc:app/schemas/conversations_schema.py) # Esquemas de conversaciones
+│   └── [messsage_schema.py](mdc:app/schemas/messsage_schema.py) # Esquemas de mensajes
 ├── [supabase/](mdc:app/supabase/)          # Cliente Supabase para database
+│   ├── [__init__.py](mdc:app/supabase/__init__.py)
 │   └── [supabase_client.py](mdc:app/supabase/supabase_client.py) # Cliente CRM Supabase
+├── [services/](mdc:app/services/)          # Servicios de negocio (vacío - reservado para futuro)
 └── [scripts/](mdc:app/scripts/)            # Scripts de setup y utilidades
-    ├── [setup_agent_memories.py](mdc:app/scripts/setup_agent_memories.py) # Setup memoria agentes
-    └── [setup_contacts_database.py](mdc:app/scripts/setup_contacts_database.py) # Setup BD contactos
+    ├── [setup_agent_memories.py](mdc:app/scripts/setup_agent_memories.py) # Setup memoria agentes (17KB)
+    ├── [setup_contacts_database.py](mdc:app/scripts/setup_contacts_database.py) # Setup BD contactos
+    ├── [setup_mcp.py](mdc:app/scripts/setup_mcp.py)         # Setup MCP (9.8KB)
+    ├── [test_twitter_mcp.py](mdc:app/scripts/test_twitter_mcp.py) # Test Twitter MCP (7.9KB)
+    ├── [migrate_redis_to_supabase.py](mdc:app/scripts/migrate_redis_to_supabase.py) # Migración Redis a Supabase
+    ├── [optimize_database.py](mdc:app/scripts/optimize_database.py) # Optimización de base de datos (11KB)
+    ├── [cleanup_unused_code.py](mdc:app/scripts/cleanup_unused_code.py) # Limpieza de código no usado
+    ├── [fix_agent_memories_table.py](mdc:app/scripts/fix_agent_memories_table.py) # Fix tabla memorias
+    └── SQL Scripts:
+        ├── [create_auth_tables.sql](mdc:app/scripts/create_auth_tables.sql) # Creación tablas auth (6KB)
+        ├── [fix_database_schema.sql](mdc:app/scripts/fix_database_schema.sql) # Fix schema BD
+        ├── [fix_contacts_table_structure.sql](mdc:app/scripts/fix_contacts_table_structure.sql) # Fix estructura contactos
+        ├── [fix_contacts_rls_policies.sql](mdc:app/scripts/fix_contacts_rls_policies.sql) # Fix RLS contactos
+        ├── [fix_users_rls_policies.sql](mdc:app/scripts/fix_users_rls_policies.sql) # Fix RLS usuarios
+        ├── [fix_agent_memories_rls.sql](mdc:app/scripts/fix_agent_memories_rls.sql) # Fix RLS memorias
+        ├── [optimize_database_tables.sql](mdc:app/scripts/optimize_database_tables.sql) # Optimización tablas
+        ├── [cleanup_unused_tables.sql](mdc:app/scripts/cleanup_unused_tables.sql) # Limpieza tablas
+        └── [final_database_fixes.sql](mdc:app/scripts/final_database_fixes.sql) # Fixes finales BD
 ```
 
 ## Frontend Application ([frontend/](mdc:frontend/))
@@ -93,38 +147,192 @@ app/
 ```
 frontend/
 ├── [app/](mdc:frontend/app/)                    # Next.js App Router (páginas)
-│   ├── [layout.tsx](mdc:frontend/app/layout.tsx)            # Layout principal con providers
+│   ├── [layout.tsx](mdc:frontend/app/layout.tsx)            # Layout principal con providers (4.2KB)
 │   ├── [page.tsx](mdc:frontend/app/page.tsx)               # Página home/landing
-│   ├── [globals.css](mdc:frontend/app/globals.css)         # Estilos globales y Tailwind
+│   ├── [globals.css](mdc:frontend/app/globals.css)         # Estilos globales y Tailwind (6KB)
+│   ├── [api/](mdc:frontend/app/api/)                       # API Routes Next.js
+│   │   └── [chat/](mdc:frontend/app/api/chat/)
+│   │       └── [route.ts](mdc:frontend/app/api/chat/route.ts)  # API route para chat con AI agents
 │   ├── [auth/](mdc:frontend/app/auth/)                     # Páginas de autenticación
+│   │   └── [callback/](mdc:frontend/app/auth/callback/)
+│   │       └── [page.tsx](mdc:frontend/app/auth/callback/page.tsx)  # Callback OAuth (5.8KB)
 │   ├── [dashboard/](mdc:frontend/app/dashboard/)           # Dashboard principal
+│   │   ├── [layout.tsx](mdc:frontend/app/dashboard/layout.tsx)
+│   │   ├── [page.tsx](mdc:frontend/app/dashboard/page.tsx)
+│   │   ├── [page-server.tsx](mdc:frontend/app/dashboard/page-server.tsx) # Server Component (4.1KB)
+│   │   ├── [loading.tsx](mdc:frontend/app/dashboard/loading.tsx) # Loading UI (3KB)
+│   │   └── [error.tsx](mdc:frontend/app/dashboard/error.tsx) # Error boundary (3.6KB)
 │   ├── [leads/](mdc:frontend/app/leads/)                   # Gestión de leads
+│   │   ├── [layout.tsx](mdc:frontend/app/leads/layout.tsx) # Layout leads (2.5KB)
+│   │   └── [page.tsx](mdc:frontend/app/leads/page.tsx)
+│   ├── [contacted/](mdc:frontend/app/contacted/)           # Vista leads contactados
+│   │   └── [page.tsx](mdc:frontend/app/contacted/page.tsx)
 │   ├── [calendar/](mdc:frontend/app/calendar/)             # Integración calendario
+│   │   ├── [layout.tsx](mdc:frontend/app/calendar/layout.tsx)
+│   │   └── [page.tsx](mdc:frontend/app/calendar/page.tsx)
+│   ├── [chat/](mdc:frontend/app/chat/)                     # Chat con AI agents
+│   │   ├── [layout.tsx](mdc:frontend/app/chat/layout.tsx)
+│   │   └── [page.tsx](mdc:frontend/app/chat/page.tsx)
 │   ├── [integrations/](mdc:frontend/app/integrations/)     # Configuración integraciones
+│   │   └── [page.tsx](mdc:frontend/app/integrations/page.tsx)
 │   ├── [settings/](mdc:frontend/app/settings/)             # Configuración usuario
-│   └── [contacted/](mdc:frontend/app/contacted/)           # Vista leads contactados
+│   │   ├── [layout.tsx](mdc:frontend/app/settings/layout.tsx)
+│   │   └── [page.tsx](mdc:frontend/app/settings/page.tsx)
+│   ├── [login/](mdc:frontend/app/login/)                   # Página de login
+│   │   └── [page.tsx](mdc:frontend/app/login/page.tsx)
+│   └── [signup/](mdc:frontend/app/signup/)                 # Página de registro
+│       └── [page.tsx](mdc:frontend/app/signup/page.tsx)
 ├── [components/](mdc:frontend/components/)  # Componentes React reutilizables
-│   ├── [ui/](mdc:frontend/components/ui/)                  # Componentes UI base (Shadcn/UI)
-│   ├── [app-sidebar.tsx](mdc:frontend/components/app-sidebar.tsx)           # Sidebar principal
-│   ├── [data-table.tsx](mdc:frontend/components/data-table.tsx)             # Tabla de datos avanzada
-│   ├── [integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx) # Config integraciones
-│   ├── [agent-settings.tsx](mdc:frontend/components/agent-settings.tsx)     # Config agentes AI
-│   ├── [login-form.tsx](mdc:frontend/components/login-form.tsx)             # Formulario login
-│   └── [protected-route.tsx](mdc:frontend/components/protected-route.tsx)   # Protección rutas
+│   ├── [ui/](mdc:frontend/components/ui/)                  # Componentes UI base (Shadcn/UI - 34 archivos)
+│   │   ├── [agent-plan.tsx](mdc:frontend/components/ui/agent-plan.tsx) # Plan agente UI (24KB)
+│   │   ├── [chat-bubble.tsx](mdc:frontend/components/ui/chat-bubble.tsx) # Burbuja mensaje chat
+│   │   ├── [workflow-sidebar.tsx](mdc:frontend/components/ui/workflow-sidebar.tsx) # Sidebar workflow AI (8.5KB)
+│   │   ├── [prompt-box.tsx](mdc:frontend/components/ui/prompt-box.tsx) # Caja entrada prompts (15KB)
+│   │   ├── [prompt-box-icons.tsx](mdc:frontend/components/ui/prompt-box-icons.tsx) # Iconos prompt box (8.7KB)
+│   │   ├── [sidebar.tsx](mdc:frontend/components/ui/sidebar.tsx) # Sidebar primitivo (21KB)
+│   │   ├── [chart.tsx](mdc:frontend/components/ui/chart.tsx) # Utilidades gráficos (9.9KB)
+│   │   ├── [dropdown-menu.tsx](mdc:frontend/components/ui/dropdown-menu.tsx) # Dropdown menu (8.3KB)
+│   │   ├── [select.tsx](mdc:frontend/components/ui/select.tsx) # Select dropdown (6.3KB)
+│   │   ├── [sheet.tsx](mdc:frontend/components/ui/sheet.tsx) # Panel slide-over (4.1KB)
+│   │   ├── [drawer.tsx](mdc:frontend/components/ui/drawer.tsx) # Drawer mobile (4.3KB)
+│   │   ├── [dialog.tsx](mdc:frontend/components/ui/dialog.tsx) # Modal dialog (3.9KB)
+│   │   ├── [table.tsx](mdc:frontend/components/ui/table.tsx) # Primitivos tabla (2.5KB)
+│   │   ├── [breadcrumb.tsx](mdc:frontend/components/ui/breadcrumb.tsx) # Navegación breadcrumb (2.4KB)
+│   │   ├── [toggle-group.tsx](mdc:frontend/components/ui/toggle-group.tsx) # Toggle group (2KB)
+│   │   ├── [tabs.tsx](mdc:frontend/components/ui/tabs.tsx) # Navegación tabs (2KB)
+│   │   ├── [card.tsx](mdc:frontend/components/ui/card.tsx) # Contenedor tarjeta (2KB)
+│   │   ├── [tooltip.tsx](mdc:frontend/components/ui/tooltip.tsx) # Tooltip (1.9KB)
+│   │   ├── [button.tsx](mdc:frontend/components/ui/button.tsx) # Botón con variantes (1.8KB)
+│   │   ├── [text-shimmer.tsx](mdc:frontend/components/ui/text-shimmer.tsx) # Efecto shimmer (1.7KB)
+│   │   ├── [toggle.tsx](mdc:frontend/components/ui/toggle.tsx) # Toggle button (1.6KB)
+│   │   ├── [badge.tsx](mdc:frontend/components/ui/badge.tsx) # Badge/tag (1.6KB)
+│   │   ├── [scroll-area.tsx](mdc:frontend/components/ui/scroll-area.tsx) # Área scroll (1.6KB)
+│   │   ├── [avatar.tsx](mdc:frontend/components/ui/avatar.tsx) # Avatar usuario (1.4KB)
+│   │   ├── [checkbox.tsx](mdc:frontend/components/ui/checkbox.tsx) # Checkbox (1.2KB)
+│   │   ├── [message-loading.tsx](mdc:frontend/components/ui/message-loading.tsx) # Loading mensaje (1.2KB)
+│   │   ├── [input.tsx](mdc:frontend/components/ui/input.tsx) # Campo input (1KB)
+│   │   ├── [textarea.tsx](mdc:frontend/components/ui/textarea.tsx) # Textarea (777B)
+│   │   ├── [progress.tsx](mdc:frontend/components/ui/progress.tsx) # Barra progreso (740B)
+│   │   ├── [separator.tsx](mdc:frontend/components/ui/separator.tsx) # Separador visual (727B)
+│   │   ├── [label.tsx](mdc:frontend/components/ui/label.tsx) # Label formulario (635B)
+│   │   ├── [sonner.tsx](mdc:frontend/components/ui/sonner.tsx) # Toast notifications (589B)
+│   │   └── [skeleton.tsx](mdc:frontend/components/ui/skeleton.tsx) # Skeleton loading (289B)
+│   ├── [chat/](mdc:frontend/components/chat/)              # Componentes de chat
+│   │   └── [page.tsx](mdc:frontend/components/chat/page.tsx)
+│   ├── [signup-form.tsx](mdc:frontend/components/signup-form.tsx) # Formulario registro (11KB)
+│   ├── [login-form.tsx](mdc:frontend/components/login-form.tsx) # Formulario login (8.8KB)
+│   ├── [calendar-view.tsx](mdc:frontend/components/calendar-view.tsx) # Vista calendario (7.1KB)
+│   ├── [data-table.tsx](mdc:frontend/components/data-table.tsx) # Tabla datos avanzada (6.7KB)
+│   ├── [oauth-integration-card.tsx](mdc:frontend/components/oauth-integration-card.tsx) # Tarjeta OAuth (6.8KB)
+│   ├── [chart-area-interactive.tsx](mdc:frontend/components/chart-area-interactive.tsx) # Gráficos interactivos (6.5KB)
+│   ├── [integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx) # Config integraciones (5.5KB)
+│   ├── [nav-user.tsx](mdc:frontend/components/nav-user.tsx) # Navegación usuario (5KB)
+│   ├── [app-sidebar.tsx](mdc:frontend/components/app-sidebar.tsx) # Sidebar principal (4.3KB)
+│   ├── [section-cards.tsx](mdc:frontend/components/section-cards.tsx) # Tarjetas sección (3.9KB)
+│   ├── [nav-documents.tsx](mdc:frontend/components/nav-documents.tsx) # Navegación documentos (2.5KB)
+│   ├── [nav-main.tsx](mdc:frontend/components/nav-main.tsx) # Navegación principal (1.9KB)
+│   ├── [nav-secondary.tsx](mdc:frontend/components/nav-secondary.tsx) # Navegación secundaria (1.9KB)
+│   └── [protected-route.tsx](mdc:frontend/components/protected-route.tsx) # Protección rutas (1.6KB)
 ├── [hooks/](mdc:frontend/hooks/)            # Custom React hooks
 │   ├── [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx)     # Hook autenticación
 │   ├── [use-leads.ts](mdc:frontend/hooks/use-leads.ts)     # Hook gestión leads
+│   ├── [use-lead-stats.ts](mdc:frontend/hooks/use-lead-stats.ts) # Hook estadísticas leads
+│   ├── [use-leads-analytics.ts](mdc:frontend/hooks/use-leads-analytics.ts) # Hook analytics leads
 │   ├── [use-api.ts](mdc:frontend/hooks/use-api.ts)         # Hook interacción API
 │   └── [use-mobile.ts](mdc:frontend/hooks/use-mobile.ts)   # Hook detección mobile
 ├── [lib/](mdc:frontend/lib/)                # Librerías y utilidades
-│   ├── [supabase.ts](mdc:frontend/lib/supabase.ts)         # Cliente Supabase
-│   ├── [auth.ts](mdc:frontend/lib/auth.ts)                 # Utilidades auth
+│   ├── [ai/](mdc:frontend/lib/ai/)                         # Utilidades AI
+│   │   └── [tools/](mdc:frontend/lib/ai/tools/)
+│   │       └── [workflow.ts](mdc:frontend/lib/ai/tools/workflow.ts) # Herramientas workflow AI (8.9KB)
+│   ├── [supabase.ts](mdc:frontend/lib/supabase.ts)         # Cliente Supabase (6.6KB)
+│   ├── [auth.ts](mdc:frontend/lib/auth.ts)                 # Utilidades auth (7.4KB)
+│   ├── [integrations-config.ts](mdc:frontend/lib/integrations-config.ts) # Config integraciones (5.9KB)
+│   ├── [api.ts](mdc:frontend/lib/api.ts)                   # Cliente API (4.6KB)
 │   └── [utils.ts](mdc:frontend/lib/utils.ts)               # Utilidades generales
 ├── [public/](mdc:frontend/public/)          # Assets estáticos
-├── [package.json](mdc:frontend/package.json)               # Dependencias Node.js
-├── [next.config.ts](mdc:frontend/next.config.ts)           # Configuración Next.js
+│   ├── [favicon.ico](mdc:frontend/public/favicon.ico)
+│   ├── [manifest.json](mdc:frontend/public/manifest.json)
+│   ├── [file.svg](mdc:frontend/public/file.svg)
+│   ├── [globe.svg](mdc:frontend/public/globe.svg)
+│   ├── [next.svg](mdc:frontend/public/next.svg)
+│   ├── [placeholder.svg](mdc:frontend/public/placeholder.svg)
+│   ├── [vercel.svg](mdc:frontend/public/vercel.svg)
+│   └── [window.svg](mdc:frontend/public/window.svg)
+├── [.vscode/](mdc:frontend/.vscode/)        # Configuración VS Code
+│   └── [settings.json](mdc:frontend/.vscode/settings.json)
+├── [instrumentation.ts](mdc:frontend/instrumentation.ts)    # Instrumentación Next.js (4KB)
+├── [next.config.ts](mdc:frontend/next.config.ts)           # Configuración Next.js (2.7KB)
+├── [package.json](mdc:frontend/package.json)               # Dependencias Node.js (1.9KB)
 ├── [tsconfig.json](mdc:frontend/tsconfig.json)             # Configuración TypeScript
-└── [components.json](mdc:frontend/components.json)         # Configuración Shadcn/UI
+├── [components.json](mdc:frontend/components.json)         # Configuración Shadcn/UI
+├── [postcss.config.mjs](mdc:frontend/postcss.config.mjs)   # Configuración PostCSS
+├── [eslint.config.mjs](mdc:frontend/eslint.config.mjs)     # Configuración ESLint
+├── [next-env.d.ts](mdc:frontend/next-env.d.ts)             # Tipos TypeScript Next.js
+├── [package-lock.json](mdc:frontend/package-lock.json)     # Lock file NPM (342KB)
+├── [pnpm-lock.yaml](mdc:frontend/pnpm-lock.yaml)           # Lock file PNPM (192KB)
+├── [.gitignore](mdc:frontend/.gitignore)                   # Patrones ignore Git frontend
+└── [README.md](mdc:frontend/README.md)                     # Documentación frontend
+```
+
+## GitHub Actions ([.github/](mdc:.github/))
+
+```
+.github/
+└── [workflows/](mdc:.github/workflows/)
+    ├── [ci-cd.yml](mdc:.github/workflows/ci-cd.yml)                 # Pipeline CI/CD principal (16KB)
+    ├── [dependency-updates.yml](mdc:.github/workflows/dependency-updates.yml) # Actualizaciones dependencias (2KB)
+    └── [security-audit.yml](mdc:.github/workflows/security-audit.yml) # Auditoría de seguridad (3KB)
+```
+
+## Documentation ([docs/](mdc:docs/))
+
+```
+docs/
+├── Technical Documentation
+│   ├── [README.md](mdc:docs/README.md)                     # Documentación principal (13KB)
+│   ├── [IMPLEMENTATION_SUMMARY.md](mdc:docs/IMPLEMENTATION_SUMMARY.md) # Resumen implementación (11KB)
+│   ├── [integration_architecture.md](mdc:docs/integration_architecture.md) # Arquitectura integraciones (12KB)
+│   ├── [rules.md](mdc:docs/rules.md)                       # Reglas desarrollo (39KB)
+│   └── [improvements.md](mdc:docs/improvements.md)         # Mejoras y TODOs (54KB)
+├── Setup Guides
+│   ├── [SUPABASE_SETUP.md](mdc:docs/SUPABASE_SETUP.md)     # Configuración Supabase (6KB)
+│   ├── [INTEGRATION_SETUP.md](mdc:docs/INTEGRATION_SETUP.md) # Setup integraciones (6KB)
+│   ├── [AGENT_MEMORIES_SETUP.md](mdc:docs/AGENT_MEMORIES_SETUP.md) # Setup memorias agentes (5KB)
+│   └── [PIPEDREAM_MCP_SETUP.md](mdc:docs/PIPEDREAM_MCP_SETUP.md) # Setup Pipedream MCP (3.6KB)
+├── Integration Guides
+│   ├── [GOOGLE_INTEGRATIONS_GUIDE.md](mdc:docs/GOOGLE_INTEGRATIONS_GUIDE.md) # Guía Google (11KB)
+│   ├── [GOOGLE_OAUTH_IMPLEMENTATION.md](mdc:docs/GOOGLE_OAUTH_IMPLEMENTATION.md) # Implementación OAuth (10KB)
+│   ├── [PIPEDREAM_MCP_INTEGRATION.md](mdc:docs/PIPEDREAM_MCP_INTEGRATION.md) # Integración Pipedream (9KB)
+│   ├── [ONE_CLICK_INTEGRATIONS.md](mdc:docs/ONE_CLICK_INTEGRATIONS.md) # Integraciones un click (8.8KB)
+│   ├── [CALENDLY_INTEGRATION_GUIDE.md](mdc:docs/CALENDLY_INTEGRATION_GUIDE.md) # Guía Calendly (7.9KB)
+│   └── [GOOGLE_OAUTH_SETUP.md](mdc:docs/GOOGLE_OAUTH_SETUP.md) # Setup OAuth Google (3.6KB)
+├── System Documentation
+│   ├── [REDIS_TO_SUPABASE_MIGRATION.md](mdc:docs/REDIS_TO_SUPABASE_MIGRATION.md) # Migración Redis (8.7KB)
+│   ├── [MEMORY_HANDOFF_IMPLEMENTATION.md](mdc:docs/MEMORY_HANDOFF_IMPLEMENTATION.md) # Handoffs agentes (9.5KB)
+│   ├── [CHAT_SYSTEM.md](mdc:docs/CHAT_SYSTEM.md)           # Sistema chat (8.4KB)
+│   ├── [INTEGRATION_ENDPOINTS_SOLUTION.md](mdc:docs/INTEGRATION_ENDPOINTS_SOLUTION.md) # Endpoints (8KB)
+│   ├── [ERROR_MONITORING_SYSTEM.md](mdc:docs/ERROR_MONITORING_SYSTEM.md) # Monitoreo errores (7.7KB)
+│   └── [DATABASE_OPTIMIZATION.md](mdc:docs/DATABASE_OPTIMIZATION.md) # Optimización BD (7.6KB)
+└── Troubleshooting & Migration
+    ├── [PYDANTIC_ERROR_FIX.md](mdc:docs/PYDANTIC_ERROR_FIX.md) # Fix errores Pydantic (6.5KB)
+    ├── [TROUBLESHOOTING_GUIDE.md](mdc:docs/TROUBLESHOOTING_GUIDE.md) # Guía troubleshooting (5.4KB)
+    ├── [PIPEDREAM_CONFIGURATION.md](mdc:docs/PIPEDREAM_CONFIGURATION.md) # Config Pipedream (5KB)
+    ├── [LEADS_INTEGRATION_STATUS.md](mdc:docs/LEADS_INTEGRATION_STATUS.md) # Status leads (4KB)
+    └── [OAUTH_GOOGLE_FIX.md](mdc:docs/OAUTH_GOOGLE_FIX.md)   # Fix OAuth Google (3.9KB)
+```
+
+## Test Files & Debug Scripts (Root)
+
+```
+pipewise/
+├── [test_final_system_integration.py](mdc:test_final_system_integration.py) # Test integración sistema (9.8KB)
+├── [test_mcp_and_user_communication.py](mdc:test_mcp_and_user_communication.py) # Test comunicación MCP (7.6KB)
+├── [test_fixed_workflow_flow.py](mdc:test_fixed_workflow_flow.py) # Test workflow (7.4KB)
+├── [test_agent_workflow_ui.py](mdc:test_agent_workflow_ui.py) # Test UI workflow (7KB)
+├── [test_fixes.py](mdc:test_fixes.py)                       # Test fixes generales (6.2KB)
+├── [test_orchestrator_response.py](mdc:test_orchestrator_response.py) # Test orchestrator (5.1KB)
+├── [fix_contacts_rls.py](mdc:fix_contacts_rls.py)           # Fix RLS contactos (4.8KB)
+└── [debug_mcp.py](mdc:debug_mcp.py)                         # Debug MCP (2.1KB)
 ```
 
 ## Key Integration Points
@@ -132,17 +340,23 @@ frontend/
 ### Authentication Flow
 1. **Frontend** → [use-auth.tsx](mdc:frontend/hooks/use-auth.tsx) → **Backend** → [auth.py](mdc:app/api/auth.py)
 2. **Supabase Auth** → [supabase_auth_client.py](mdc:app/auth/supabase_auth_client.py)
-3. **OAuth Services** → [oauth_router.py](mdc:app/api/oauth_router.py) → [oauth_handler.py](mdc:app/api/oauth_handler.py)
+3. **OAuth Services** → [oauth_router.py](mdc:app/api/oauth_router.py) → [oauth_handler.py](mdc:app/api/oauth_handler.py) → [oauth_integration_manager.py](mdc:app/api/oauth_integration_manager.py)
 
 ### AI Agents Workflow
-1. **Lead Processing** → [agents.py](mdc:app/agents/agents.py) → **ModernLeadProcessor**
-2. **Agent Communication** → [callbacks/](mdc:app/agents/callbacks/) → **Handoff System**
-3. **Memory Management** → [memory/](mdc:app/agents/memory/) → **Dual Memory System**
+1. **Lead Processing** → [agents.py](mdc:app/ai_agents/agents.py) → **ModernLeadProcessor**
+2. **Agent Communication** → [callbacks/](mdc:app/ai_agents/callbacks/) → **Handoff System**
+3. **Memory Management** → [memory/](mdc:app/ai_agents/memory/) → **Dual Memory System**
+4. **Tools Integration** → [tools/](mdc:app/ai_agents/tools/) → **External Services**
 
 ### Data Flow
 1. **Frontend Components** → [hooks/](mdc:frontend/hooks/) → **API Calls**
 2. **Backend APIs** → [api/](mdc:app/api/) → **Business Logic**
 3. **Database Operations** → [supabase_client.py](mdc:app/supabase/supabase_client.py)
+
+### Chat & AI Integration
+1. **Chat Frontend** → [route.ts](mdc:frontend/app/api/chat/route.ts) → **Backend Agents**
+2. **Workflow Tools** → [workflow.ts](mdc:frontend/lib/ai/tools/workflow.ts)
+3. **UI Components** → [workflow-sidebar.tsx](mdc:frontend/components/ui/workflow-sidebar.tsx), [agent-plan.tsx](mdc:frontend/components/ui/agent-plan.tsx)
 
 ## Development Guidelines
 
@@ -161,14 +375,18 @@ frontend/
 - Implement **real-time updates** via Supabase subscriptions
 
 ### Integration Development
-- OAuth flows handled in [oauth_handler.py](mdc:app/api/oauth_handler.py)
-- External API integrations in [agents/tools/](mdc:app/agents/tools/)
+- OAuth flows handled in [oauth_handler.py](mdc:app/api/oauth_handler.py) and [oauth_integration_manager.py](mdc:app/api/oauth_integration_manager.py)
+- External API integrations in [ai_agents/tools/](mdc:app/ai_agents/tools/)
 - Frontend integration UI in [integrations-settings.tsx](mdc:frontend/components/integrations-settings.tsx)
+
+### Testing Strategy
+- System integration tests in root directory
+- Unit tests following pytest patterns
+- MCP communication testing with dedicated scripts
+- UI workflow testing for agent interactions
 
 Este proyecto sigue una arquitectura moderna con separación clara entre frontend y backend, sistema de autenticación robusto, y un sistema avanzado de AI agents para automatización de CRM.
 
 
-- **Email Services**: Automated outreach and communication
-- **Social Media**: Instagram, Twitter integration for lead generation
 - **MCP (Model Context Protocol)**: AI agent communication framework
 

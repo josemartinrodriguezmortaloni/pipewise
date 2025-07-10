@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, field_validator
 from uuid import UUID
 from typing import Optional
+from datetime import datetime
 
 
 class Lead(BaseModel):
@@ -14,10 +15,12 @@ class Lead(BaseModel):
     qualified: bool = False
     contacted: bool = False
     meeting_scheduled: bool = False
-    created_at: str | None = None
+    created_at: datetime | str | None = None
+    updated_at: datetime | str | None = None  # Campo faltante
     source: str | None = None
     status: str = "new"
     owner_id: UUID | None = None
+    user_id: UUID | None = None  # Campo faltante
     utm_params: dict | None = None
     metadata: dict | None = None
 

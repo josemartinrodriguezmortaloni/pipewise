@@ -3,7 +3,7 @@ from typing import List, Optional
 import logging
 from datetime import datetime
 
-from app.agents.agents import ModernAgents as Agents
+from app.ai_agents.agents import ModernAgents as Agents
 from app.auth.middleware import get_current_user
 from app.models.user import User
 from app.supabase.supabase_client import SupabaseCRMClient

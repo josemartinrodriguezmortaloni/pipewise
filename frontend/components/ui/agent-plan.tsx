@@ -36,6 +36,21 @@ interface Task {
   subtasks: Subtask[];
 }
 
+// Add interface for agent workflow data
+interface AgentWorkflowInfo {
+  currentAgent?: string;
+  currentStep?: string;
+  progress?: number;
+  status?: string;
+  leadData?: any;
+}
+
+interface AgentPlanProps {
+  tasks?: Task[];
+  className?: string;
+  workflowInfo?: AgentWorkflowInfo; // New prop for dynamic agent info
+}
+
 // Initial task data
 const initialTasks: Task[] = [
   {
@@ -151,12 +166,11 @@ const initialTasks: Task[] = [
   },
 ];
 
-interface AgentPlanProps {
-  tasks?: Task[];
-  className?: string;
-}
-
-export function AgentPlan({ tasks = initialTasks, className }: AgentPlanProps) {
+export function AgentPlan({
+  tasks = initialTasks,
+  className,
+  workflowInfo,
+}: AgentPlanProps) {
   const [expandedTasks, setExpandedTasks] = useState<string[]>(["1"]);
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
@@ -296,6 +310,84 @@ export function AgentPlan({ tasks = initialTasks, className }: AgentPlanProps) {
         }}
       >
         <LayoutGroup>
+          {/* Dynamic Agent Header */}
+          {workflowInfo && (
+            <motion.div
+              className="border-b border-border bg-muted/50 px-4 py-3"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <motion.div
+                    className={`h-3 w-3 rounded-full ${
+                      workflowInfo.status === "completed"
+                        ? "bg-green-500"
+                        : workflowInfo.status === "in-progress"
+                        ? "bg-blue-500"
+                        : "bg-gray-400"
+                    }`}
+                    animate={{
+                      scale:
+                        workflowInfo.status === "in-progress" ? [1, 1.2, 1] : 1,
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat:
+                        workflowInfo.status === "in-progress" ? Infinity : 0,
+                    }}
+                  />
+                  <div>
+                    <h3 className="font-semibold text-sm text-foreground">
+                      {workflowInfo.currentAgent || "AI Assistant"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {workflowInfo.currentStep || "Procesando solicitud"}
+                    </p>
+                  </div>
+                </div>
+
+                {workflowInfo.progress !== undefined && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-16 bg-muted rounded-full h-2">
+                      <motion.div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${workflowInfo.progress}%` }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${workflowInfo.progress}%` }}
+                        transition={{ duration: 0.5 }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {workflowInfo.progress}%
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Lead Context */}
+              {workflowInfo.leadData && (
+                <motion.div
+                  className="mt-2 text-xs text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {workflowInfo.leadData.twitter_username && (
+                    <span>
+                      Contactando: @{workflowInfo.leadData.twitter_username}
+                    </span>
+                  )}
+                  {workflowInfo.leadData.name &&
+                    !workflowInfo.leadData.twitter_username && (
+                      <span>Cliente: {workflowInfo.leadData.name}</span>
+                    )}
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
           <div className="p-4 overflow-hidden">
             <ul className="space-y-1 overflow-hidden">
               {tasks.map((task, index) => {

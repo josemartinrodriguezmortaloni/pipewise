@@ -1,15 +1,14 @@
 # app/models/user.py
-from pydantic import BaseModel, ConfigDict, EmailStr
-from typing import Optional, Dict, Any
-from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, Dict, List, Any
+from datetime import datetime, timezone
 from uuid import UUID
+from enum import Enum
 from app.schemas.auth_schema import UserRole, AuthProvider
 
 
 class User(BaseModel):
     """Modelo de usuario principal"""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID | None = None
     email: EmailStr
@@ -48,8 +47,6 @@ class User(BaseModel):
 class UserSession(BaseModel):
     """Modelo de sesión de usuario"""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: UUID | None = None
     user_id: UUID
     session_token: str
@@ -73,8 +70,6 @@ class UserSession(BaseModel):
 
 class AuthAuditLog(BaseModel):
     """Modelo para logs de auditoría de autenticación"""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID | None = None
     user_id: Optional[UUID] = None
@@ -100,8 +95,6 @@ class AuthAuditLog(BaseModel):
 class PasswordResetToken(BaseModel):
     """Modelo para tokens de reset de contraseña"""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: UUID | None = None
     user_id: UUID
     token: str
@@ -113,8 +106,6 @@ class PasswordResetToken(BaseModel):
 
 class EmailConfirmationToken(BaseModel):
     """Modelo para tokens de confirmación de email"""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID | None = None
     user_id: UUID
@@ -128,8 +119,6 @@ class EmailConfirmationToken(BaseModel):
 
 class UserInvitation(BaseModel):
     """Modelo para invitaciones de usuario"""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID | None = None
     email: EmailStr
@@ -155,8 +144,6 @@ class UserInvitation(BaseModel):
 class OAuth2State(BaseModel):
     """Modelo para mantener estado de OAuth2"""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: UUID | None = None
     state: str
     provider: AuthProvider
@@ -174,8 +161,6 @@ class OAuth2State(BaseModel):
 
 class UserPreferences(BaseModel):
     """Modelo para preferencias de usuario"""
-
-    model_config = ConfigDict(extra="forbid")
 
     user_id: UUID
 
@@ -207,8 +192,6 @@ class UserPreferences(BaseModel):
 class APIKey(BaseModel):
     """Modelo para API Keys de usuario"""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: UUID | None = None
     user_id: UUID
     name: str  # Nombre descriptivo del API key
@@ -238,8 +221,6 @@ class APIKey(BaseModel):
 class LoginAttempt(BaseModel):
     """Modelo para tracking de intentos de login"""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: UUID | None = None
     email: str
     ip_address: str
@@ -262,8 +243,6 @@ class LoginAttempt(BaseModel):
 
 class SecurityAlert(BaseModel):
     """Modelo para alertas de seguridad"""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID | None = None
     user_id: UUID

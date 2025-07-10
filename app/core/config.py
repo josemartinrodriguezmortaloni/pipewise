@@ -226,6 +226,58 @@ class Settings(BaseSettings):
         default=None, description="Pipedream environment"
     )
 
+    # MCP (Model Context Protocol) Configuration
+    MCP_TIMEOUT_SECONDS: int = Field(
+        default=30, description="Default timeout for MCP operations in seconds"
+    )
+    MCP_CONNECTION_TIMEOUT: int = Field(
+        default=10, description="Connection timeout for MCP servers in seconds"
+    )
+    MCP_READ_TIMEOUT: int = Field(
+        default=60, description="Read timeout for MCP operations in seconds"
+    )
+    MCP_MAX_CONNECTIONS: int = Field(
+        default=20, description="Maximum number of concurrent MCP connections"
+    )
+    MCP_CONNECTION_POOL_SIZE: int = Field(
+        default=10, description="MCP connection pool size per service"
+    )
+    MCP_MAX_RETRIES: int = Field(
+        default=3, description="Maximum number of retry attempts for MCP operations"
+    )
+    MCP_RETRY_BACKOFF_FACTOR: float = Field(
+        default=2.0, description="Exponential backoff factor for MCP retries"
+    )
+    MCP_RETRY_MAX_DELAY: int = Field(
+        default=60, description="Maximum delay between MCP retries in seconds"
+    )
+    MCP_CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = Field(
+        default=5, description="Number of failures before opening circuit breaker"
+    )
+    MCP_CIRCUIT_BREAKER_RECOVERY_TIMEOUT: int = Field(
+        default=60,
+        description="Time in seconds before attempting circuit breaker recovery",
+    )
+    MCP_HEALTH_CHECK_INTERVAL: int = Field(
+        default=300, description="MCP health check interval in seconds (5 minutes)"
+    )
+    MCP_RATE_LIMIT_PER_MINUTE: int = Field(
+        default=60, description="Rate limit for MCP operations per minute per service"
+    )
+    MCP_ENABLE_LOGGING: bool = Field(
+        default=True, description="Enable detailed logging for MCP operations"
+    )
+    MCP_LOG_LEVEL: str = Field(
+        default="INFO",
+        description="Log level for MCP operations (DEBUG, INFO, WARNING, ERROR)",
+    )
+    MCP_ENABLE_METRICS: bool = Field(
+        default=True, description="Enable metrics collection for MCP operations"
+    )
+    MCP_FALLBACK_TO_DEMO: bool = Field(
+        default=True, description="Enable fallback to demo mode when MCP services fail"
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -252,6 +304,49 @@ class Settings(BaseSettings):
         if self.is_development():
             return ["*"]
         return self.CORS_ORIGINS
+
+    def get_mcp_timeout_config(self) -> dict:
+        """Get MCP timeout configuration"""
+        return {
+            "default_timeout": self.MCP_TIMEOUT_SECONDS,
+            "connection_timeout": self.MCP_CONNECTION_TIMEOUT,
+            "read_timeout": self.MCP_READ_TIMEOUT,
+        }
+
+    def get_mcp_retry_config(self) -> dict:
+        """Get MCP retry configuration"""
+        return {
+            "max_retries": self.MCP_MAX_RETRIES,
+            "backoff_factor": self.MCP_RETRY_BACKOFF_FACTOR,
+            "max_delay": self.MCP_RETRY_MAX_DELAY,
+        }
+
+    def get_mcp_connection_config(self) -> dict:
+        """Get MCP connection configuration"""
+        return {
+            "max_connections": self.MCP_MAX_CONNECTIONS,
+            "pool_size": self.MCP_CONNECTION_POOL_SIZE,
+            "rate_limit_per_minute": self.MCP_RATE_LIMIT_PER_MINUTE,
+        }
+
+    def get_mcp_circuit_breaker_config(self) -> dict:
+        """Get MCP circuit breaker configuration"""
+        return {
+            "failure_threshold": self.MCP_CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+            "recovery_timeout": self.MCP_CIRCUIT_BREAKER_RECOVERY_TIMEOUT,
+        }
+
+    def is_mcp_logging_enabled(self) -> bool:
+        """Check if MCP logging is enabled"""
+        return self.MCP_ENABLE_LOGGING
+
+    def is_mcp_metrics_enabled(self) -> bool:
+        """Check if MCP metrics collection is enabled"""
+        return self.MCP_ENABLE_METRICS
+
+    def should_fallback_to_demo(self) -> bool:
+        """Check if MCP should fallback to demo mode on failures"""
+        return self.MCP_FALLBACK_TO_DEMO
 
 
 # Global settings instance
@@ -413,3 +508,187 @@ class SecurityConfig(BaseSettings):
     )
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+
+class MCPConfig(BaseSettings):
+    """MCP (Model Context Protocol) configuration"""
+
+    # Connection and Timeout Settings
+    mcp_timeout_seconds: int = Field(
+        default=30, description="Default timeout for MCP operations in seconds"
+    )
+    mcp_connection_timeout: int = Field(
+        default=10, description="Connection timeout for MCP servers in seconds"
+    )
+    mcp_read_timeout: int = Field(
+        default=60, description="Read timeout for MCP operations in seconds"
+    )
+    mcp_max_connections: int = Field(
+        default=20, description="Maximum number of concurrent MCP connections"
+    )
+    mcp_connection_pool_size: int = Field(
+        default=10, description="MCP connection pool size per service"
+    )
+
+    # Retry and Error Handling Settings
+    mcp_max_retries: int = Field(
+        default=3, description="Maximum number of retry attempts for MCP operations"
+    )
+    mcp_retry_backoff_factor: float = Field(
+        default=2.0, description="Exponential backoff factor for MCP retries"
+    )
+    mcp_retry_max_delay: int = Field(
+        default=60, description="Maximum delay between MCP retries in seconds"
+    )
+    mcp_retry_jitter: bool = Field(
+        default=True, description="Add random jitter to retry delays"
+    )
+
+    # Circuit Breaker Settings
+    mcp_circuit_breaker_failure_threshold: int = Field(
+        default=5, description="Number of failures before opening circuit breaker"
+    )
+    mcp_circuit_breaker_recovery_timeout: int = Field(
+        default=60,
+        description="Time in seconds before attempting circuit breaker recovery",
+    )
+    mcp_circuit_breaker_half_open_max_calls: int = Field(
+        default=3, description="Maximum calls in half-open state"
+    )
+
+    # Health Monitoring Settings
+    mcp_health_check_interval: int = Field(
+        default=300, description="MCP health check interval in seconds (5 minutes)"
+    )
+    mcp_health_check_timeout: int = Field(
+        default=10, description="Health check timeout in seconds"
+    )
+    mcp_unhealthy_threshold: int = Field(
+        default=3, description="Number of failed health checks before marking unhealthy"
+    )
+
+    # Rate Limiting Settings
+    mcp_rate_limit_per_minute: int = Field(
+        default=60, description="Rate limit for MCP operations per minute per service"
+    )
+    mcp_burst_limit: int = Field(
+        default=10, description="Burst limit for MCP operations"
+    )
+
+    # Logging and Monitoring Settings
+    mcp_enable_logging: bool = Field(
+        default=True, description="Enable detailed logging for MCP operations"
+    )
+    mcp_log_level: str = Field(
+        default="INFO",
+        description="Log level for MCP operations (DEBUG, INFO, WARNING, ERROR)",
+    )
+    mcp_enable_metrics: bool = Field(
+        default=True, description="Enable metrics collection for MCP operations"
+    )
+    mcp_metrics_namespace: str = Field(
+        default="pipewise_mcp", description="Metrics namespace for MCP operations"
+    )
+
+    # Fallback and Demo Mode Settings
+    mcp_fallback_to_demo: bool = Field(
+        default=True, description="Enable fallback to demo mode when MCP services fail"
+    )
+    mcp_demo_mode_timeout: int = Field(
+        default=5, description="Timeout for demo mode responses in seconds"
+    )
+
+    # Agent-Specific Settings
+    mcp_coordinator_services: List[str] = Field(
+        default=["sendgrid", "twitter"],
+        description="MCP services for Coordinator Agent",
+    )
+    mcp_meeting_scheduler_services: List[str] = Field(
+        default=["calendly_v2", "google_calendar"],
+        description="MCP services for Meeting Scheduler Agent",
+    )
+    mcp_lead_administrator_services: List[str] = Field(
+        default=["pipedrive", "salesforce_rest_api", "zoho_crm"],
+        description="MCP services for Lead Administrator Agent",
+    )
+
+    # OAuth Integration Settings
+    mcp_oauth_token_refresh_threshold: int = Field(
+        default=300,
+        description="Refresh OAuth tokens when expiring within this many seconds",
+    )
+    mcp_oauth_max_refresh_attempts: int = Field(
+        default=3, description="Maximum attempts to refresh OAuth tokens"
+    )
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",  # Allow extra fields from environment
+    )
+
+    def get_service_config(self, service_name: str) -> dict:
+        """Get service-specific configuration"""
+        return {
+            "timeout": self.mcp_timeout_seconds,
+            "connection_timeout": self.mcp_connection_timeout,
+            "read_timeout": self.mcp_read_timeout,
+            "max_retries": self.mcp_max_retries,
+            "backoff_factor": self.mcp_retry_backoff_factor,
+            "max_delay": self.mcp_retry_max_delay,
+            "rate_limit": self.mcp_rate_limit_per_minute,
+        }
+
+    def get_circuit_breaker_config(self) -> dict:
+        """Get circuit breaker configuration"""
+        return {
+            "failure_threshold": self.mcp_circuit_breaker_failure_threshold,
+            "recovery_timeout": self.mcp_circuit_breaker_recovery_timeout,
+            "half_open_max_calls": self.mcp_circuit_breaker_half_open_max_calls,
+        }
+
+    def get_health_check_config(self) -> dict:
+        """Get health check configuration"""
+        return {
+            "interval": self.mcp_health_check_interval,
+            "timeout": self.mcp_health_check_timeout,
+            "unhealthy_threshold": self.mcp_unhealthy_threshold,
+        }
+
+    def get_agent_services(self, agent_type: str) -> List[str]:
+        """Get MCP services for a specific agent type"""
+        agent_services = {
+            "coordinator": self.mcp_coordinator_services,
+            "meeting_scheduler": self.mcp_meeting_scheduler_services,
+            "lead_administrator": self.mcp_lead_administrator_services,
+        }
+        return agent_services.get(agent_type, [])
+
+    def is_logging_enabled(self, level: str = "INFO") -> bool:
+        """Check if logging is enabled for a specific level"""
+        if not self.mcp_enable_logging:
+            return False
+
+        log_levels = ["DEBUG", "INFO", "WARNING", "ERROR"]
+        current_level_index = log_levels.index(self.mcp_log_level)
+        check_level_index = log_levels.index(level)
+
+        return check_level_index >= current_level_index
+
+
+def get_mcp_config() -> MCPConfig:
+    """
+    Get MCP configuration instance
+    """
+    return MCPConfig()
+
+
+def get_all_configs() -> dict:
+    """
+    Get all configuration instances for easy access
+    """
+    return {
+        "main": get_settings(),
+        "mcp": get_mcp_config(),
+    }

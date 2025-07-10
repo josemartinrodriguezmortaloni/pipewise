@@ -18,7 +18,7 @@ import logging
 from typing import Dict, Any, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.agents.meeting_scheduler import MeetingSchedulerAgent
+    from app.ai_agents.meeting_scheduler import MeetingSchedulerAgent
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
@@ -26,8 +26,8 @@ from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
-# from app.agents.tools.calendly import CalendlyClient  # TEMPORARILY DISABLED - Use MCP instead
-from app.agents.tools.pipedream_mcp import PipedreamMCPClient
+# from app.ai_agents.tools.calendly import CalendlyClient  # TEMPORARILY DISABLED - Use MCP instead
+from app.ai_agents.tools.pipedream_mcp import PipedreamMCPClient
 
 
 # Temporary CalendlyClient wrapper using MCP
@@ -837,7 +837,7 @@ async def schedule_meeting_with_calendly(
             raise HTTPException(status_code=404, detail="Calendly not configured")
 
         # Import here to avoid circular imports
-        from app.agents.meeting_scheduler import MeetingSchedulerAgent
+        from app.ai_agents.meeting_scheduler import MeetingSchedulerAgent
 
         # Create agent with user's Calendly configuration
         access_token = decrypt_sensitive_data(config.get("access_token", ""))
@@ -883,11 +883,11 @@ def create_meeting_scheduler_for_user(user_id: str) -> "MeetingSchedulerAgent":
 
     if not config:
         # Return agent with no token (will use fallback mode)
-        from app.agents.meeting_scheduler import MeetingSchedulerAgent
+        from app.ai_agents.meeting_scheduler import MeetingSchedulerAgent
 
         return MeetingSchedulerAgent(calendly_token=None, user_id=user_id)
 
-    from app.agents.meeting_scheduler import MeetingSchedulerAgent
+    from app.ai_agents.meeting_scheduler import MeetingSchedulerAgent
 
     access_token = decrypt_sensitive_data(config.get("access_token", ""))
     return MeetingSchedulerAgent(calendly_token=access_token, user_id=user_id)

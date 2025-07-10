@@ -9,11 +9,16 @@ from .user import User
 from .lead import Lead
 from .conversation import Conversation
 from .message import Message
-from .agent_config import AgentPrompt, AgentConfiguration, AgentPerformanceMetrics, AgentType
+from .agent_config import (
+    AgentPrompt,
+    AgentConfiguration,
+    AgentPerformanceMetrics,
+    AgentTypeEnum,
+)
 
 __all__ = [
     "Tenant",
-    "TenantUsage", 
+    "TenantUsage",
     "TenantInvitation",
     "User",
     "Lead",
@@ -22,5 +27,5 @@ __all__ = [
     "AgentPrompt",
     "AgentConfiguration",
     "AgentPerformanceMetrics",
-    "AgentType",
+    "AgentTypeEnum",
 ]

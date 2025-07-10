@@ -3,7 +3,7 @@ Contact and outreach message schemas for PipeWise CRM.
 Defines the data models for contact management and outreach messaging.
 """
 
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from uuid import UUID
@@ -44,8 +44,6 @@ class OutreachStatus(str, Enum):
 class ContactCreate(BaseModel):
     """Schema for creating a new contact."""
 
-    model_config = ConfigDict(extra="forbid")
-
     name: str = Field(..., min_length=1, max_length=200)
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(None, max_length=20)
@@ -76,8 +74,6 @@ class ContactCreate(BaseModel):
 class ContactUpdate(BaseModel):
     """Schema for updating an existing contact."""
 
-    model_config = ConfigDict(extra="forbid")
-
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(None, max_length=20)
@@ -98,8 +94,6 @@ class ContactUpdate(BaseModel):
 
 class ContactResponse(BaseModel):
     """Schema for contact response data."""
-
-    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     name: str
@@ -131,8 +125,6 @@ class ContactResponse(BaseModel):
 class OutreachMessageCreate(BaseModel):
     """Schema for creating an outreach message."""
 
-    model_config = ConfigDict(extra="forbid")
-
     contact_id: UUID
     message_text: str = Field(..., min_length=1, max_length=10000)
     subject: Optional[str] = Field(None, max_length=200)
@@ -159,8 +151,6 @@ class OutreachMessageCreate(BaseModel):
 class OutreachMessageUpdate(BaseModel):
     """Schema for updating an outreach message."""
 
-    model_config = ConfigDict(extra="forbid")
-
     message_text: Optional[str] = Field(None, min_length=1, max_length=10000)
     subject: Optional[str] = Field(None, max_length=200)
 
@@ -179,8 +169,6 @@ class OutreachMessageUpdate(BaseModel):
 
 class OutreachMessageResponse(BaseModel):
     """Schema for outreach message response data."""
-
-    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     contact_id: UUID
@@ -213,8 +201,6 @@ class OutreachMessageResponse(BaseModel):
 class ContactListResponse(BaseModel):
     """Schema for paginated contact list response."""
 
-    model_config = ConfigDict(from_attributes=True)
-
     contacts: List[ContactResponse]
     total: int
     page: int
@@ -225,8 +211,6 @@ class ContactListResponse(BaseModel):
 
 class ContactStatsResponse(BaseModel):
     """Schema for contact statistics response."""
-
-    model_config = ConfigDict(from_attributes=True)
 
     total_contacts: int
     active_contacts: int
@@ -259,8 +243,6 @@ class ContactStatsResponse(BaseModel):
 class OutreachCampaignCreate(BaseModel):
     """Schema for creating an outreach campaign."""
 
-    model_config = ConfigDict(extra="forbid")
-
     name: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
 
@@ -291,8 +273,6 @@ class OutreachCampaignCreate(BaseModel):
 
 class OutreachCampaignResponse(BaseModel):
     """Schema for outreach campaign response data."""
-
-    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     name: str

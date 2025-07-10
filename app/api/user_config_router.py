@@ -11,7 +11,7 @@ import httpx
 # FIXED: Importar correctamente el modelo User y las dependencias de auth
 from app.auth.middleware import get_current_user
 from app.models.user import User
-from app.agents.agents import ModernAgents
+from app.ai_agents.agents import ModernAgents
 
 # FIXED: Import existing storage system from integrations.py
 from app.api.integrations import (
@@ -169,10 +169,11 @@ async def get_agent_config(user: User = Depends(get_current_user)):
         # In a real implementation, we would query from a database
         return {
             "enabled": True,
-            "lead_qualifier": {
+            "lead_generator": {  # Changed from lead_qualifier
                 "enabled": True,
-                "model": "gpt-4o",
-                "temperature": 0.7,
+                "auto_qualify": True,
+                "qualification_threshold": 75.0,
+                "handoff_to_scheduler": True,
             },
             "meeting_scheduler": {
                 "enabled": True,

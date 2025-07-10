@@ -10,13 +10,13 @@ from uuid import UUID
 from enum import Enum
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from app.models.agent_config import AgentType
 
 
 class AgentTypeEnum(str, Enum):
-    """Agent type enumeration for API."""
+    """Agent type enumeration for schemas"""
 
-    LEAD_QUALIFIER = "lead_qualifier"
+    COORDINATOR = "coordinator"
+    LEAD_GENERATOR = "lead_generator"  # Changed from LEAD_QUALIFIER
     OUTBOUND_CONTACT = "outbound_contact"
     MEETING_SCHEDULER = "meeting_scheduler"
     WHATSAPP_AGENT = "whatsapp_agent"
@@ -82,7 +82,7 @@ class AgentPromptResponse(AgentPromptBase):
     updated_at: datetime
     last_modified: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
     @field_validator("last_modified", mode="before")
     @classmethod
@@ -128,7 +128,7 @@ class AgentConfigurationResponse(AgentConfigurationBase):
     updated_at: datetime
     prompt: Optional[AgentPromptResponse] = None
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
 
 # Performance Metrics Schemas
@@ -161,7 +161,7 @@ class AgentPerformanceMetricsResponse(AgentPerformanceMetricsBase):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
 
 # Combined Response Schemas
@@ -305,7 +305,7 @@ class CoordinatorConfig(BaseModel):
     )
 
     model_config = ConfigDict(
-        extra="forbid", validate_assignment=True, str_strip_whitespace=True
+        extra="allow", validate_assignment=True, str_strip_whitespace=True
     )
 
 
@@ -365,7 +365,7 @@ class LeadQualifierConfig(BaseModel):
         default=True, description="Notify sales team of qualified leads"
     )
 
-    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+    model_config = ConfigDict(extra="allow", validate_assignment=True)
 
 
 class MeetingSchedulerConfig(BaseModel):
@@ -428,4 +428,4 @@ class MeetingSchedulerConfig(BaseModel):
         default=3, ge=1, le=10, description="Maximum auto-scheduling attempts"
     )
 
-    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+    model_config = ConfigDict(extra="allow", validate_assignment=True)

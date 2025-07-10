@@ -47,9 +47,9 @@ async def list_prompts(
         AgentPromptResponse(
             id=uuid4(),
             tenant_id=uuid4(),
-            agent_type=AgentTypeEnum.LEAD_QUALIFIER,
-            prompt_name="Default Lead Qualifier",
-            prompt_content="You are an expert lead qualification agent...",
+            agent_type=AgentTypeEnum.LEAD_GENERATOR,  # Changed from LEAD_QUALIFIER
+            prompt_name="Default Lead Generator",  # Updated name
+            prompt_content="You are an expert lead generation agent...",  # Updated content
             is_active=True,
             is_default=True,
             version=1,
@@ -99,9 +99,9 @@ async def get_prompt(prompt_id: UUID, tenant: Tenant = Depends(get_current_tenan
     return AgentPromptResponse(
         id=prompt_id,
         tenant_id=uuid4(),
-        agent_type=AgentTypeEnum.LEAD_QUALIFIER,
-        prompt_name="Lead Qualifier Prompt",
-        prompt_content="You are an expert lead qualification agent...",
+        agent_type=AgentTypeEnum.LEAD_GENERATOR,
+        prompt_name="Lead Generator Prompt",
+        prompt_content="You are an expert lead generation agent...",
         is_active=True,
         is_default=True,
         version=1,
@@ -123,7 +123,7 @@ async def update_prompt(
     return AgentPromptResponse(
         id=prompt_id,
         tenant_id=uuid4(),
-        agent_type=AgentTypeEnum.LEAD_QUALIFIER,
+        agent_type=AgentTypeEnum.LEAD_GENERATOR,
         prompt_name=updates.prompt_name or "Updated Prompt",
         prompt_content=updates.prompt_content or "Updated content...",
         is_active=updates.is_active if updates.is_active is not None else True,
@@ -158,18 +158,19 @@ async def get_agents_overview(tenant: Tenant = Depends(get_current_tenant)):
     # Mock agent configurations
     mock_agents = [
         AgentOverviewResponse(
-            id="lead_qualifier",
-            name="Lead Qualifier",
-            description="Analyzes and scores incoming leads based on your criteria",
+            id="lead_generator",  # Changed from lead_qualifier
+            name="Lead Generator",  # Changed name
+            description="Generates qualified leads from conversation data",  # Updated description
             status="active",
-            category="qualification",
-            current_prompt="You are an expert lead qualification agent for PipeWise...",
-            default_prompt="You are an expert lead qualification agent for PipeWise...",
-            last_modified="2024-01-15",
+            category="Lead Management",
+            current_prompt="Enhanced lead generation with advanced qualification criteria",  # Updated
+            default_prompt="Standard lead generation prompt",  # Updated
+            last_modified="2024-12-08",
             performance={
-                "successRate": 87,
-                "avgResponseTime": "1.2s",
-                "totalProcessed": 1247,
+                "success_rate": 92.0,
+                "total_processed": 847,
+                "avg_response_time": 850,
+                "qualification_accuracy": 88.5,
             },
         ),
         AgentOverviewResponse(

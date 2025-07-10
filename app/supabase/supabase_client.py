@@ -62,8 +62,8 @@ class SupabaseCRMClient:
     def create_lead(self, lead_data: LeadCreate) -> Lead:
         """Crear un nuevo lead"""
         try:
-            # Preparar datos para inserción
-            lead_dict = lead_data.model_dump()
+            # Usar serialize_for_json para manejar UUIDs correctamente
+            lead_dict = serialize_for_json(lead_data.model_dump())
             lead_dict["id"] = str(uuid4())
             lead_dict["created_at"] = self._get_current_timestamp()
             lead_dict["status"] = "new"
@@ -118,29 +118,53 @@ class SupabaseCRMClient:
             return None
 
     def update_lead(self, lead_id: Union[str, UUID], updates: LeadUpdate) -> Lead:
-        """Actualizar un lead"""
+        """Update lead in database with improved error handling"""
         try:
-            # Filtrar campos None y preparar datos
-            update_data = {
-                k: v for k, v in updates.model_dump().items() if v is not None
-            }
+            # Convert UUID to string if needed
+            lead_id_str = str(lead_id)
+
+            # Convert updates to dict and exclude None values
+            update_data = updates.model_dump(exclude_unset=True, exclude_none=True)
+
+            # Don't try to set updated_at manually - let the trigger handle it
+            update_data.pop("updated_at", None)
+
+            # If update_data is empty after filtering, add a dummy field to trigger the update
+            if not update_data:
+                update_data = {"status": "new"}  # Default status
+
+            logger.info(f"Updating lead {lead_id_str} with data: {update_data}")
 
             result = (
                 self.client.table("leads")
                 .update(update_data)
-                .eq("id", str(lead_id))
+                .eq("id", lead_id_str)
                 .execute()
             )
 
-            if result.data:
-                logger.info(f"Lead updated successfully: {lead_id}")
-                return Lead(**result.data[0])
-            else:
-                raise Exception(f"Lead with ID {lead_id} not found")
+            if not result.data:
+                raise ValueError(f"Lead {lead_id_str} not found or update failed")
+
+            updated_lead = Lead(**result.data[0])
+            logger.info(
+                f"Lead updated successfully: {updated_lead.id} - {updated_lead.name}"
+            )
+            return updated_lead
 
         except Exception as e:
+            logger.error(f"Error in update_lead: {e}")
+            logger.error(
+                f"Update data was: {update_data if 'update_data' in locals() else 'undefined'}"
+            )
+
+            # Try to provide helpful error context
+            if "updated_at" in str(e):
+                logger.error("Database schema issue: updated_at field not found")
+                logger.error("Please run the database schema fix script")
+
             self._handle_error("update_lead", e)
-            raise  # This ensures the function always returns or raises
+            # _handle_error raises an exception, but add explicit raise for linter
+            raise
 
     def delete_lead(self, lead_id: Union[str, UUID]) -> bool:
         """Eliminar un lead"""

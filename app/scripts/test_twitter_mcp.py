@@ -19,7 +19,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.agents.agents import (
+from app.ai_agents.agents import (
     ModernAgents,
     TenantContext,
     IncomingMessage,
@@ -27,7 +27,7 @@ from app.agents.agents import (
     create_twitter_mcp_server,
 )
 
-# from app.agents.tools.twitter import TwitterMCPServer  # TEMPORARILY DISABLED - Use MCP instead
+# from app.ai_agents.tools.twitter import TwitterMCPServer  # TEMPORARILY DISABLED - Use MCP instead
 
 
 # Temporary mock TwitterMCPServer
@@ -38,7 +38,7 @@ class TwitterMCPServer:
         pass
 
 
-from app.agents.memory import MemoryManager, InMemoryStore, SupabaseMemoryStore
+from app.ai_agents.memory import MemoryManager, InMemoryStore, SupabaseMemoryStore
 from app.supabase.supabase_client import SupabaseCRMClient
 
 # Configure logging

@@ -11,10 +11,11 @@ from typing import Dict, Any, Optional
 from uuid import UUID, uuid4
 
 
-class AgentType(str, Enum):
-    """Enumeration of available agent types."""
+class AgentTypeEnum(str, Enum):
+    """Agent type enumeration"""
 
-    LEAD_QUALIFIER = "lead_qualifier"
+    COORDINATOR = "coordinator"
+    LEAD_GENERATOR = "lead_generator"
     OUTBOUND_CONTACT = "outbound_contact"
     MEETING_SCHEDULER = "meeting_scheduler"
     WHATSAPP_AGENT = "whatsapp_agent"

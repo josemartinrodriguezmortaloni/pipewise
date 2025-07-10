@@ -143,8 +143,6 @@ class LeadResponse(BaseModel):
     updated_at: datetime
     last_activity: Optional[datetime] = None
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class LeadListResponse(BaseModel):
     """Esquema de respuesta para lista de leads"""
@@ -208,8 +206,6 @@ class OpportunityResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 # ===================== ESQUEMAS DE CONTACTOS =====================
 
@@ -267,8 +263,6 @@ class ContactResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 # ===================== ESQUEMAS DE ACTIVIDADES =====================
 
@@ -318,8 +312,6 @@ class ActivityResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     completed_at: Optional[datetime] = None
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 # ===================== ESQUEMAS DE DASHBOARD Y MÉTRICAS =====================
@@ -384,8 +376,6 @@ class ReportResponse(BaseModel):
     generated_at: datetime
     generated_by: str
     format: str = "json"
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 # ===================== ESQUEMAS DE BÚSQUEDA Y FILTROS =====================
@@ -480,8 +470,6 @@ class NotificationResponse(BaseModel):
     entity_type: Optional[str] = None
     entity_id: Optional[str] = None
     created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 # ===================== ESQUEMAS PARA INTEGRACIONES EXTERNAS =====================
